@@ -16,7 +16,8 @@ import java.util.List;
  */
 
 
-public class Unit {	
+public class Unit {	 
+	
 	 private final int id;
      private final String form;
      private final int[] positions;
@@ -26,14 +27,14 @@ public class Unit {
      private final HashMap<String,String> feats = new HashMap<String, String>();
      
      
-     private Unit shead;  //syntactic head
+     private int shead;  //syntactic head
      private String slabel;
    //Some day: unit may have several syntactic parents
      
      
-     private Unit lhead;  // lexical head     
+     private int lhead;  // lexical head     
      
-     private final List<Unit> subunits = new ArrayList<Unit>();  // lexical head     
+     private final List<Integer> subunits = new ArrayList<Integer>();  // lexical head     
 
      
      
@@ -69,27 +70,28 @@ public class Unit {
 		this.pos = pos;
 	}
 
-	public Unit getShead() {
+	public int getSheadId() {
 		return shead;
 	}
 
-	public void setShead(Unit shead) {
+	public void setShead(int shead) {
 		this.shead = shead;
 	}
 
 	public String getSlabel() {
 		return slabel;
 	}
+	
 
 	public void setSlabel(String slabel) {
 		this.slabel = slabel;
 	}
 
-	public Unit getLhead() {
+	public int getLheadId() {
 		return lhead;
 	}
 
-	public void setLhead(Unit lhead) {
+	public void setLhead(int lhead) {
 		this.lhead = lhead;
 	}
 
@@ -105,11 +107,17 @@ public class Unit {
 		return positions;
 	}
 
-	public HashMap<String, String> getFeats() {
-		return feats;
+	
+	
+	public void addFeature(String att,String val){
+		feats.put(att, val);
+	}
+	
+	public String getFeature(String att){
+		return feats.get(att);
 	}
 
-	public List<Unit> getSubunits() {
+	public List<Integer> getSubunits() {
 		return subunits;
 	}
 	
@@ -121,6 +129,14 @@ public class Unit {
 		   .append(form)
 		   .append("\t")
 		   .append(lemma).append(Arrays.toString(positions))
+		   .append("\t")
+		   .append(cpos)
+		   .append("\t")
+		   .append(pos)
+		   .append("\t")
+		   .append(feats)
+		   .append("\t")
+		   .append(shead).append("\t").append(slabel)
 		   .append("\n");	
 		
 		return sb.toString(); 

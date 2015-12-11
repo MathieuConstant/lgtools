@@ -28,5 +28,14 @@ public class Sentence {
 		return units.subList(0, size);
 		
 	}
+	
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		for(Unit u:units){
+			sb.append(u);	
+		}		
+		return sb.toString();
+	}
 
 }
