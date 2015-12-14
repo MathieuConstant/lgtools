@@ -121,6 +121,10 @@ public class Unit {
 		return subunits;
 	}
 	
+	public boolean isRoot(){
+		return id == 0;
+	}
+	
 	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
