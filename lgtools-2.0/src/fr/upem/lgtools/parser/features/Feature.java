@@ -21,6 +21,15 @@ public class Feature {
 
 	}
 	
+	/**
+	 * 
+	 * @param feat
+	 */
+	public Feature(int feat){
+		this(feat,1.0);
+	}
+	
+	
 	public int getFeat() {
 		return feat;
 	}

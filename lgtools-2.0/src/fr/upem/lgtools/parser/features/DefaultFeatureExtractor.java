@@ -15,44 +15,34 @@ import fr.upem.lgtools.text.Unit;
  * @author Mathieu Constant
  *
  */
-public class DefaultFeatureExtractor implements FeatureExtractor {
+public class DefaultFeatureExtractor implements FeatureExtractor<DepTree> {
 
 	private final FeatureMapping fm = new HashFeatureMapping();
-	private final List<String> partialfeats = new LinkedList<String>();
 	
 	
-	private final Configuration<DepTree> configuration;
 	
-	public DefaultFeatureExtractor(Configuration<DepTree> configuration) {
-		this.configuration = configuration;
-		extractPartialFeatures();
-	}
-	
-	private void addUnitFeatures(String fid,Unit u){
-		partialfeats.add(fid+"_f="+u.getForm());
-		partialfeats.add(fid+"_t="+u.getPos());
+	private void addUnitFeatures(String fid,Unit u,List<String> feats){
+		feats.add(fid+"_f="+u.getForm());
+		feats.add(fid+"_t="+u.getPos());
 		
 	}
 	
-	private void extractPartialFeatures(){
-		Stack<Unit> stack = configuration.getFirstStack(); 
-		Unit s0u = stack.peek();
-		addUnitFeatures("s0u", s0u);
-	}
-	
-	
+		
 	
 	@Override
-	public Iterable<Integer> perform(String label) {
-		LinkedList<Integer> list = new LinkedList<Integer>();
+	public List<Feature> perform(Configuration<DepTree> configuration) {
+		LinkedList<String> list = new LinkedList<String>();
 		
-		for(String pf:partialfeats){
-			String f = pf + "___"+label;
-			list.add(fm.getFeatureId(f));
-			
+		Stack<Unit> stack = configuration.getFirstStack(); 
+		Unit s0u = stack.peek();
+		addUnitFeatures("s0u", s0u,list);
+		
+		LinkedList<Feature> feats = new LinkedList<Feature>();
+		for(String f:list){
+			feats.add(new Feature(fm.getFeatureId(f)));
 		}
-		System.err.println(list);
-		return list;
+		
+		return feats;
 	}
 	
 	

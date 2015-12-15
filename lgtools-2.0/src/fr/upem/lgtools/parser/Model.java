@@ -1,5 +1,7 @@
 package fr.upem.lgtools.parser;
 
+import java.util.List;
+
 import fr.upem.lgtools.parser.features.Feature;
 
 public class Model {
@@ -13,6 +15,11 @@ public class Model {
 		this.nLabels = nLabels;
 	}
 
+	private int getId(int label, int feat){
+		return nFeatures*label+ feat;		
+	}
+	
+	
 	/**
 	 * 
 	 * @param feature
@@ -30,7 +37,7 @@ public class Model {
 	    if(label < 0 || label >= nLabels){
 	    	throw new IllegalArgumentException("Label "+ label + "does not exist!");
 	    }
-	    int id = nFeatures*label+ feat;
+	    int id = getId(label,feat);
 	    
 	    if(updatePlus){
 	    	weights[id] += feature.getValue();	
@@ -59,17 +66,16 @@ public class Model {
 	}
 	
 	
-	public double score(Iterable<Integer> feats){
+	public double score(List<Feature> feats,int label){
 		double sc = 0.0;
-		for(int id:feats){
-			sc += weights[id];
+		for(Feature f:feats){
+			double w = f.getValue();
+			int fid = f.getFeat();
+			sc += w*weights[getId(label,fid)];
 		}
 		return sc;
 	}
 	
 	
-	public int getBestLabel(Iterable<Feature> features){
-		return -1;
-	}
 	
 }
