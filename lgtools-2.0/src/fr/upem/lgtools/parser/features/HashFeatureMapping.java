@@ -8,6 +8,14 @@ package fr.upem.lgtools.parser.features;
  *
  */
 public class HashFeatureMapping implements FeatureMapping {
+     private final int max;
+     
+	
+	public HashFeatureMapping(int max) {
+		this.max = max;
+	}
+
+
 
 	/* (non-Javadoc)
 	 * @see fr.upem.lgtools.parser.features.Features#getFeatureId(java.lang.String)
@@ -21,6 +29,12 @@ public class HashFeatureMapping implements FeatureMapping {
 		  //hashcode = 31*hashcode + feat.charAt(i); //non-optimized too much
 		  hashcode = (hashcode << 5) - hashcode + feat.charAt(i);
 		}
+
+		/* hascode must be comprised between 0 and max */
+		
+		hashcode = hashcode%this.max; //hashcode must be lower than max
+		hashcode = hashcode<0?-hashcode:hashcode; //hashcode must be positive
+		
 		return hashcode;
 	}
 	

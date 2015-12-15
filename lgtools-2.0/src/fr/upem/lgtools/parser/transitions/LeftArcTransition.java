@@ -14,7 +14,7 @@ import fr.upem.lgtools.text.Unit;
  * @author Mathieu Constant
  *
  */
-public class LeftArcTransition implements Transition<DepTree> {
+public class LeftArcTransition extends AbstractTransition<DepTree> {
 
 	private final String label;
 	
@@ -22,7 +22,8 @@ public class LeftArcTransition implements Transition<DepTree> {
 	/**
 	 * @param label
 	 */
-	public LeftArcTransition(String label) {
+	public LeftArcTransition(String type,String label) {
+		super(Transitions.constructTransitionId(type, label));
 		this.label = label;
 	}
 
@@ -44,11 +45,7 @@ public class LeftArcTransition implements Transition<DepTree> {
 		return stack.size() >= 2 && !stack.get(stack.size() - 2).isRoot();
 	}
 
-	@Override
-	public String id() {
-		
-		return "LEFT-"+label;
-	}
+	
   
 	
 }

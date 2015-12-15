@@ -9,15 +9,81 @@ public class Model {
 	private final int nFeatures;
 	private final int nLabels;
 	
+		 
+	
+	
 	public Model(int nFeatures,int nLabels){
-		weights = new double[nFeatures*nLabels];
-		this.nFeatures = nFeatures;
 		this.nLabels = nLabels;
+		weights = new double[nFeatures*nLabels];
+		this.nFeatures = nFeatures;				
+		
 	}
 
 	private int getId(int label, int feat){
 		return nFeatures*label+ feat;		
 	}
+	
+	
+	
+	/**
+	 * 
+	 * Sets a weight to a feature with respect to a label
+	 * 
+	 * @param feat
+	 * @param label
+	 * @param weight
+	 */
+	
+	
+	public void set(int feat, int label, double weight){
+		if(feat >= nFeatures || feat < 0){
+			throw new IllegalArgumentException("feature "+feat+" does not exist!");
+		}
+		if(label < 0 || label >= nLabels){
+	    	throw new IllegalArgumentException("Label "+ label + " does not exist!");
+	    }
+		weights[getId(label, feat)] = weight;
+	}
+	
+	/**
+	 * gets the weight of a feature with respect to a label
+	 * 
+	 * @param feat
+	 * @param label
+	 * @return weight of a feature with respect to a label
+	 */
+	
+	
+	public double get(int feat, int label){
+		if(feat >= nFeatures || feat < 0){
+			throw new IllegalArgumentException("feature "+feat+" does not exist!");
+		}
+		if(label < 0 || label >= nLabels){
+	    	throw new IllegalArgumentException("Label "+ label + "does not exist!");
+	    }
+		return weights[getId(label, feat)];
+	}
+	
+	/**
+	 * 
+	 * @return the number of labels
+	 */
+	
+	public int getLabelCount(){
+		return nLabels;
+	}
+	
+	/**
+	 * 
+	 * @return the number of features
+	 */
+	
+	public int getFeatureCount(){
+		return nFeatures;
+	}
+	
+	
+	
 	
 	
 	/**

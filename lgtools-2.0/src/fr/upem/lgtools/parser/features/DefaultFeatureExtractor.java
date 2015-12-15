@@ -1,4 +1,4 @@
-/**
+/*
  * 
  */
 package fr.upem.lgtools.parser.features;
@@ -17,7 +17,6 @@ import fr.upem.lgtools.text.Unit;
  */
 public class DefaultFeatureExtractor implements FeatureExtractor<DepTree> {
 
-	private final FeatureMapping fm = new HashFeatureMapping();
 	
 	
 	
@@ -30,19 +29,16 @@ public class DefaultFeatureExtractor implements FeatureExtractor<DepTree> {
 		
 	
 	@Override
-	public List<Feature> perform(Configuration<DepTree> configuration) {
+	public List<String> perform(Configuration<DepTree> configuration) {
 		LinkedList<String> list = new LinkedList<String>();
 		
 		Stack<Unit> stack = configuration.getFirstStack(); 
 		Unit s0u = stack.peek();
 		addUnitFeatures("s0u", s0u,list);
 		
-		LinkedList<Feature> feats = new LinkedList<Feature>();
-		for(String f:list){
-			feats.add(new Feature(fm.getFeatureId(f)));
-		}
 		
-		return feats;
+		
+		return list;
 	}
 	
 	

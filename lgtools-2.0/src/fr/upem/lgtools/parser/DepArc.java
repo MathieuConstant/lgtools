@@ -24,5 +24,10 @@ public class DepArc {
 	}
 
 	
+	@Override
+	public String toString() {		
+		return "("+head+","+label+","+dep+")";
+	}
+	
 	
 }

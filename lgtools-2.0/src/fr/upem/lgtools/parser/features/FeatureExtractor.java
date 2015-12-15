@@ -12,5 +12,5 @@ import fr.upem.lgtools.parser.Configuration;
  *
  */
 public interface FeatureExtractor<T> {
-      public List<Feature> perform(Configuration<T> config);
+      public List<String> perform(Configuration<T> config);
 }

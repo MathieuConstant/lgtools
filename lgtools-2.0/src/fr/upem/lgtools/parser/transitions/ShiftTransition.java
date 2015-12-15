@@ -13,10 +13,21 @@ import fr.upem.lgtools.text.Unit;
  * @author Mathieu Constant
  *
  */
-public class ShiftTransition<T> implements Transition<T>{
+public class ShiftTransition<T> extends AbstractTransition<T>{
+	
+	
+	
+
+	public ShiftTransition(String id) {
+		super(id);
+		
+	}
 
 	@Override
 	public Configuration<T> perform(Configuration<T> configuration) {
+		if(!isValid(configuration)){
+			throw new IllegalStateException("The buffer should not be empty before performing a SHIFT!");
+		}
 		ArrayDeque<Unit> buffer = configuration.getFirstBuffer();
 		Unit u = buffer.poll();
 		Stack<Unit> stack = configuration.getFirstStack();
@@ -30,10 +41,5 @@ public class ShiftTransition<T> implements Transition<T>{
 		return !buffer.isEmpty();
 	}
 
-	@Override
-	public String id() {
-		return "SHIFT";
-	}
 	
-
 }

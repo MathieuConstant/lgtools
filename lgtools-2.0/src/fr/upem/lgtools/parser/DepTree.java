@@ -1,6 +1,8 @@
 package fr.upem.lgtools.parser;
 
 import java.util.AbstractSet;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -19,7 +21,11 @@ public class DepTree {
 		if(reverse[dep] != null){
 			throw new IllegalStateException("Node "+dep+ " has already a parent");
 		}
+		if(nodeChildren[a.getHead()] == null){
+			nodeChildren[a.getHead()] = new HashSet<DepArc>();
+		}
 		nodeChildren[a.getHead()].add(a);
+		reverse[dep] = a;
 	}
 	
 	public int getHead(int node){
@@ -67,5 +73,11 @@ public class DepTree {
 		
 		
 	}
+
+	@Override
+	public String toString() {		
+		return Arrays.toString(reverse);
+	}
+	
 	
 }
