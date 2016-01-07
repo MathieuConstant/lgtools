@@ -22,12 +22,12 @@ public class Test {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream("corpus.conll")));
+		BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream("train.expandedcpd.conll")));
 		DepTreebank tb = new BufferedDepTreebank(new StreamDepTreebank(reader));
-		ArcStandardSyntacticParserModel model = new ArcStandardSyntacticParserModel(1000, tb);
+		ArcStandardSyntacticParserModel model = new ArcStandardSyntacticParserModel(1000000, tb);
 		
 		StandardGreedyParser<DepTree> parser = new StandardGreedyParser<DepTree>(model);
-		parser.train(tb, 1);
+		parser.train(tb, 10);
 		/*for(Sentence s:tb){
 			System.out.println(s.getTokens());
 		   parser.parse(s.getTokens());

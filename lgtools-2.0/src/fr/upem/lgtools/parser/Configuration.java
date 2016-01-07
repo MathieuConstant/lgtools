@@ -1,6 +1,5 @@
 package fr.upem.lgtools.parser;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -9,7 +8,7 @@ import fr.upem.lgtools.text.Unit;
 import fr.upem.lgtools.text.UnitFactory;
 
 public class Configuration<T> {
-	private final ArrayDeque<Unit>[] buffers;
+	private final Buffer[] buffers;
     private final Stack<Unit>[] stacks;
     private final T analyses;
     private final List<String> history = new ArrayList<String>();
@@ -32,10 +31,9 @@ public class Configuration<T> {
     	}
     	
     	Unit root = UnitFactory.createRootUnit();
-    	buffers = (ArrayDeque<Unit>[])new ArrayDeque<?>[nBuffers];
+    	buffers = (SimpleBuffer[])new SimpleBuffer[nBuffers];
     	for(int i = 0 ; i < nBuffers ; i++){
-    		buffers[i] = new ArrayDeque<Unit>();
-    		buffers[i].addAll(units);    		
+    		buffers[i] = new SimpleBuffer(units);    		
     	}
     	stacks =  (Stack<Unit>[])new Stack<?>[nStacks];
     	for(int i = 0 ; i < nStacks ; i++){
@@ -64,7 +62,7 @@ public class Configuration<T> {
     }
     
 
-	public ArrayDeque<Unit> getFirstBuffer() {
+	public Buffer getFirstBuffer() {
 		return buffers[0];
 	}
 
@@ -88,8 +86,8 @@ public class Configuration<T> {
 
 	public boolean isTerminal(){
 		//buffers must be empty
-		for(ArrayDeque<Unit> buffer:buffers){
-			if(!buffer.isEmpty()){
+		for(Buffer buffer:buffers){
+			if(buffer.size() != 0){
 				return false;
 			}
 		}

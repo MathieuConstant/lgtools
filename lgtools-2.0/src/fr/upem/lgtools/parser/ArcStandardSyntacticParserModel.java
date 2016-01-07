@@ -42,6 +42,7 @@ public class ArcStandardSyntacticParserModel extends TransitionBasedModel<DepTre
 			if(id == u.getSheadId()) return false;
 		}
 		
+		
 		return true;
 	}
 	

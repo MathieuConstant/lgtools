@@ -30,6 +30,7 @@ import fr.upem.lgtools.text.Unit;
  *
  */
 public abstract class TransitionBasedModel<T> {
+	private static final double EPS = 0.001; 
 	private final Model model;
 	private final List<Transition<T>> transitions;
 	private final Map<String,Transition<T>> transitionsFromId = new HashMap<String, Transition<T>>();
@@ -53,7 +54,9 @@ public abstract class TransitionBasedModel<T> {
 	
 	
 	//Constructor for parsing stage
-	public TransitionBasedModel(String filename) throws IOException {	
+	/* OLD MODEL
+	  public TransitionBasedModel(String filename) throws IOException {	
+	 
 		DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(filename)));
 		int nFeats = in.readInt();
 		int nLabels = in.readInt();
@@ -75,8 +78,33 @@ public abstract class TransitionBasedModel<T> {
 		
 		
 	}
+	*/
 	
-	
+	public TransitionBasedModel(String filename) throws IOException {	
+		 
+		DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(filename)));
+		int nFeats = in.readInt();
+		int nLabels = in.readInt();
+		this.transitions = new ArrayList<Transition<T>>();
+		for(int l = 0 ; l < nLabels ; l++){
+		   this.transitions.add(constructTransition(in.readUTF()));
+		}
+		
+		this.model = new Model(nFeats,transitions.size());
+		for(int f = 0 ; f < model.getFeatureCount() ; f++){
+			int n = in.readInt();
+			for(int i = 0; i < n ; i++){
+				int l = in.readInt();
+				model.set(f,l,in.readDouble());				
+			}							
+		}
+		in.close();
+		
+		this.featureMapping = new HashFeatureMapping(model.getFeatureCount());
+		
+		
+		
+	}
 		
 	
 	public Model getModel() {
@@ -149,6 +177,7 @@ public abstract class TransitionBasedModel<T> {
 		//return transitions.get(bestLabel);
 	}
 	
+	/* memory costly
 	public void saveModel(String filename) throws IOException{
 		DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(filename)));
 		out.writeInt(model.getFeatureCount());
@@ -160,6 +189,38 @@ public abstract class TransitionBasedModel<T> {
 			for(int l = 0; l < model.getLabelCount() ; l++){
 				out.writeDouble(model.get(f,l));				
 			}							
+		}
+		out.close();
+	}
+	*/
+	
+	public void saveModel(String filename) throws IOException{
+		DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(filename)));
+		out.writeInt(model.getFeatureCount());
+		out.writeInt(model.getLabelCount());
+		for(int l = 0 ; l < model.getLabelCount() ; l++){
+			out.writeUTF(transitions.get(l).id());
+		}
+		for(int f = 0 ; f < model.getFeatureCount() ; f++){
+			int cnt = 0;
+			//loop used to count the number of non-zero values
+			for(int l = 0; l < model.getLabelCount() ; l++){
+				double v = model.get(f,l);
+				if(v > EPS){
+					cnt++;
+				}
+				//out.writeDouble(model.get(f,l));				
+			}
+			out.writeInt(cnt);
+			for(int l = 0; l < model.getLabelCount() ; l++){
+				double v = model.get(f,l);
+				if(v > EPS){
+					out.writeInt(l);
+					out.writeDouble(v);
+				}
+				//				
+			}
+			
 		}
 		out.close();
 	}

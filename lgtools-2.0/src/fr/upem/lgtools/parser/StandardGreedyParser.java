@@ -9,6 +9,7 @@ import fr.upem.lgtools.parser.features.Feature;
 import fr.upem.lgtools.parser.features.FeatureExtractor;
 import fr.upem.lgtools.parser.transitions.Transition;
 import fr.upem.lgtools.text.DepTreebank;
+import fr.upem.lgtools.text.DepTreebankFactory;
 import fr.upem.lgtools.text.Sentence;
 import fr.upem.lgtools.text.Unit;
 
@@ -56,9 +57,15 @@ public class StandardGreedyParser<T> {
 	//Algorithm from Goldberg and Nivre TACL 2013
 	
 	public void train(DepTreebank tb, int N) throws IOException{
+		  tb = DepTreebankFactory.filterNonProjective(tb);
+		  
 	      for(int i = 0 ; i < N ; i++){
-	    	    //int cnt = 0;
-	       		for(Sentence gold:tb){	       			
+	    	   System.err.println("Iteration "+(i+1));
+	    	    int cnt = 0;
+	    	    int sent = 0;
+	    	    int total =0;
+	       		for(Sentence gold:tb){
+	       			sent++;
 	       			Configuration<T> c = model.getInitialConfiguration(gold.getTokens());
 	       			while(!c.isTerminal()){
 	       				FeatureExtractor<T> extractor = model.getFeatureExtractor();	       				
@@ -68,11 +75,12 @@ public class StandardGreedyParser<T> {
 	       				int tpidx = model.getBestTransitionIdx(c,getValidTransitions(c),feats);
 	       				Transition<T> tp = model.getTransitions().get(tpidx);
 	       				Set<Transition<T>> correct = getCorrectTransitions(c,gold);
-	       				 
+	       				total++; 
 	       				int toidx = model.getBestTransitionIdx(c,correct,feats);
 	       				if(correct.contains(tp)){//good prediction	       					
 	       					c = tp.perform(c);
-	       					System.out.println("pred:"+tp.id());	       					
+	       					cnt++;
+	       					//System.out.println("pred:"+tp.id());	       					
 	       				}
 	       				else{
 	       					//update model
@@ -81,18 +89,22 @@ public class StandardGreedyParser<T> {
 	       					Transition<T> to = model.getTransitions().get(toidx);
 	       					
 	       					c = to.perform(c);
-	       					System.out.println("oracle:"+to.id());
+	       					//System.out.println("oracle:"+to.id());
 	       				}
-	       				System.out.println("stack:"+c.getFirstStack());
-	       				System.out.println("buffer:"+c.getFirstBuffer());
+	       				//System.err.println("stack:"+c.getFirstStack());
+	       				//System.err.println("buffer:"+c.getFirstBuffer());
 	       				//cnt++;
 	       				//if(cnt == 16){
 	       					//System.exit(0);
 	       				//}
 	       			}	       			
 	       		}
-	       		model.saveModel("test."+i);
+	       		//model.saveModel("test."+i);
+	       		System.err.println("Accuracy: "+((double)cnt)/total+ "  ("+cnt+"/"+total+")");
+	       		System.err.println("Number of sentences: "+sent);
 	      }
+	      model.saveModel("test.final");
+	      System.err.println("Done.");
 	}
 	
 
