@@ -22,9 +22,13 @@ public class StandardGreedyParser<T> {
 	}
 	
 	
-	public void parse(List<Unit> units){
+	
+	
+	
+	
+	public T parse(List<Unit> units){
 		Configuration<T> c = model.getInitialConfiguration(units);
-		System.out.println(model); 
+		//System.out.println(model); 
 		while(!c.isTerminal()){
 			FeatureExtractor<T> extractor = model.getFeatureExtractor();	       				
 			List<Feature> feats = model.getFeatures(extractor.perform(c));	       				
@@ -32,7 +36,7 @@ public class StandardGreedyParser<T> {
 			Transition<T> t = model.getBestTransition(c,getValidTransitions(c),feats); 
 			c = t.perform(c);
 		}
-		System.out.println(c.getAnalyses());
+		return c.getAnalyses();
 	}
 	
 	
@@ -56,7 +60,7 @@ public class StandardGreedyParser<T> {
 	
 	//Algorithm from Goldberg and Nivre TACL 2013
 	
-	public void train(DepTreebank tb, int N) throws IOException{
+	public void train(DepTreebank tb, int N,String modelFilename) throws IOException{
 		  tb = DepTreebankFactory.filterNonProjective(tb);
 		  
 	      for(int i = 0 ; i < N ; i++){
@@ -66,6 +70,7 @@ public class StandardGreedyParser<T> {
 	    	    int total =0;
 	       		for(Sentence gold:tb){
 	       			sent++;
+	       			if(sent % 1000 == 0){System.err.println("Processed "+ sent+ " sentences");}
 	       			Configuration<T> c = model.getInitialConfiguration(gold.getTokens());
 	       			while(!c.isTerminal()){
 	       				FeatureExtractor<T> extractor = model.getFeatureExtractor();	       				
@@ -99,11 +104,12 @@ public class StandardGreedyParser<T> {
 	       				//}
 	       			}	       			
 	       		}
-	       		//model.saveModel("test."+i);
-	       		System.err.println("Accuracy: "+((double)cnt)/total+ "  ("+cnt+"/"+total+")");
+	       		
+	       		model.saveModel(modelFilename+"."+i);
+	       		System.err.println("Accuracy on training transition sequence: "+((double)cnt)/total+ "  ("+cnt+"/"+total+")");
 	       		System.err.println("Number of sentences: "+sent);
 	      }
-	      model.saveModel("test.final");
+	      model.saveModel(modelFilename+".final");
 	      System.err.println("Done.");
 	}
 	

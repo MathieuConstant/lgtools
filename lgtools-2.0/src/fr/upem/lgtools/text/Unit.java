@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Mathieu Constant
@@ -117,6 +118,11 @@ public class Unit {
 		return feats.get(att);
 	}
 
+	public Map<String,String> getFeatures(){
+		return feats;
+	}
+	
+	
 	public List<Integer> getSubunits() {
 		return subunits;
 	}
@@ -128,7 +134,7 @@ public class Unit {
 	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
-		/*sb.append(id)
+		sb.append(id)
 		   .append("\t")
 		   .append(form)
 		   .append("\t")
@@ -142,9 +148,9 @@ public class Unit {
 		   .append("\t")
 		   .append(shead).append("\t").append(slabel)
 		   .append("\n");	
-		*/
-		sb.append(id).append(":").append(form).append(":").append(shead)
-		   .append(":").append(slabel);
+		
+		/*sb.append(id).append(":").append(form).append(":").append(shead)
+		   .append(":").append(slabel);*/
 		return sb.toString(); 
 	}
      

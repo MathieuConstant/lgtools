@@ -22,7 +22,7 @@ public abstract class AbstractTransition<T> implements Transition<T>{
 		return id;
 	}
 
-
+/*
 	@Override
 	public Configuration<T> perform(Configuration<T> configuration) {
 		// TODO Auto-generated method stub
@@ -35,7 +35,7 @@ public abstract class AbstractTransition<T> implements Transition<T>{
 		// TODO Auto-generated method stub
 		return false;
 	}
-
+*/
 
 	
 

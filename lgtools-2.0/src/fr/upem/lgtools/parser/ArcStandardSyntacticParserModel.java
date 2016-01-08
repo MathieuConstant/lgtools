@@ -1,5 +1,6 @@
 package fr.upem.lgtools.parser;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -29,10 +30,29 @@ public class ArcStandardSyntacticParserModel extends TransitionBasedModel<DepTre
     
     
     
+    /**
+     * 
+     * @param nFeats maximum number of features
+     * @param tb treebank from which to train 
+     */
+    
 	
 
 	public ArcStandardSyntacticParserModel(int nFeats, DepTreebank tb) {
 		super(nFeats, tb);		
+	}
+	
+	
+	/**
+	 * Constructor for parsing stage
+	 * 
+	 * 
+	 * @param filename of model to be used for parsing
+	 * @throws IOException 
+	 */
+	
+	public ArcStandardSyntacticParserModel(String filename) throws IOException {
+		super(filename);		
 	}
 	
 	
@@ -96,10 +116,10 @@ public class ArcStandardSyntacticParserModel extends TransitionBasedModel<DepTre
 		}
 		
 		if(type.equals(RA_TYPE)){
-			return new RightArcTransition(RA_TYPE, Transitions.constructTransitionId(RA_TYPE, label));
+			return new RightArcTransition(RA_TYPE, label); //Transitions.constructTransitionId(RA_TYPE, label)
 		}		
 		if(type.equals(LA_TYPE)){
-			return new LeftArcTransition(LA_TYPE, Transitions.constructTransitionId(LA_TYPE, label));
+			return new LeftArcTransition(LA_TYPE, label); //Transitions.constructTransitionId(LA_TYPE, label)
 		}
 		throw new IllegalArgumentException("Transition " + transitionId + " is not allowed in an Arc Standard Syntactic Parser");
 	}

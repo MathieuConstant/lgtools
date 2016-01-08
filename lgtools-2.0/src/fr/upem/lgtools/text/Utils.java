@@ -1,6 +1,49 @@
 package fr.upem.lgtools.text;
 
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.util.Map;
+
 public class Utils {
+	
+	
+	private static String feats(Map<String,String> feats){
+		StringBuilder sb = new StringBuilder();
+		if(feats.size() == 0){
+			return "_";
+		}
+		for(String att:feats.keySet()){
+			sb.append("|").append(att).append("=").append(feats.get(att));			
+		}
+		sb.deleteCharAt(0);
+		return sb.toString();
+		
+	}
+	
+	
+	private static void writeUnit(BufferedWriter out, Unit u) throws IOException{
+		out.write(u.getId()+"\t"+u.getForm()+"\t"+u.getLemma()+"\t"+u.getCpos());
+		out.write("\t"+u.getPos()+"\t"+feats(u.getFeatures()));
+		out.write("\t"+u.getSheadId()+"\t"+u.getSlabel());
+		out.write("\t"+u.getSheadId()+"\t"+u.getSlabel());
+		out.write("\n");
+		
+	}
+	
+	
+	public static void saveTreebank(DepTreebank tb,String filename) throws IOException{
+		BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename), "UTF-8"));
+		for(Sentence s:tb){
+			for(Unit u:s.getTokens()){
+				writeUnit(out,u);
+			}
+			out.write("\n");
+		}
+		out.close();			
+	}
+	
 	
 	
 	private static boolean isCrossing(int i1, int j1, int i2, int j2){

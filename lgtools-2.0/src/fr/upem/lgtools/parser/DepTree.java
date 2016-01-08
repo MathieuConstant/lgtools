@@ -28,6 +28,11 @@ public class DepTree {
 		reverse[dep] = a;
 	}
 	
+	public DepArc[] getArcs(){
+		return reverse;
+	}
+	
+	
 	public int getHead(int node){
 		return reverse[node].getHead();
 	}
