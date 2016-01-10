@@ -24,6 +24,29 @@ public class Model {
 	}
 	
 	
+	public static boolean compareModels(Model m1, Model m2){
+		if(m1.nFeatures != m2.nFeatures){
+			System.err.println("Number of features!");
+			return false;
+		}
+		if(m1.nLabels != m2.nLabels){
+			System.err.println("Number of labels!");
+			return false;
+		}
+		
+		int cnt = 0;
+		for(int i = 0 ; i < m1.nFeatures * m1.nLabels ; i++){
+			if(m1.weights[i] != m2.weights[i]){
+				cnt++;
+				//System.err.println(m1.weights[i] + "<>" + m2.weights[i]);
+			}
+			
+		}
+		System.err.println(cnt);
+		
+		return (cnt == 0);
+	}
+	
 	
 	/**
 	 * 

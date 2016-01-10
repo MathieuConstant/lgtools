@@ -55,6 +55,42 @@ public class DepTreebankFactory {
 	}
 	
 	
+	public static DepTreebank limitSize(final DepTreebank tb,final int n){
+		return new DepTreebank() {
+			
+			@Override
+			public Iterator<Sentence> iterator() {
+				
+				return new Iterator<Sentence>() {
+					int cnt = 0;
+					Iterator<Sentence> it = tb.iterator();
+
+					@Override
+					public boolean hasNext() {
+						
+						return it.hasNext() && cnt < n;
+					}
+
+					@Override
+					public Sentence next() {
+						if(!hasNext()){
+							throw new NoSuchElementException();
+						}
+						cnt++;
+						return it.next();
+					}
+
+					@Override
+					public void remove() {
+						throw new IllegalStateException();
+					}
+				};
+			}
+		};
+		
+	}
+	
+	
 	public static DepTreebank filterNonProjective(DepTreebank tb){
 		return filter(tb, new FilterTreebank() {
 			

@@ -26,6 +26,15 @@ public class StandardGreedyParser<T> {
 	
 	
 	
+	public TransitionBasedModel<T> getModel() {
+		return model;
+	}
+
+
+
+
+
+
 	public T parse(List<Unit> units){
 		Configuration<T> c = model.getInitialConfiguration(units);
 		//System.out.println(model); 
@@ -67,7 +76,7 @@ public class StandardGreedyParser<T> {
 	    	   System.err.println("Iteration "+(i+1));
 	    	    int cnt = 0;
 	    	    int sent = 0;
-	    	    int total =0;
+	    	    int total = 0;
 	       		for(Sentence gold:tb){
 	       			sent++;
 	       			if(sent % 1000 == 0){System.err.println("Processed "+ sent+ " sentences");}

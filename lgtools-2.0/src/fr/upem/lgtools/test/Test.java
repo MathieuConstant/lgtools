@@ -11,9 +11,12 @@ import fr.upem.lgtools.evaluation.ParsingAccuracy;
 import fr.upem.lgtools.parser.ArcStandardSyntacticParserModel;
 import fr.upem.lgtools.parser.DepArc;
 import fr.upem.lgtools.parser.DepTree;
+import fr.upem.lgtools.parser.Model;
 import fr.upem.lgtools.parser.StandardGreedyParser;
+import fr.upem.lgtools.parser.TransitionBasedModel;
 import fr.upem.lgtools.text.BufferedDepTreebank;
 import fr.upem.lgtools.text.DepTreebank;
+import fr.upem.lgtools.text.DepTreebankFactory;
 import fr.upem.lgtools.text.Sentence;
 import fr.upem.lgtools.text.StreamDepTreebank;
 import fr.upem.lgtools.text.Unit;
@@ -22,14 +25,13 @@ import fr.upem.lgtools.text.Utils;
 public class Test {
 
 	
-	public static void trainingTest(String dataset, String model, int iterations, int features) throws IOException{
-		BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(dataset)));
-		DepTreebank tb = new BufferedDepTreebank(new StreamDepTreebank(reader));
+	public static TransitionBasedModel<DepTree> trainingTest(String dataset, String model, int iterations, int features, int sizeLimit) throws IOException{
+		DepTreebank tb = readTreebank(dataset,sizeLimit);
 		ArcStandardSyntacticParserModel m = new ArcStandardSyntacticParserModel(features, tb);
 		
 		StandardGreedyParser<DepTree> parser = new StandardGreedyParser<DepTree>(m);
 		parser.train(tb, iterations,model);
-		
+		return parser.getModel();
 	}
 	
 	private static void updateSentence(Sentence s,DepTree tree){
@@ -43,11 +45,8 @@ public class Test {
 		}
 	}
 	
-	
-	public static DepTreebank parsingTest(String dataset,String model) throws IOException{
-				
+	public static DepTreebank parsingTest(String dataset,TransitionBasedModel<DepTree> m) throws FileNotFoundException{
 		DepTreebank tb = readTreebank(dataset);
-		ArcStandardSyntacticParserModel m = new ArcStandardSyntacticParserModel(model);
 		StandardGreedyParser<DepTree> parser = new StandardGreedyParser<DepTree>(m);
 		
 		int cnt = 0;
@@ -64,12 +63,30 @@ public class Test {
 		}
 		
 		return tb;
+		
+	}
+	
+	public static DepTreebank parsingTest(String dataset,String model,Model other) throws IOException{
+
+		ArcStandardSyntacticParserModel mod = new ArcStandardSyntacticParserModel(model);
+		Model m = mod.getModel();
+		System.err.println("Model trained => nfeatures"+m.getFeatureCount()+",nLabels="+m.getLabelCount());
+		System.err.println(Model.compareModels(m, other));;
+		return parsingTest(dataset, mod);
+		
 	}
 	
 	
 	private static DepTreebank readTreebank(String filename) throws FileNotFoundException{
+		return readTreebank(filename,-1);
+	}
+	
+	private static DepTreebank readTreebank(String filename,int size) throws FileNotFoundException{
 		BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(filename)));
 		DepTreebank gold = new BufferedDepTreebank(new StreamDepTreebank(reader));
+		if(size >= 0){
+			gold = DepTreebankFactory.limitSize(gold, size);
+		}
 		return gold;
 	}
 	
@@ -82,15 +99,16 @@ public class Test {
 	 */
 	public static void main(String[] args) throws IOException {
 		
-		//trainingTest("train.expandedcpd.conll", "test", 4, 10000000);
+		TransitionBasedModel<DepTree> model = trainingTest("train.expandedcpd.conll", "test", 1, 1000000,1000);
+		Model m = model.getModel();
+		System.err.println("Model trained => nfeatures"+m.getFeatureCount()+",nLabels="+m.getLabelCount());
 		
 		
 		
-		
-		DepTreebank sys = parsingTest("dev.expandedcpd.conll", "test.final");
+		DepTreebank sys = parsingTest("train.expandedcpd.conll", "test.final",m);
 		Utils.saveTreebank(sys, "sys.conll");
 		
-		DepTreebank gold = readTreebank("dev.expandedcpd.conll");
+		DepTreebank gold = readTreebank("train.expandedcpd.conll");
 		ParsingAccuracy acc = ParsingAccuracy.computeParsingAccuracy(gold, sys);
 		System.out.println(acc);
 		
