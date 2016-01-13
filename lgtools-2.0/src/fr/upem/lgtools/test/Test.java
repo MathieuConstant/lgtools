@@ -66,12 +66,12 @@ public class Test {
 		
 	}
 	
-	public static DepTreebank parsingTest(String dataset,String model,Model other) throws IOException{
+	public static DepTreebank parsingTest(String dataset,String model) throws IOException{
 
 		ArcStandardSyntacticParserModel mod = new ArcStandardSyntacticParserModel(model);
-		Model m = mod.getModel();
-		System.err.println("Model trained => nfeatures"+m.getFeatureCount()+",nLabels="+m.getLabelCount());
-		System.err.println(Model.compareModels(m, other));;
+		//Model m = mod.getModel();
+		//System.err.println("Model trained => nfeatures"+m.getFeatureCount()+",nLabels="+m.getLabelCount());
+		//System.err.println(Model.compareModels(m, other));;
 		return parsingTest(dataset, mod);
 		
 	}
@@ -99,16 +99,16 @@ public class Test {
 	 */
 	public static void main(String[] args) throws IOException {
 		
-		TransitionBasedModel<DepTree> model = trainingTest("train.expandedcpd.conll", "test", 1, 1000000,1000);
-		Model m = model.getModel();
-		System.err.println("Model trained => nfeatures"+m.getFeatureCount()+",nLabels="+m.getLabelCount());
+		TransitionBasedModel<DepTree> model = trainingTest("train.expandedcpd.conll", "test", 5, 1000000,5000);
+		//Model m = model.getModel();
+		//System.err.println("Model trained => nfeatures"+m.getFeatureCount()+",nLabels="+m.getLabelCount());
 		
 		
 		
-		DepTreebank sys = parsingTest("train.expandedcpd.conll", "test.final",m);
+		DepTreebank sys = parsingTest("dev.expandedcpd.conll", "test.final");
 		Utils.saveTreebank(sys, "sys.conll");
 		
-		DepTreebank gold = readTreebank("train.expandedcpd.conll");
+		DepTreebank gold = readTreebank("dev.expandedcpd.conll");
 		ParsingAccuracy acc = ParsingAccuracy.computeParsingAccuracy(gold, sys);
 		System.out.println(acc);
 		

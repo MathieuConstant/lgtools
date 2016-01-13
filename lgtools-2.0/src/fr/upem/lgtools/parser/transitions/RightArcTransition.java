@@ -35,6 +35,7 @@ public class RightArcTransition extends AbstractTransition<DepTree> {
 		Unit s1 = stack.pop();
 		DepTree t = configuration.getAnalyses();		
 		t.addArc(new DepArc(s1.getId(),label,s0.getId()));
+		//configuration.getHistory().add();
 		stack.push(s1);
 		return configuration;
 	}

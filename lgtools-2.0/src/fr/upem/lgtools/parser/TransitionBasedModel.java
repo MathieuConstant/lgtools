@@ -206,7 +206,7 @@ public abstract class TransitionBasedModel<T> {
 			//loop used to count the number of non-zero values
 			for(int l = 0; l < model.getLabelCount() ; l++){
 				double v = model.get(f,l);
-				if(v > EPS){
+				if(v != 0.0){
 					cnt++;
 				}
 				//out.writeDouble(model.get(f,l));				
@@ -214,7 +214,7 @@ public abstract class TransitionBasedModel<T> {
 			out.writeInt(cnt);
 			for(int l = 0; l < model.getLabelCount() ; l++){
 				double v = model.get(f,l);
-				if(v > EPS){
+				if(v != 0.0){
 					out.writeInt(l);
 					out.writeDouble(v);
 				}
