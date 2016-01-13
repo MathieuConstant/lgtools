@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,6 +32,7 @@ import fr.upem.lgtools.text.Unit;
  */
 public abstract class TransitionBasedModel<T> {
 	private static final double EPS = 0.001; 
+	private final HashSet<String> featureSet = new HashSet<String>();
 	private final Model model;
 	private final List<Transition<T>> transitions;
 	private final Map<String,Transition<T>> transitionsFromId = new HashMap<String, Transition<T>>();
@@ -99,7 +101,7 @@ public abstract class TransitionBasedModel<T> {
 			}							
 		}
 		in.close();
-		
+		//System.err.println("Number of empty feature id: "+cnt+" => "+((double)cnt)/model.getFeatureCount());
 		this.featureMapping = new HashFeatureMapping(model.getFeatureCount());
 		
 		
@@ -120,6 +122,10 @@ public abstract class TransitionBasedModel<T> {
 	}
 	
 	
+	public HashSet<String> getFeatureSet(){
+		return featureSet;
+	}
+	
 				
 
 	public AbstractList<Feature> getFeatures(final List<String> feats){
@@ -127,7 +133,7 @@ public abstract class TransitionBasedModel<T> {
 
 			@Override
 			public Feature get(int index) {
-				
+				featureSet.add(feats.get(index));
 				return new Feature(featureMapping.getFeatureId(feats.get(index)));
 			}
 

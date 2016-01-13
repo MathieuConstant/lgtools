@@ -69,9 +69,8 @@ public class Test {
 	public static DepTreebank parsingTest(String dataset,String model) throws IOException{
 
 		ArcStandardSyntacticParserModel mod = new ArcStandardSyntacticParserModel(model);
-		//Model m = mod.getModel();
-		//System.err.println("Model trained => nfeatures"+m.getFeatureCount()+",nLabels="+m.getLabelCount());
-		//System.err.println(Model.compareModels(m, other));;
+		Model m = mod.getModel();
+		System.err.println("Model trained => nfeatures"+m.getFeatureCount()+",nLabels="+m.getLabelCount());
 		return parsingTest(dataset, mod);
 		
 	}
@@ -99,19 +98,23 @@ public class Test {
 	 */
 	public static void main(String[] args) throws IOException {
 		
-		TransitionBasedModel<DepTree> model = trainingTest("train.expandedcpd.conll", "test", 5, 1000000,5000);
-		//Model m = model.getModel();
-		//System.err.println("Model trained => nfeatures"+m.getFeatureCount()+",nLabels="+m.getLabelCount());
+		//TransitionBasedModel<DepTree> model = trainingTest("train.expandedcpd.conll", "test1", 1, 1000000,-1);
+		ArcStandardSyntacticParserModel model = new ArcStandardSyntacticParserModel("test1.final");
+		Model m = model.getModel();
+		System.err.println("Model trained => nfeatures"+m.getFeatureCount()+",nLabels="+m.getLabelCount());
+		System.err.println("Feature set size: "+model.getFeatureSet().size());
+		int emptyCnt = Model.getEmptyFeatureIdCount(m);
+		System.err.println("Number of empty feature ids: "+emptyCnt+" =>"+((double)emptyCnt)/m.getFeatureCount());
+		//Model.getNonEmptyIdDistribution(m);
 		
-		
-		
-		DepTreebank sys = parsingTest("dev.expandedcpd.conll", "test.final");
+		/*
+		DepTreebank sys = parsingTest("dev.expandedcpd.conll", "test.13");
 		Utils.saveTreebank(sys, "sys.conll");
 		
 		DepTreebank gold = readTreebank("dev.expandedcpd.conll");
 		ParsingAccuracy acc = ParsingAccuracy.computeParsingAccuracy(gold, sys);
 		System.out.println(acc);
-		
+		*/
 		
 		
 		/*for(Sentence s:tb){

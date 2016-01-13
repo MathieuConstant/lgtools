@@ -48,6 +48,46 @@ public class Model {
 	}
 	
 	
+	public static boolean isEmptyFeatureId(Model m, int f){
+		
+		for(int l = 0 ; l < m.getLabelCount() ; l++){
+			if(m.weights[m.getId(l,f)] != 0.0){
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	public static int getEmptyFeatureIdCount(Model m){
+		int cnt = 0;
+		for(int f = 0 ; f < m.getFeatureCount() ; f++){
+			
+			if(isEmptyFeatureId(m,f)){
+				cnt++;
+			}
+		}
+		return cnt;
+	}
+	
+	
+	public static void getNonEmptyIdDistribution(Model m){
+		int last = -1;
+		boolean first = true;
+		for(int f = 0 ; f < m.getFeatureCount() ; f++){
+			if(!isEmptyFeatureId(m,f)){
+				if(first){
+					System.err.println("First non empty id:"+f);
+					first = false;
+				}
+				last =f;
+					
+			}
+		}
+		System.err.println("Last non empty id:"+ last);
+	}
+	
+	
+	
 	/**
 	 * 
 	 * Sets a weight to a feature with respect to a label
