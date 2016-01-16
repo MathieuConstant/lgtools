@@ -98,13 +98,14 @@ public class Test {
 	 */
 	public static void main(String[] args) throws IOException {
 		
-		//TransitionBasedModel<DepTree> model = trainingTest("train.expandedcpd.conll", "test1", 1, 1000000,-1);
-		ArcStandardSyntacticParserModel model = new ArcStandardSyntacticParserModel("test1.final");
-		Model m = model.getModel();
-		System.err.println("Model trained => nfeatures"+m.getFeatureCount()+",nLabels="+m.getLabelCount());
-		System.err.println("Feature set size: "+model.getFeatureSet().size());
-		int emptyCnt = Model.getEmptyFeatureIdCount(m);
-		System.err.println("Number of empty feature ids: "+emptyCnt+" =>"+((double)emptyCnt)/m.getFeatureCount());
+		TransitionBasedModel<DepTree> model = trainingTest("train.expandedcpd.conll", "test10M", 5, 10000000,-1);
+		TransitionBasedModel.countCollisions(model);
+		/*ArcStandardSyntacticParserModel model = new ArcStandardSyntacticParserModel("test1.final");*/
+		//Model m = model.getModel();
+		//System.err.println("Model trained => nfeatures"+m.getFeatureCount()+",nLabels="+m.getLabelCount());
+		//System.err.println("Feature set size: "+model.getFeatureSet().size());
+		//int emptyCnt = Model.getNonEmptyFeatureIdCount(m);
+		//System.err.println("Number of empty feature ids: "+emptyCnt+" =>"+((double)emptyCnt)/m.getFeatureCount());
 		//Model.getNonEmptyIdDistribution(m);
 		
 		/*

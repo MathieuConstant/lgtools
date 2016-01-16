@@ -58,11 +58,11 @@ public class Model {
 		return true;
 	}
 	
-	public static int getEmptyFeatureIdCount(Model m){
+	public static int getNonEmptyFeatureIdCount(Model m){
 		int cnt = 0;
 		for(int f = 0 ; f < m.getFeatureCount() ; f++){
 			
-			if(isEmptyFeatureId(m,f)){
+			if(!isEmptyFeatureId(m,f)){
 				cnt++;
 			}
 		}

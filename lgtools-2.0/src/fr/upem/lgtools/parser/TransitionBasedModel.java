@@ -31,8 +31,8 @@ import fr.upem.lgtools.text.Unit;
  *
  */
 public abstract class TransitionBasedModel<T> {
-	private static final double EPS = 0.001; 
 	private final HashSet<String> featureSet = new HashSet<String>();
+	private final HashSet<String>[] featuresSets ;
 	private final Model model;
 	private final List<Transition<T>> transitions;
 	private final Map<String,Transition<T>> transitionsFromId = new HashMap<String, Transition<T>>();
@@ -44,6 +44,7 @@ public abstract class TransitionBasedModel<T> {
 	
 	
 	//constructor for training stage
+	@SuppressWarnings("unchecked")
 	public TransitionBasedModel(int nFeats,DepTreebank tb) {
 			transitions = constructTransitions(tb);
 			for(Transition<T> t:transitions){
@@ -51,6 +52,7 @@ public abstract class TransitionBasedModel<T> {
 			}
 			model = new Model(nFeats,transitions.size());
 			this.featureMapping = new HashFeatureMapping(model.getFeatureCount());
+			this.featuresSets = (HashSet<String>[])new HashSet<?>[nFeats];
 	}
 	
 	
@@ -83,7 +85,7 @@ public abstract class TransitionBasedModel<T> {
 	*/
 	
 	public TransitionBasedModel(String filename) throws IOException {	
-		 
+		this.featuresSets = null;
 		DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(filename)));
 		int nFeats = in.readInt();
 		int nLabels = in.readInt();
@@ -108,6 +110,19 @@ public abstract class TransitionBasedModel<T> {
 		
 	}
 		
+	
+	public static <T> void countCollisions(TransitionBasedModel<T> model){
+		int collisions=0;
+		for(int i = 0 ; i < model.featuresSets.length ; i++){
+			if(model.featuresSets[i] != null && model.featuresSets[i].size() > 1){
+				collisions+= model.featuresSets[i].size();
+			}
+			
+		}
+		System.err.println("Collisions: "+collisions+"=>"+((double)collisions)/model.featureSet.size());
+		
+	}
+	
 	
 	public Model getModel() {
 		return model;
@@ -134,7 +149,11 @@ public abstract class TransitionBasedModel<T> {
 			@Override
 			public Feature get(int index) {
 				featureSet.add(feats.get(index));
-				return new Feature(featureMapping.getFeatureId(feats.get(index)));
+				String feat = feats.get(index);
+				int id = featureMapping.getFeatureId(feat);
+				//if(featuresSets[id] == null){featuresSets[id] = new HashSet<String>();}
+				//featuresSets[id].add(feat);
+				return new Feature(id);
 			}
 
 			@Override
@@ -229,6 +248,7 @@ public abstract class TransitionBasedModel<T> {
 			
 		}
 		out.close();
+		
 	}
 	
 	
