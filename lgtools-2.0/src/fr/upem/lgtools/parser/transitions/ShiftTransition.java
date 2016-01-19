@@ -3,7 +3,7 @@
  */
 package fr.upem.lgtools.parser.transitions;
 
-import java.util.Stack;
+import java.util.Deque;
 
 import fr.upem.lgtools.parser.Buffer;
 import fr.upem.lgtools.parser.Configuration;
@@ -15,9 +15,6 @@ import fr.upem.lgtools.text.Unit;
  */
 public class ShiftTransition<T> extends AbstractTransition<T>{
 	
-	
-	
-
 	public ShiftTransition(String id) {
 		super(id);
 		
@@ -30,7 +27,7 @@ public class ShiftTransition<T> extends AbstractTransition<T>{
 		}
 		Buffer buffer = configuration.getFirstBuffer();
 		Unit u = buffer.next();
-		Stack<Unit> stack = configuration.getFirstStack();
+		Deque<Unit> stack = configuration.getFirstStack();
 		stack.push(u);
 		return configuration;
 	}

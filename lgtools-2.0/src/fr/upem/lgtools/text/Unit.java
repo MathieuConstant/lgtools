@@ -33,6 +33,9 @@ public class Unit {
    //Some day: unit may have several syntactic parents
      
      
+     private int goldShead;  //gold syntactic head
+     private String goldSlabel;  //gold label
+     
      private int lhead;  // lexical head     
      
      private final List<Integer> subunits = new ArrayList<Integer>();  // lexical head     
@@ -75,6 +78,28 @@ public class Unit {
 		return shead;
 	}
 
+	
+	
+	
+	public int getGoldSheadId() {
+		return goldShead;
+	}
+
+	public void setGoldShead(int goldShead) {
+		this.goldShead = goldShead;
+	}
+	
+	
+
+	public String getGoldSlabel() {
+		return goldSlabel;
+	}
+
+	public void setGoldSlabel(String goldSlabel) {
+		this.goldSlabel = goldSlabel;
+	}
+
+	
 	public void setShead(int shead) {
 		this.shead = shead;
 	}

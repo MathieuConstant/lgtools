@@ -27,7 +27,7 @@ public class Utils {
 		out.write(u.getId()+"\t"+u.getForm()+"\t"+u.getLemma()+"\t"+u.getCpos());
 		out.write("\t"+u.getPos()+"\t"+feats(u.getFeatures()));
 		out.write("\t"+u.getSheadId()+"\t"+u.getSlabel());
-		out.write("\t"+u.getSheadId()+"\t"+u.getSlabel());
+		out.write("\t"+u.getGoldSheadId()+"\t"+u.getGoldSlabel());
 		out.write("\n");
 		
 	}

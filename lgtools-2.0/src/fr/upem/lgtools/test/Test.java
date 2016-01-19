@@ -5,75 +5,19 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.List;
 
-import fr.upem.lgtools.evaluation.ParsingAccuracy;
-import fr.upem.lgtools.parser.ArcStandardSyntacticParserModel;
-import fr.upem.lgtools.parser.DepArc;
-import fr.upem.lgtools.parser.DepTree;
-import fr.upem.lgtools.parser.Model;
-import fr.upem.lgtools.parser.StandardGreedyParser;
-import fr.upem.lgtools.parser.TransitionBasedModel;
+import fr.upem.lgtools.parser.features.FeatureMapping;
+import fr.upem.lgtools.parser.features.HashFeatureMappingWithMemory;
+import fr.upem.lgtools.parser.model.ArcStandardTransitionBasedParserModel;
 import fr.upem.lgtools.text.BufferedDepTreebank;
 import fr.upem.lgtools.text.DepTreebank;
 import fr.upem.lgtools.text.DepTreebankFactory;
-import fr.upem.lgtools.text.Sentence;
 import fr.upem.lgtools.text.StreamDepTreebank;
-import fr.upem.lgtools.text.Unit;
-import fr.upem.lgtools.text.Utils;
 
 public class Test {
 
 	
-	public static TransitionBasedModel<DepTree> trainingTest(String dataset, String model, int iterations, int features, int sizeLimit) throws IOException{
-		DepTreebank tb = readTreebank(dataset,sizeLimit);
-		ArcStandardSyntacticParserModel m = new ArcStandardSyntacticParserModel(features, tb);
-		
-		StandardGreedyParser<DepTree> parser = new StandardGreedyParser<DepTree>(m);
-		parser.train(tb, iterations,model);
-		return parser.getModel();
-	}
 	
-	private static void updateSentence(Sentence s,DepTree tree){
-		List<Unit> tokens = s.getTokens();
-		DepArc[] arcs =  tree.getArcs();
-		for(Unit u:tokens){			
-		    DepArc a = arcs[u.getId()];
-		    u.setShead(a.getHead());
-		    u.setSlabel(a.getLabel());
-			
-		}
-	}
-	
-	public static DepTreebank parsingTest(String dataset,TransitionBasedModel<DepTree> m) throws FileNotFoundException{
-		DepTreebank tb = readTreebank(dataset);
-		StandardGreedyParser<DepTree> parser = new StandardGreedyParser<DepTree>(m);
-		
-		int cnt = 0;
-		for(Sentence s:tb){
-			DepTree tree = parser.parse(s.getTokens());
-			updateSentence(s,tree);
-			cnt++;
-			if(cnt%1000 == 0){
-				System.err.println(cnt+" sentences parsed.");
-			}
-			//System.out.println("");
-			
-			//System.out.println(s);
-		}
-		
-		return tb;
-		
-	}
-	
-	public static DepTreebank parsingTest(String dataset,String model) throws IOException{
-
-		ArcStandardSyntacticParserModel mod = new ArcStandardSyntacticParserModel(model);
-		Model m = mod.getModel();
-		System.err.println("Model trained => nfeatures"+m.getFeatureCount()+",nLabels="+m.getLabelCount());
-		return parsingTest(dataset, mod);
-		
-	}
 	
 	
 	private static DepTreebank readTreebank(String filename) throws FileNotFoundException{
@@ -97,9 +41,19 @@ public class Test {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
+		 
+		//TransitionBasedSystem<DepTree> parser = new TransitionBasedSystem<DepTree>(tbm);
 		
-		TransitionBasedModel<DepTree> model = trainingTest("train.expandedcpd.conll", "test10M", 5, 10000000,-1);
-		TransitionBasedModel.countCollisions(model);
+		DepTreebank tb = readTreebank("train.expandedcpd.conll",2);
+		FeatureMapping fm = new HashFeatureMappingWithMemory(10000);
+		ArcStandardTransitionBasedParserModel model = new ArcStandardTransitionBasedParserModel(fm,tb);
+		System.err.println(model);
+		/**
+		 * BUG: ajout d'une transition a chaque fois qu'il y a une occurrence possible dans tb: faire une seule fois
+		 */
+		
+		//TransitionBasedModel<DepTree> model = trainingTest("train.expandedcpd.conll", "test10M", 5, 10000000,-1);
+		//TransitionBasedModel.countCollisions(model);
 		/*ArcStandardSyntacticParserModel model = new ArcStandardSyntacticParserModel("test1.final");*/
 		//Model m = model.getModel();
 		//System.err.println("Model trained => nfeatures"+m.getFeatureCount()+",nLabels="+m.getLabelCount());

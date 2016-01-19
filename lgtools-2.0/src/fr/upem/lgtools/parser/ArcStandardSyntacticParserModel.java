@@ -2,10 +2,10 @@ package fr.upem.lgtools.parser;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.Stack;
 
 import fr.upem.lgtools.parser.features.DefaultFeatureExtractor;
 import fr.upem.lgtools.parser.features.FeatureExtractor;
@@ -23,7 +23,7 @@ import fr.upem.lgtools.text.Unit;
  *
  */
 public class ArcStandardSyntacticParserModel extends TransitionBasedModel<DepTree> {
-    private final static FeatureExtractor<DepTree> EXTRACTOR = new DefaultFeatureExtractor();
+    private final static FeatureExtractor<DepTree> EXTRACTOR = new DefaultFeatureExtractor(null);
     private final static Transition<DepTree> SHIFT = new ShiftTransition<DepTree>("SHIFT");
     private final static String LA_TYPE = "LA";
     private final static String RA_TYPE = "RA";
@@ -71,10 +71,11 @@ public class ArcStandardSyntacticParserModel extends TransitionBasedModel<DepTre
 	@Override
 	public Transition<DepTree> staticOracle(Configuration<DepTree> c) {
 		
-		Stack<Unit> stack = c.getFirstStack();
+		Deque<Unit> stack = c.getFirstStack();
 		if(stack.size() >= 2){
-			Unit u1 = stack.get(stack.size() - 1);			
-			Unit u2 = stack.get(stack.size() - 2);
+			Unit u1 =  stack.pollFirst();									
+			Unit u2 = stack.peek();
+			stack.push(u1);
 			// if can do LA
 			//System.out.println(u1);
 			//System.out.println(u2);

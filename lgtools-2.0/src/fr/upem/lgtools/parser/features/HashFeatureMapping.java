@@ -3,25 +3,31 @@
  */
 package fr.upem.lgtools.parser.features;
 
+import java.util.Collection;
+
 /**
  * @author Mathieu
  *
  */
-public class HashFeatureMapping implements FeatureMapping {
-     private final int max;
+public class HashFeatureMapping extends FeatureMapping {
+     
      
 	
 	public HashFeatureMapping(int max) {
-		this.max = max;
+		super(max);
 	}
 
 
 
-	/* (non-Javadoc)
-	 * @see fr.upem.lgtools.parser.features.Features#getFeatureId(java.lang.String)
-	 */
 	@Override
-	public int getFeatureId(String feat) {
+	Collection<String> getFeatures() {		
+		return null;
+	}
+
+
+
+	@Override
+	int getFeatureId(String feat, boolean withMemoryIfPossible) {
 		/* implementation of string.hashcode() -- optimized  */
 		int hashcode = 0;
 		 
@@ -32,11 +38,15 @@ public class HashFeatureMapping implements FeatureMapping {
 
 		/* hascode must be comprised between 0 and max */
 		
-		hashcode = hashcode%this.max; //hashcode must be lower than max
+		hashcode = hashcode%featureCapacity(); //hashcode must be lower than max
 		hashcode = hashcode<0?-hashcode:hashcode; //hashcode must be positive
+		
 		
 		return hashcode;
 	}
+
+
+	
 	
 	
 

@@ -3,7 +3,7 @@
  */
 package fr.upem.lgtools.parser.transitions;
 
-import java.util.Stack;
+import java.util.Deque;
 
 import fr.upem.lgtools.parser.Configuration;
 import fr.upem.lgtools.parser.DepArc;
@@ -14,23 +14,15 @@ import fr.upem.lgtools.text.Unit;
  * @author Mathieu Constant
  *
  */
-public class LeftArcTransition extends AbstractTransition<DepTree> {
-
-	private final String label;
-	
-	
-	/**
-	 * @param label
-	 */
-	public LeftArcTransition(String type,String label) {
-		super(Transitions.constructTransitionId(type, label));
-		this.label = label;
+public class LeftArcTransition extends LabeledTransition<DepTree> {
+		
+	public LeftArcTransition(String type, String label) {
+		super(type, label);
 	}
 
-	
 	@Override
 	public Configuration<DepTree> perform(Configuration<DepTree> configuration) {
-		Stack<Unit> stack = configuration.getFirstStack();
+		Deque<Unit> stack = configuration.getFirstStack();
 		Unit s0 = stack.pop();
 		Unit s1 = stack.pop();
 		DepTree t = configuration.getAnalyses();
@@ -41,8 +33,14 @@ public class LeftArcTransition extends AbstractTransition<DepTree> {
 
 	@Override
 	public boolean isValid(Configuration<DepTree> configuration) {
-		Stack<Unit> stack = configuration.getFirstStack();
-		return stack.size() >= 2 && !stack.get(stack.size() - 2).isRoot();
+		Deque<Unit> stack = configuration.getFirstStack();
+		if(stack.size() < 2){
+			return false;
+		}
+		if(stack.size() == 2 && stack.peekLast().isRoot()){
+			return false;
+		}
+		return true;
 	}
 
 	

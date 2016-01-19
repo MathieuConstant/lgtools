@@ -1,6 +1,8 @@
 package fr.upem.lgtools.parser;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 import java.util.Stack;
 
@@ -9,7 +11,7 @@ import fr.upem.lgtools.text.UnitFactory;
 
 public class Configuration<T> {
 	private final Buffer[] buffers;
-    private final Stack<Unit>[] stacks;
+    private final Deque<Unit>[] stacks;
     private final T analyses;
     private final List<String> history = new ArrayList<String>();
     
@@ -35,9 +37,9 @@ public class Configuration<T> {
     	for(int i = 0 ; i < nBuffers ; i++){
     		buffers[i] = new SimpleBuffer(units);    		
     	}
-    	stacks =  (Stack<Unit>[])new Stack<?>[nStacks];
+    	stacks =  (Deque<Unit>[])new Stack<?>[nStacks];
     	for(int i = 0 ; i < nStacks ; i++){
-    		  stacks[i] = new Stack<Unit>();
+    		  stacks[i] = new ArrayDeque<Unit>();
     		  stacks[i].push(root);
     		  
     	}
@@ -45,16 +47,16 @@ public class Configuration<T> {
     	
     }
    
-    public Stack<Unit> getStack(int index){
+    public Deque<Unit> getStack(int index){
     	return stacks[index];
     }
     
     
-    public Stack<Unit> getFirstStack(){
+    public Deque<Unit> getFirstStack(){
     	return stacks[0];
     }
 
-    public Stack<Unit> getSecondStack(){
+    public Deque<Unit> getSecondStack(){
     	if(stacks.length < 2){
     		throw new IllegalArgumentException("To get the second stack, there should be at leat two stacks");
     	}
@@ -92,7 +94,7 @@ public class Configuration<T> {
 			}
 		}
 		
-		for(Stack<Unit> stack:stacks){
+		for(Deque<Unit> stack:stacks){
 			if(stack.size() > 1){
 				return false;
 			}

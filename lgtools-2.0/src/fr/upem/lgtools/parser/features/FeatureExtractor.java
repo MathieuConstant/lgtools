@@ -3,8 +3,6 @@
  */
 package fr.upem.lgtools.parser.features;
 
-import java.util.List;
-
 import fr.upem.lgtools.parser.Configuration;
 
 /**
@@ -12,5 +10,5 @@ import fr.upem.lgtools.parser.Configuration;
  *
  */
 public interface FeatureExtractor<T> {
-      public List<String> perform(Configuration<T> config);
+      public FeatureVector perform(Configuration<T> config);
 }

@@ -25,9 +25,13 @@ public class Sentence {
 	}
 	
 	public List<Unit> getTokens(){
-		return units.subList(0, size);
-		
+		return units.subList(0, size);		
 	}
+	
+	public List<Unit> getUnits(){
+		return units;		
+	}
+	
 	
 	@Override
 	public String toString() {

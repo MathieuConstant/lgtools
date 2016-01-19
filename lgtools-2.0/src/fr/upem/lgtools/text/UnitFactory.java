@@ -15,6 +15,8 @@ public class UnitFactory {
 	private final static String CONLL_FEAT_DELIM = "=";
 	private final static int CONLL_HEAD = 6;
 	private final static int CONLL_LABEL = 7;
+	private final static int CONLL_GOLD_HEAD = 8;
+	private final static int CONLL_GOLD_LABEL = 9;
 	private final static String DUMMY = "_";
 	
 	public static Unit createRootUnit(){
@@ -44,9 +46,15 @@ public class UnitFactory {
 		u.setCpos(tab[CONLL_CPOS]);
 		u.setPos(tab[CONLL_POS]);
 		parseFeats(u,tab[CONLL_FEATS]);
+		//predicted arcs
 		int sh = tab[CONLL_HEAD].equals(DUMMY)?-1:Integer.parseInt(tab[CONLL_HEAD]); 
 		u.setShead(sh);
 		u.setSlabel(tab[CONLL_LABEL]);
+		// gold arcs
+		sh = tab[CONLL_GOLD_HEAD].equals(DUMMY)?-1:Integer.parseInt(tab[CONLL_GOLD_HEAD]); 
+		u.setGoldShead(sh);
+		u.setGoldSlabel(tab[CONLL_GOLD_LABEL]);
+		
 		return u;
 	}
 }
