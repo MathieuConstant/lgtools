@@ -158,7 +158,7 @@ public class Unit {
 	
 	@Override
 	public String toString(){
-		StringBuilder sb = new StringBuilder();
+		/*StringBuilder sb = new StringBuilder();
 		sb.append(id)
 		   .append("\t")
 		   .append(form)
@@ -173,10 +173,11 @@ public class Unit {
 		   .append("\t")
 		   .append(shead).append("\t").append(slabel)
 		   .append("\n");	
-		
+		*/
 		/*sb.append(id).append(":").append(form).append(":").append(shead)
 		   .append(":").append(slabel);*/
-		return sb.toString(); 
+		//return sb.toString();
+		return form+"("+id+")";
 	}
      
      

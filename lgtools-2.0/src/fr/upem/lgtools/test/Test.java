@@ -6,8 +6,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import fr.upem.lgtools.parser.DepTree;
+import fr.upem.lgtools.parser.TransitionBasedSystem;
 import fr.upem.lgtools.parser.features.FeatureMapping;
-import fr.upem.lgtools.parser.features.HashFeatureMappingWithMemory;
+import fr.upem.lgtools.parser.features.HashMapFeatureMapping;
 import fr.upem.lgtools.parser.model.ArcStandardTransitionBasedParserModel;
 import fr.upem.lgtools.text.BufferedDepTreebank;
 import fr.upem.lgtools.text.DepTreebank;
@@ -44,13 +46,16 @@ public class Test {
 		 
 		//TransitionBasedSystem<DepTree> parser = new TransitionBasedSystem<DepTree>(tbm);
 		
-		DepTreebank tb = readTreebank("train.expandedcpd.conll",2);
-		FeatureMapping fm = new HashFeatureMappingWithMemory(10000);
-		ArcStandardTransitionBasedParserModel model = new ArcStandardTransitionBasedParserModel(fm,tb);
-		System.err.println(model);
+		DepTreebank tb = readTreebank("tests/test.conll",1);
+		FeatureMapping fm = new  HashMapFeatureMapping(10);
+		ArcStandardTransitionBasedParserModel tbm = new ArcStandardTransitionBasedParserModel(fm,tb);
+		System.err.println(tbm);
+		TransitionBasedSystem<DepTree> parser = new TransitionBasedSystem<DepTree>(tbm);
+		parser.staticOracleTrain(tb, "tests/model", 2);
 		/**
-		 * BUG: ajout d'une transition a chaque fois qu'il y a une occurrence possible dans tb: faire une seule fois
+		 * TODO print model and see updates
 		 */
+		
 		
 		//TransitionBasedModel<DepTree> model = trainingTest("train.expandedcpd.conll", "test10M", 5, 10000000,-1);
 		//TransitionBasedModel.countCollisions(model);

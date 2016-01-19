@@ -15,7 +15,7 @@ public class HashMapFeatureMapping extends FeatureMapping{
 
 	private final HashMap<String, Integer> features = new HashMap<String,Integer>();
 	
-	HashMapFeatureMapping(int max) {
+	public HashMapFeatureMapping(int max) {
 		super(max);
 		
 	}

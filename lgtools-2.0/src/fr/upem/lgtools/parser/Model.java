@@ -1,8 +1,7 @@
 package fr.upem.lgtools.parser;
 
-import java.util.List;
-
 import fr.upem.lgtools.parser.features.Feature;
+import fr.upem.lgtools.parser.features.FeatureVector;
 
 public class Model {
 	private final double[] weights;
@@ -149,12 +148,13 @@ public class Model {
 	
 	
 	
+	
 	/**
 	 * 
 	 * @param feature
 	 * @param updatePlus indicates weither the update should be positive (true value) or negative (false value)
 	 */
-	
+	/*
 	private void update(Feature feature, int label, boolean updatePlus){
 		int feat = feature.getFeat();
 	    if(feat >= nFeatures || feat < 0){
@@ -176,6 +176,7 @@ public class Model {
 	    }
 		 
 	}
+	*/
 	
 	/*
 	private void update(Feature feature){
@@ -184,18 +185,25 @@ public class Model {
 	
 	
 	
-	public void update(Iterable<Feature> feats, int label, boolean updatePlus){
+	public void updatePlus(FeatureVector feats, int label){
 	    for(Feature feat:feats){
-	    	update(feat,label, updatePlus);
+	    	int id = getId(label,feat.getFeat());
+		     weights[id] += feat.getValue();	
 	    }	
 	}
 	
-	public void update(Iterable<Feature> feats, int label){
-	    update(feats,label,true);	
+	public void updateMinus(FeatureVector feats, int label){
+		for(Feature feat:feats){
+	    	int id = getId(label,feat.getFeat());
+		     weights[id] -= feat.getValue();	
+	    }
 	}
 	
 	
-	public double score(List<Feature> feats,int label){
+  
+	
+	
+	public double score(FeatureVector feats,int label){
 		double sc = 0.0;
 		for(Feature f:feats){
 			double w = f.getValue();

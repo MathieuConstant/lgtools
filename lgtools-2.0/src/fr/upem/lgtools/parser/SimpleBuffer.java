@@ -56,4 +56,9 @@ public class SimpleBuffer implements Buffer {
 	
 	}
 
+	@Override
+	public String toString() {
+		return Arrays.asList(units).subList(current, units.length).toString();
+	}
+	
 }

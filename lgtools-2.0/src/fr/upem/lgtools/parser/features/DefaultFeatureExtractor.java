@@ -49,9 +49,9 @@ public class DefaultFeatureExtractor implements FeatureExtractor<DepTree> {
 		
 		Deque<Unit> stack = configuration.getFirstStack();
 		Buffer buffer = configuration.getFirstBuffer();
-		
-		Unit s0u = stack.peek();
-		addUnitFeatures("s0u", s0u,feats);
+		feats.add("EMPTY");
+		/*Unit s0u = stack.peek();
+		addUnitFeatures("s0u", s0u,feats);*/
 		/*if(stack.size() - 2 >= 0){
 		  Unit s1u = stack.get(stack.size() - 2);
 		  addUnitFeatures("s1u", s1u,feats);
@@ -62,7 +62,7 @@ public class DefaultFeatureExtractor implements FeatureExtractor<DepTree> {
 		  }
 		}*/
 		
-		
+		/*
 		if(buffer.size() > 0){
 			Unit b0u = buffer.get(0);
 			addUnitFeatures("b0u", b0u,feats);
@@ -74,7 +74,7 @@ public class DefaultFeatureExtractor implements FeatureExtractor<DepTree> {
 			addUnitFeatures("b1u", b1u,feats);
 			addUnitPairFeatures("b0u_b1u",b0u,b1u,feats);
 			addUnitTripletFeatures("b0u_b1u_s0u",b0u,b1u,s0u,feats);
-		}
+		}*/
 		return feats;
 	}
 	

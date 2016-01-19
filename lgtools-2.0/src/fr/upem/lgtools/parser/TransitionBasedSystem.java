@@ -60,7 +60,7 @@ public class TransitionBasedSystem<T> {
     
      
      
-     public void staticOracleTrain(DepTreebank tb, String modelFilename, int nfeatures, FeatureMapping fm, int iterations){
+     public void staticOracleTrain(DepTreebank tb, String modelFilename, int iterations){
     	 tb = tbm.filter(tb);
     	 for(int i = 0 ; i < iterations ; i++){
     		 System.err.println("Iteration "+ (i+1));
@@ -74,7 +74,8 @@ public class TransitionBasedSystem<T> {
     				 FeatureVector fv = tbm.extractFeatures(c);
     				 Transition<T> pt = tbm.getBestValidTransition(fv,c);
     				 Transition<T> ot = tbm.getBestCorrectTransition(fv,c);
-    				 
+    				 System.err.println("OT "+ot);
+    				 System.err.println("PT "+pt);
     				 if(pt.equals(ot)){ // true prediction
     					 c = pt.perform(c); 
     					 cnt++;
@@ -84,6 +85,7 @@ public class TransitionBasedSystem<T> {
     					 c = ot.perform(c);  
     				 }
     				 total++;
+    				 System.err.println(c);
     			 }
     			 sent++;
     		 }

@@ -37,7 +37,7 @@ public class Configuration<T> {
     	for(int i = 0 ; i < nBuffers ; i++){
     		buffers[i] = new SimpleBuffer(units);    		
     	}
-    	stacks =  (Deque<Unit>[])new Stack<?>[nStacks];
+    	stacks =  (Deque<Unit>[])new Deque<?>[nStacks];
     	for(int i = 0 ; i < nStacks ; i++){
     		  stacks[i] = new ArrayDeque<Unit>();
     		  stacks[i].push(root);
@@ -101,6 +101,11 @@ public class Configuration<T> {
 		}
 		
 		return true;
+	}
+	
+	@Override
+	public String toString() {
+		return getFirstStack().toString()+""+getFirstBuffer().toString();
 	}
 	
 }

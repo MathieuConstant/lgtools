@@ -24,5 +24,37 @@ public abstract class AbstractTransition<T> implements Transition<T> {
 	public String toString(){
 		return id();
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		String id = id();
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AbstractTransition<T> other = (AbstractTransition<T>) obj;
+		String id = id();
+		String oid = other.id();
+		if (id == null) {
+			if (oid != null)
+				return false;
+		} else if (!id.equals(oid))
+			return false;
+		return true;
+	}
+	
+	
+	
 	
 }

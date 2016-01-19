@@ -59,6 +59,17 @@ public class ArcStandardTransitionBasedParserModel extends
 		return null;
 	}
 	
+	public static boolean rightDependentHasAllItsDependents(Unit d,Configuration<DepTree> c){
+		int id = d.getId();
+		for(Unit u:c.getFirstBuffer()){
+			if(id == u.getGoldSheadId()) return false;
+		}
+		
+		
+		return true;
+	}
+	
+	
 	/**
 	 * 
 	 * @param configuration
@@ -72,7 +83,8 @@ public class ArcStandardTransitionBasedParserModel extends
 			Unit u1 = stack.pop();
 			Unit u2 = stack.peek();
 			stack.push(u1);
-			if(u1.getGoldSheadId() == u2.getId()){
+			if(u1.getGoldSheadId() == u2.getId() && rightDependentHasAllItsDependents(u1,configuration)){
+				
 				return u1.getGoldSlabel();
 			}
 		}
@@ -89,15 +101,17 @@ public class ArcStandardTransitionBasedParserModel extends
 	public Transition<DepTree> staticOracle(Configuration<DepTree> configuration) {
 		String label;
 		// if LA is possible, then LA
-		if((label = getLeftArcLabel(configuration)) != null){			
+		if((label = getLeftArcLabel(configuration)) != null){
+			//System.err.println("Oracle: LA+"+label);
 			return transitions.getTransition(LEFT_ARC, label);
 		}
 		
 		//if RA is possible, then RA
-		if((label = getRightArcLabel(configuration)) != null){			
+		if((label = getRightArcLabel(configuration)) != null){
+			//System.err.println("Oracle: RA+"+label);
 			return transitions.getTransition(RIGHT_ARC, label);
 		}
-		
+		//System.err.println("Oracle: SH");
 		//default: SH				
 		return transitions.getTransition(SHIFT, null);
 	}

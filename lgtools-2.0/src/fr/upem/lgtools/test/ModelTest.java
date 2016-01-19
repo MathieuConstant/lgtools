@@ -2,7 +2,6 @@ package fr.upem.lgtools.test;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -11,6 +10,7 @@ import org.junit.Test;
 
 import fr.upem.lgtools.parser.Model;
 import fr.upem.lgtools.parser.features.Feature;
+import fr.upem.lgtools.parser.features.FeatureVector;
 
 public class ModelTest {
 
@@ -27,8 +27,8 @@ public class ModelTest {
 		assertTrue(true);
 	}
 
-	private List<Feature> featuresAllVal(int nFeats,double val){
-		List<Feature> feats = new LinkedList<Feature>();
+	private FeatureVector featuresAllVal(int nFeats,double val){
+		FeatureVector feats = new FeatureVector();
 		for(int f = 0 ; f < nFeats ; f++){
 			feats.add(new Feature(f, val));
 		}
@@ -74,7 +74,7 @@ public class ModelTest {
 	@Test
 	public void testScoreAllFeatures(){
 		Model model = fillVal(2);
-		List<Feature> feats = featuresAllVal(model.getFeatureCount(),1.0);
+		FeatureVector feats = featuresAllVal(model.getFeatureCount(),1.0);
 		for(int l=0;l < model.getLabelCount() ; l++){
 			assertFalse(model.score(feats, l) != 2*model.getFeatureCount());
 		}

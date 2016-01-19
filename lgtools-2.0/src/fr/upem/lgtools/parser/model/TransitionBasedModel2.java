@@ -90,7 +90,10 @@ public abstract class TransitionBasedModel2<T> {
 		if(transition == null){
 			return;
 		}
-		transitions.add(transition);
+		if(!transitions.contains(transition)){
+			transitions.add(transition);	
+		}
+		
 	}
 	
 	
@@ -127,17 +130,34 @@ public abstract class TransitionBasedModel2<T> {
 		return getBestTransition(fv,getCorrectTransitions(c));
 	}
 	
-	private Transition<T> getBestTransition(FeatureVector fv, Set<Transition<T>> possibleTransitions){
-		/* TODO */
-		throw new UnsupportedOperationException("Not implemented yet");
+	
+	private Transition<T> getBestTransition(FeatureVector feats, Set<Transition<T>> possibleTransitions){
+		double bestSc = -Double.MAX_VALUE;
+		Transition<T> bestTransition = null;
+		for(int l = 0 ; l < transitions.size(); l++){
+			Transition<T> t = transitions.getTransition(l);
+			if(possibleTransitions.contains(t)){ 
+				//System.out.println(authorizedTransitions);
+			  double sc = model.score(feats,l);
+			  //System.out.println(sc);
+			  if(sc > bestSc){
+				bestSc = sc;
+				bestTransition = t;
+			  }
+			  //System.out.println(bestLabel);
+			}
+		}
+		return bestTransition;
+		
 		
 	}
 		
 	
 	
-	public void update(FeatureVector v, Transition<T> ot, Transition<T> pt){
-		/* TODO */
-		throw new UnsupportedOperationException("Not implemented yet");
+	public void update(FeatureVector feats, Transition<T> ot, Transition<T> pt){
+		model.updatePlus(feats, transitions.getTransitionIndex(ot));
+		model.updateMinus(feats, transitions.getTransitionIndex(pt));
+		
 	}
 	
 	

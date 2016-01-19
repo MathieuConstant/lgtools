@@ -24,6 +24,9 @@ public class Transitions {
 	}
 	
 	public static <T> String constructTransitionId(String type,String label){
+		if(label == null){
+			return type;
+		}
 		return type+SEP+label;
 	}
 	

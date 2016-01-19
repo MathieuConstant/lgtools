@@ -22,6 +22,11 @@ public class TransitionSet<T> implements Iterable<Transition<T>>{
 	private final Map<String,Integer> transitionIds = new HashMap<String,Integer>();
 	
 	
+	public boolean contains(Transition<T> transition){
+		return map.containsKey(transition.id());		
+	}
+	
+	
 	private String getTransitionId(String type, String label){
 		return Transitions.constructTransitionId(type, label);
 	}
@@ -40,6 +45,7 @@ public class TransitionSet<T> implements Iterable<Transition<T>>{
 	}
 	
 	public int getTransitionIndex(Transition<T> transition){
+		
 		return transitionIds.get(transition.id());
 	}
 	
