@@ -1,7 +1,5 @@
 package fr.upem.lgtools.evaluation;
 
-import java.util.Iterator;
-
 import fr.upem.lgtools.text.DepTreebank;
 import fr.upem.lgtools.text.Sentence;
 import fr.upem.lgtools.text.Unit;
@@ -14,18 +12,15 @@ public class ParsingAccuracy {
 	private int exactMatchCount = 0;
 	
 	
-	private static void computeParsingAccuracy(Sentence gold, Sentence sys, ParsingAccuracy acc){
-		Iterator<Unit> it = sys.getTokens().iterator();
+	public static void computeParsingAccuracy(Sentence sentence, ParsingAccuracy acc){
+		
 		boolean exact = true;
-		for(Unit gu:gold.getTokens()){
-			Unit su = it.next();
-			if(su.getId() != gu.getId()){
-				throw new IllegalArgumentException("Compared units are not the same ones: "+su+ " vs. "+gu);
-			}
+		for(Unit u:sentence.getTokens()){
+			
 			acc.addUnit();
-			if(su.getSheadId() == gu.getSheadId()){
+			if(u.getGoldSheadId() == u.getSheadId()){
 				acc.addUnlabeledMatch();
-				if(su.getSlabel().equals(gu.getSlabel())){
+				if(u.getGoldSlabel().equals(u.getSlabel())){
 					acc.addLabeledMatch();
 				}
 				else{
@@ -44,13 +39,11 @@ public class ParsingAccuracy {
 	}
 	
 	
-    public static ParsingAccuracy computeParsingAccuracy(DepTreebank gold, DepTreebank sys){
+    public static ParsingAccuracy computeParsingAccuracy(DepTreebank tb){
 		ParsingAccuracy acc = new ParsingAccuracy();
-		Iterator<Sentence> it = sys.iterator();
-		for(Sentence gs:gold){
+		for(Sentence s:tb){
 			acc.addSentence();
-			Sentence ss = it.next();
-			computeParsingAccuracy(gs,ss,acc);
+			computeParsingAccuracy(s,acc);
 		}
 		return acc;
 	}

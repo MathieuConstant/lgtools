@@ -163,7 +163,7 @@ public abstract class TransitionBasedModel2<T> {
 	
 	@Override
 	public String toString() {		
-		return transitions.toString();
+		return transitions.toString()+"\n"+features.toString()+"\n"+model.toString();
 	}
 	
 }

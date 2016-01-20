@@ -9,12 +9,14 @@ import java.io.InputStreamReader;
 import fr.upem.lgtools.parser.DepTree;
 import fr.upem.lgtools.parser.TransitionBasedSystem;
 import fr.upem.lgtools.parser.features.FeatureMapping;
+import fr.upem.lgtools.parser.features.HashFeatureMapping;
 import fr.upem.lgtools.parser.features.HashMapFeatureMapping;
 import fr.upem.lgtools.parser.model.ArcStandardTransitionBasedParserModel;
 import fr.upem.lgtools.text.BufferedDepTreebank;
 import fr.upem.lgtools.text.DepTreebank;
 import fr.upem.lgtools.text.DepTreebankFactory;
 import fr.upem.lgtools.text.StreamDepTreebank;
+import fr.upem.lgtools.text.Utils;
 
 public class Test {
 
@@ -46,16 +48,16 @@ public class Test {
 		 
 		//TransitionBasedSystem<DepTree> parser = new TransitionBasedSystem<DepTree>(tbm);
 		
-		DepTreebank tb = readTreebank("tests/test.conll",1);
-		FeatureMapping fm = new  HashMapFeatureMapping(10);
+		DepTreebank tb = readTreebank("train.expandedcpd.conll");
+		FeatureMapping fm = new  HashMapFeatureMapping(10000000);
 		ArcStandardTransitionBasedParserModel tbm = new ArcStandardTransitionBasedParserModel(fm,tb);
-		System.err.println(tbm);
+		//System.err.println(tbm);
 		TransitionBasedSystem<DepTree> parser = new TransitionBasedSystem<DepTree>(tbm);
-		parser.staticOracleTrain(tb, "tests/model", 2);
-		/**
-		 * TODO print model and see updates
-		 */
-		
+		parser.staticOracleTrain(tb, "model", 5);
+		//parser.greedyParseTreebankAndEvaluate(tb);
+		tb = readTreebank("dev.expandedcpd.conll");
+		parser.greedyParseTreebankAndEvaluate(tb);
+		Utils.saveTreebank(tb, "output.conll");
 		
 		//TransitionBasedModel<DepTree> model = trainingTest("train.expandedcpd.conll", "test10M", 5, 10000000,-1);
 		//TransitionBasedModel.countCollisions(model);

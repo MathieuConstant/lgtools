@@ -3,6 +3,7 @@ package fr.upem.lgtools.text;
 
 public class UnitFactory {
 	private final static int ROOT_ID = 0;
+	private final static int NULL_ID = -1;
 	private final static String ROOT_FORM = "_ROOT_";
 	private final static String CONLL_DELIM = "\t";
 	private final static int CONLL_ID = 0;
@@ -19,9 +20,15 @@ public class UnitFactory {
 	private final static int CONLL_GOLD_LABEL = 9;
 	private final static String DUMMY = "_";
 	
+	public static Unit createNullUnit(){
+		return new Unit(NULL_ID,DUMMY,NULL_ID);		
+	}
+	
 	public static Unit createRootUnit(){
 		return new Unit(ROOT_ID,ROOT_FORM,ROOT_ID);		
 	}
+	
+	
 	
 	private static void parseFeats(Unit u, String feats){
 		if(feats.equals(DUMMY)){

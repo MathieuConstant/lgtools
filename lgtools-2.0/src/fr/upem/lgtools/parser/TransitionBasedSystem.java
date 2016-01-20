@@ -6,7 +6,7 @@ package fr.upem.lgtools.parser;
 import java.io.FileNotFoundException;
 import java.util.List;
 
-import fr.upem.lgtools.parser.features.FeatureMapping;
+import fr.upem.lgtools.evaluation.ParsingAccuracy;
 import fr.upem.lgtools.parser.features.FeatureVector;
 import fr.upem.lgtools.parser.model.TransitionBasedModel2;
 import fr.upem.lgtools.parser.transitions.Transition;
@@ -52,12 +52,25 @@ public class TransitionBasedSystem<T> {
  			if(cnt%1000 == 0){
  				System.err.println(cnt+" sentences parsed.");
  			} 			
- 		} 		
+ 		} 
+ 		
  		return tb;
  		
  	}
-     
     
+ 	
+public DepTreebank greedyParseTreebankAndEvaluate(DepTreebank tb) throws FileNotFoundException{
+ 	   tb = greedyParseTreebank(tb); 
+ 	   ParsingAccuracy eval = ParsingAccuracy.computeParsingAccuracy(tb);
+	   System.err.println(eval);
+ 		return tb;
+ 		
+ 	}
+ 	
+ 	
+    
+ 	
+ 	
      
      
      public void staticOracleTrain(DepTreebank tb, String modelFilename, int iterations){
@@ -74,8 +87,8 @@ public class TransitionBasedSystem<T> {
     				 FeatureVector fv = tbm.extractFeatures(c);
     				 Transition<T> pt = tbm.getBestValidTransition(fv,c);
     				 Transition<T> ot = tbm.getBestCorrectTransition(fv,c);
-    				 System.err.println("OT "+ot);
-    				 System.err.println("PT "+pt);
+    				 //System.err.println("OT "+ot);
+    				 //System.err.println("PT "+pt);
     				 if(pt.equals(ot)){ // true prediction
     					 c = pt.perform(c); 
     					 cnt++;
@@ -85,7 +98,8 @@ public class TransitionBasedSystem<T> {
     					 c = ot.perform(c);  
     				 }
     				 total++;
-    				 System.err.println(c);
+    				 //System.err.println(c);
+    				 //System.err.println(tbm);
     			 }
     			 sent++;
     		 }

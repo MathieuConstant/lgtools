@@ -177,7 +177,7 @@ public class Unit {
 		/*sb.append(id).append(":").append(form).append(":").append(shead)
 		   .append(":").append(slabel);*/
 		//return sb.toString();
-		return form+"("+id+")";
+		return form+"("+id+","+pos+")";
 	}
      
      

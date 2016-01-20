@@ -24,10 +24,21 @@ public abstract class FeatureMapping {
 	   	return getFeatureId(feat,true);
   }
    
-   abstract int getFeatureId(String feat, boolean withMemoryIfPossible);
-   abstract Collection<String> getFeatures();
+   abstract public int getFeatureId(String feat, boolean withMemoryIfPossible);
+   abstract public Collection<String> getFeatures();
    
    public int featureCapacity(){
 	   return max;
    }
+   
+   @Override
+	public String toString() {
+	   StringBuilder sb = new StringBuilder("{");
+		for(String f:getFeatures()){
+			sb.append(f).append("->").append(getFeatureId(f)).append(", ");
+		}
+		sb.append("}");
+		return sb.toString();
+	}
+   
 }

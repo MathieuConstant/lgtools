@@ -189,12 +189,15 @@ public abstract class TransitionBasedModel<T> {
 		for(int l = 0 ; l < transitions.size(); l++){
 			if(authorizedTransitions.contains(transitions.get(l))){ 
 				//System.out.println(authorizedTransitions);
-			  double sc = model.score(feats,l);
-			  //System.out.println(sc);
+			 /*
+				double sc = model.score(feats,l);
+			 
+				//System.out.println(sc);
 			  if(sc > bestSc){
 				bestSc = sc;
 				bestLabel = l;
 			  }
+			  */
 			  //System.out.println(bestLabel);
 			}
 		}

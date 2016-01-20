@@ -18,12 +18,12 @@ public class HashFeatureMappingWithMemory extends HashFeatureMapping {
 	}
 
 	@Override
-	Collection<String> getFeatures() {		
+	public Collection<String> getFeatures() {		
 		return features;
 	}
 
 	@Override
-	int getFeatureId(String feat, boolean withMemoryIfPossible) {
+	public int getFeatureId(String feat, boolean withMemoryIfPossible) {
 		if(withMemoryIfPossible){
 			features.add(feat);
 		}

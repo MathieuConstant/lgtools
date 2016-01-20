@@ -20,14 +20,14 @@ public class HashFeatureMapping extends FeatureMapping {
 
 
 	@Override
-	Collection<String> getFeatures() {		
+	public Collection<String> getFeatures() {		
 		return null;
 	}
 
 
 
 	@Override
-	int getFeatureId(String feat, boolean withMemoryIfPossible) {
+	public int getFeatureId(String feat, boolean withMemoryIfPossible) {
 		/* implementation of string.hashcode() -- optimized  */
 		int hashcode = 0;
 		 

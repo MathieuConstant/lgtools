@@ -27,6 +27,7 @@ public class ModelTest {
 		assertTrue(true);
 	}
 
+	/*
 	private FeatureVector featuresAllVal(int nFeats,double val){
 		FeatureVector feats = new FeatureVector();
 		for(int f = 0 ; f < nFeats ; f++){
@@ -34,6 +35,7 @@ public class ModelTest {
 		}
 		return feats;
 	}
+	*/
 	
 	
 	private Model fillSum(){
@@ -69,7 +71,7 @@ public class ModelTest {
 		return model;
 	}
 	
-	
+	/*
 	
 	@Test
 	public void testScoreAllFeatures(){
@@ -82,9 +84,9 @@ public class ModelTest {
 		//model.score(feats, label);
 	}
 	
+	*/
 	
-	
-
+/*
 	@Test
 	public void testUpdateIterableOfFeatureInt() {
 		Model model = fillSum();
@@ -104,7 +106,7 @@ public class ModelTest {
 		assertTrue(true);
 	}
 
-	
+	*/
 	
 	
 

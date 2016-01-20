@@ -28,7 +28,7 @@ public class HashMapFeatureMapping extends FeatureMapping{
 
 	
 	@Override
-	int getFeatureId(String feat, boolean withMemoryIfPossible) {
+	public int getFeatureId(String feat, boolean withMemoryIfPossible) {
 		Integer id = features.get(feat);
 		if(id == null){
 			if(!withMemoryIfPossible){
@@ -49,7 +49,7 @@ public class HashMapFeatureMapping extends FeatureMapping{
 	}
 
 	@Override
-	Collection<String> getFeatures() {		
+	public Collection<String> getFeatures() {		
 		return features.keySet();
 	}
 

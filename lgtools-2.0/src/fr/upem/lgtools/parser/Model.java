@@ -214,5 +214,18 @@ public class Model {
 	}
 	
 	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		for(int l = 0 ; l < getLabelCount();l++){
+			sb.append(l);
+			for(int f = 0 ; f < getFeatureCount() ; f++){
+				sb.append("\t").append(weights[getId(l,f)]);
+			}
+			sb.append("\n");
+		}
+		return sb.toString();
+	}
+	
 	
 }
