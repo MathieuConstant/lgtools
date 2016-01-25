@@ -21,7 +21,10 @@ public class UnitFactory {
 	private final static String DUMMY = "_";
 	
 	public static Unit createNullUnit(){
-		return new Unit(NULL_ID,DUMMY,NULL_ID);		
+		Unit u = new Unit(NULL_ID,DUMMY,NULL_ID);
+		u.setGoldShead(-1);
+		u.setShead(-1);
+		return 	u;
 	}
 	
 	public static Unit createRootUnit(){

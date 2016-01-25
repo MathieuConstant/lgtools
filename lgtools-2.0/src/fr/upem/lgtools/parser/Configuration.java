@@ -10,6 +10,7 @@ import fr.upem.lgtools.text.Unit;
 import fr.upem.lgtools.text.UnitFactory;
 
 public class Configuration<T> {
+	private final Unit[] allUnits;
 	private final Buffer[] buffers;
     private final Deque<Unit>[] stacks;
     private final T analyses;
@@ -43,10 +44,18 @@ public class Configuration<T> {
     		  stacks[i].push(root);
     		  
     	}
+    	this.allUnits = new Unit[units.size() + 1];
+    	for(Unit u:units){
+    		this.allUnits[u.getId()] = u;
+    	}
     	this.analyses = analyses;
     	
     }
    
+    public Unit getUnit(int id){
+    	return this.allUnits[id];
+    }
+    
     public Deque<Unit> getStack(int index){
     	return stacks[index];
     }

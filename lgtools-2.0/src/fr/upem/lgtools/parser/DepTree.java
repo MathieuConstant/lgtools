@@ -2,6 +2,7 @@ package fr.upem.lgtools.parser;
 
 import java.util.AbstractSet;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -9,11 +10,15 @@ import java.util.Set;
 public class DepTree {
 	private final Set<DepArc>[] nodeChildren;
 	private final DepArc[] reverse;
+	private final DepArc[] leftMostDependencies;
+	private final DepArc[] rightMostDependencies;
 	
 	@SuppressWarnings("unchecked")
 	public DepTree(int size){
 		nodeChildren = (Set<DepArc>[])new Set<?>[size];
 		reverse = new DepArc[size];
+		leftMostDependencies = new DepArc[size];	
+		rightMostDependencies = new DepArc[size];		
 	}
 	
 	public void addArc(DepArc a){
@@ -21,11 +26,24 @@ public class DepTree {
 		if(reverse[dep] != null){
 			throw new IllegalStateException("Node "+dep+ " has already a parent");
 		}
-		if(nodeChildren[a.getHead()] == null){
-			nodeChildren[a.getHead()] = new HashSet<DepArc>();
+		int h = a.getHead();
+		int d = a.getDep();
+		if(nodeChildren[h] == null){
+			nodeChildren[h] = new HashSet<DepArc>();
 		}
-		nodeChildren[a.getHead()].add(a);
+		nodeChildren[h].add(a);
 		reverse[dep] = a;
+		if(h < a.getDep()){  //case of a right dependency
+			if(rightMostDependencies[h] == null || rightMostDependencies[h].getDep() < d){
+				rightMostDependencies[h] = a;
+			}
+		}
+		else{ //case of a left dependency
+			if(leftMostDependencies[h] == null || leftMostDependencies[h].getDep() > d){
+				leftMostDependencies[h] = a;
+			}
+			
+		}
 	}
 	
 	public DepArc[] getArcs(){
@@ -33,6 +51,16 @@ public class DepTree {
 	}
 	
 	
+	
+	
+	public DepArc[] getLeftMostDependencies() {
+		return leftMostDependencies;
+	}
+
+	public DepArc[] getRightMostDependencies() {
+		return rightMostDependencies;
+	}
+
 	public int getHead(int node){
 		return reverse[node].getHead();
 	}
@@ -42,13 +70,16 @@ public class DepTree {
 	}
 	
 	public Set<Integer> getChildren(final int node){
+		if(node < 0 || node >= reverse.length){
+			return Collections.emptySet();
+		}
 		return new AbstractSet<Integer>() {
 
 			@Override
 			public Iterator<Integer> iterator() {
 				
 				return new Iterator<Integer>() {
-					private final Iterator<DepArc> it = nodeChildren[node].iterator();
+					private final Iterator<DepArc> it = nodeChildren[node] == null?Collections.<DepArc>emptyIterator():nodeChildren[node].iterator();
 
 					@Override
 					public boolean hasNext() {						

@@ -46,7 +46,7 @@ public class Test {
 	 */
 	public static void main(String[] args) throws IOException {
 		 
-		//TransitionBasedSystem<DepTree> parser = new TransitionBasedSystem<DepTree>(tbm);
+		
 		
 		DepTreebank tb = readTreebank("train.expandedcpd.conll");
 		FeatureMapping fm = new  HashMapFeatureMapping(10000000);
