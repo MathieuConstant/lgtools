@@ -7,9 +7,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import fr.upem.lgtools.parser.DepTree;
+import fr.upem.lgtools.parser.PerceptronTransitionBasedSystem;
 import fr.upem.lgtools.parser.TransitionBasedSystem;
 import fr.upem.lgtools.parser.features.FeatureMapping;
-import fr.upem.lgtools.parser.features.HashFeatureMapping;
 import fr.upem.lgtools.parser.features.HashMapFeatureMapping;
 import fr.upem.lgtools.parser.model.ArcStandardTransitionBasedParserModel;
 import fr.upem.lgtools.text.BufferedDepTreebank;
@@ -53,7 +53,7 @@ public class Test {
 		FeatureMapping fm = new  HashMapFeatureMapping(10000000);
 		ArcStandardTransitionBasedParserModel tbm = new ArcStandardTransitionBasedParserModel(fm,tb);
 		//System.err.println(tbm);
-		TransitionBasedSystem<DepTree> parser = new TransitionBasedSystem<DepTree>(tbm);
+		TransitionBasedSystem<DepTree> parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
 		parser.staticOracleTrain(tb, "model", 20);
 		//parser.greedyParseTreebankAndEvaluate(tb);
 		

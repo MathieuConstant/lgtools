@@ -32,10 +32,10 @@ public class DefaultFeatureExtractor implements FeatureExtractor<DepTree> {
 	private void addUnitFeatures(String fid,Unit u,FeatureVector feats){
 		
 		feats.add(fid+"_f="+u.getForm());
-		feats.add(fid+"_l="+u.getLemma());
+		//feats.add(fid+"_l="+u.getLemma());
 		feats.add(fid+"_t="+u.getPos());
 		feats.add(fid+"_ft="+u.getForm()+"/"+u.getPos());
-		feats.add(fid+"_lt="+u.getLemma()+"/"+u.getPos());
+		//feats.add(fid+"_lt="+u.getLemma()+"/"+u.getPos());
 		
 		
 	}
@@ -44,21 +44,21 @@ public class DefaultFeatureExtractor implements FeatureExtractor<DepTree> {
 		
 		
 		feats.add(fid+"_t_t="+u1.getPos()+"#"+u2.getPos());
-		feats.add(fid+"_f_t="+u1.getForm()+"#"+u2.getPos());
-		feats.add(fid+"_ft_t="+u1.getForm()+"/"+u1.getPos()+"#"+u2.getPos());
+		//feats.add(fid+"_f_t="+u1.getForm()+"#"+u2.getPos());
+		//feats.add(fid+"_ft_t="+u1.getForm()+"/"+u1.getPos()+"#"+u2.getPos());
 		
 		
-		feats.add(fid+"_t_f="+u1.getPos()+"#"+u2.getForm());
-		feats.add(fid+"_t_ft="+u1.getPos()+"#"+u2.getForm()+"/"+u2.getPos());
+		//feats.add(fid+"_t_f="+u1.getPos()+"#"+u2.getForm());
+		//feats.add(fid+"_t_ft="+u1.getPos()+"#"+u2.getForm()+"/"+u2.getPos());
 		
 	}	
 	
 	private void addUnitTripletFeatures(String fid,Unit u1,Unit u2,Unit u3,FeatureVector feats){
 		
 		feats.add(fid+"_t_t_t="+u1.getPos()+"#"+u2.getPos()+"#"+u3.getPos());		
-		feats.add(fid+"_f_t_t="+u1.getForm()+"#"+u2.getPos()+"#"+u3.getPos());
-		feats.add(fid+"_t_f_t="+u1.getPos()+"#"+u2.getForm()+"#"+u3.getPos());
-		feats.add(fid+"_t_t_f="+u1.getPos()+"#"+u2.getPos()+"#"+u3.getForm());
+		//feats.add(fid+"_f_t_t="+u1.getForm()+"#"+u2.getPos()+"#"+u3.getPos());
+		//feats.add(fid+"_t_f_t="+u1.getPos()+"#"+u2.getForm()+"#"+u3.getPos());
+		//feats.add(fid+"_t_t_f="+u1.getPos()+"#"+u2.getPos()+"#"+u3.getForm());
 	}
 	
 	private static Unit getSecondElementInStack(Deque<Unit> stack){

@@ -19,8 +19,8 @@ import fr.upem.lgtools.text.Unit;
  * @author Mathieu
  *
  */
-public class TransitionBasedSystem<T> {
-     private final TransitionBasedModel2<T> tbm;
+public abstract class TransitionBasedSystem<T> {
+     final TransitionBasedModel2<T> tbm;
      
      
      public TransitionBasedSystem(TransitionBasedModel2<T> tbm){
@@ -109,48 +109,9 @@ public DepTreebank greedyParseTreebankAndEvaluate(DepTreebank tb) throws FileNot
 }
 
  	
+     abstract public void staticOracleTrain(DepTreebank tb, String modelFilename, int iterations);
      
      
-     public void staticOracleTrain(DepTreebank tb, String modelFilename, int iterations){
-    	 tb = tbm.filter(tb);
-    	 for(int i = 0 ; i < iterations ; i++){
-    		 System.err.println("Iteration "+ (i+1));
-    		 int cnt = 0;
-    		 int sent = 0;
-    		 int total = 0;
-    		 for(Sentence gold:tb){
-    			 if(sent % 1000 == 0){System.err.println("Processed "+ sent+ " sentences");}
-    			 Configuration<T> c = tbm.getInitialConfiguration(gold.getTokens());
-    			 while(!c.isTerminal()){
-    				 FeatureVector fv = tbm.extractFeatures(c);
-    				 Transition<T> pt = tbm.getBestValidTransition(fv,c);
-    				 Transition<T> ot = tbm.getBestCorrectTransition(fv,c);
-    				 //System.err.println("OT "+ot);
-    				 //System.err.println("PT "+pt);
-    				 if(pt.equals(ot)){ // true prediction
-    					 c = pt.perform(c); 
-    					 c.getHistory().add(pt.id());
-    					 cnt++;
-    				 }
-    				 else{  //false prediction
-    					 tbm.update(fv,ot,pt);
-    					 c = ot.perform(c);
-    					 c.getHistory().add(ot.id());
-    				 }
-    				 total++;
-    				 //System.err.println(c);
-    				 //System.err.println(tbm);
-    			 }
-    			 sent++;
-    		 }
-    		 TransitionBasedModel2.save(tbm, modelFilename+"."+(i+1));
-    		 System.err.println("Accuracy on training transition sequence: "+((double)cnt)/total+ "  ("+cnt+"/"+total+")");
-	       	 System.err.println("Number of sentences: "+sent);
-    	 }
-    	 TransitionBasedModel2.save(tbm, modelFilename+".final");
-    	 System.err.println("Done.");
-    	 
-     }
      
 	
 }
