@@ -36,7 +36,7 @@ public class HashFeatureMapping extends FeatureMapping {
 		  hashcode = (hashcode << 5) - hashcode + feat.charAt(i);
 		}
 
-		/* hascode must be comprised between 0 and max */
+		/* hashcode must be comprised between 0 and max */
 		
 		hashcode = hashcode%featureCapacity(); //hashcode must be lower than max
 		hashcode = hashcode<0?-hashcode:hashcode; //hashcode must be positive

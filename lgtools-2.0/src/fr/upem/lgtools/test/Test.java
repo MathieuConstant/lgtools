@@ -49,15 +49,18 @@ public class Test {
 		
 		
 		DepTreebank tb = readTreebank("train.expandedcpd.conll");
+		//DepTreebank tb = readTreebank("corpus.conll");
 		FeatureMapping fm = new  HashMapFeatureMapping(10000000);
 		ArcStandardTransitionBasedParserModel tbm = new ArcStandardTransitionBasedParserModel(fm,tb);
 		//System.err.println(tbm);
 		TransitionBasedSystem<DepTree> parser = new TransitionBasedSystem<DepTree>(tbm);
-		parser.staticOracleTrain(tb, "model", 5);
+		parser.staticOracleTrain(tb, "model", 20);
 		//parser.greedyParseTreebankAndEvaluate(tb);
+		
+		
 		tb = readTreebank("dev.expandedcpd.conll");
 		parser.greedyParseTreebankAndEvaluate(tb);
-		Utils.saveTreebank(tb, "output.conll");
+		Utils.saveTreebank(tb, "output20-lemma.conll");
 		
 		//TransitionBasedModel<DepTree> model = trainingTest("train.expandedcpd.conll", "test10M", 5, 10000000,-1);
 		//TransitionBasedModel.countCollisions(model);

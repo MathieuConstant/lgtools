@@ -10,7 +10,7 @@ import java.util.Collection;
  *
  */
 public abstract class FeatureMapping {
-   final private int max;  
+   final protected int max;  
 	
    FeatureMapping(int max){
 	   this.max = max;

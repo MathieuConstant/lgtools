@@ -30,9 +30,7 @@ public class DefaultFeatureExtractor implements FeatureExtractor<DepTree> {
 	
 	
 	private void addUnitFeatures(String fid,Unit u,FeatureVector feats){
-		if(u == null || u == NULL_UNIT){
-			return;
-		}
+		
 		feats.add(fid+"_f="+u.getForm());
 		feats.add(fid+"_l="+u.getLemma());
 		feats.add(fid+"_t="+u.getPos());
@@ -43,12 +41,7 @@ public class DefaultFeatureExtractor implements FeatureExtractor<DepTree> {
 	}
 	
 	private void addUnitPairFeatures(String fid,Unit u1,Unit u2,FeatureVector feats){
-		if(u1 == null || u1 == NULL_UNIT){
-			return;
-		}
-		if(u2 == null || u2 == NULL_UNIT){
-			return;
-		}
+		
 		
 		feats.add(fid+"_t_t="+u1.getPos()+"#"+u2.getPos());
 		feats.add(fid+"_f_t="+u1.getForm()+"#"+u2.getPos());
@@ -104,6 +97,13 @@ public class DefaultFeatureExtractor implements FeatureExtractor<DepTree> {
 		return b.get(1);
 	}
 	
+	private static Unit getThirdElementInBuffer(Buffer b){
+		if(b.size() <= 2 ){
+			return NULL_UNIT;
+		}
+		return b.get(2);
+	}
+	
 	
 	private void addHistoryFeatures(Configuration<DepTree> configuration,FeatureVector feats){
 		List<String> history = configuration.getHistory();
@@ -120,27 +120,39 @@ public class DefaultFeatureExtractor implements FeatureExtractor<DepTree> {
 	}
 	
 	
-    private void addDistanceFeature(String name, Unit u1, Unit u2,FeatureVector feats){
-		feats.add("dist-"+name+":"+(u1.getId() - u2.getId()));
+    private void addDistanceFeature(String fid, Unit u1, Unit u2,FeatureVector feats){
+    	int dist = u2.getId() - u1.getId();
+    	
+    	if(dist < 0){
+    		dist = -1;
+    	}
+    	else{
+    		if(dist == 1){
+    			dist = 1;    			
+    		}
+    		else{
+    			if(dist == 2){
+    				dist = 2;
+    			}
+    			else{
+    				if(dist > 2 & dist <=5){
+    					dist = 3;
+    				}
+    				else{
+    					dist = 6;
+    				}
+    				
+    			}
+    			
+    		}
+    		
+    	}
+    	
+		feats.add("dist-"+fid+":"+dist);
 		
 	}
 	
     
-    private void addSubtreeFeatures(String name,Unit root, Configuration<DepTree> configuration, FeatureVector feats){
-    	DepTree a = configuration.getAnalyses();
-    	DepArc[] arcs = a.getArcs();
-    	
-    	//System.err.println(Arrays.toString(arcs));
-    	boolean empty = true;
-    	for(int c:a.getChildren(root.getId())){
-    		feats.add("child:"+name+":"+arcs[c].getLabel());
-    		empty = false;
-    	}
-    	if(empty){
-    		feats.add("nochildren:"+name);
-    	}
-    	
-    }
     
     
     private Unit getLeftMostDependencyElement(Unit unit,Configuration<DepTree> configuration){
@@ -156,10 +168,16 @@ public class DefaultFeatureExtractor implements FeatureExtractor<DepTree> {
     private Unit getRightMostDependencyElement(Unit unit,Configuration<DepTree> configuration){
     	DepTree tree = configuration.getAnalyses();
     	DepArc[] rights = tree.getRightMostDependencies();
+    	//System.err.println(Arrays.toString(rights));
     	int h = unit.getId();
+    	//System.err.println(h);
+    	//if(h >=0){
+    	//	System.err.println(rights[h]);
+    	//}
     	if(h < 0 || rights[h] == null){
     		return NULL_UNIT;
     	}
+   
         return configuration.getUnit(rights[h].getDep());
     }
     
@@ -203,14 +221,30 @@ public class DefaultFeatureExtractor implements FeatureExtractor<DepTree> {
     
     
     
-    private void addLeftMostDependencyFeatures(String fid, Configuration<DepTree> configuration, Unit head, FeatureVector feats){
-    	DepTree tree = configuration.getAnalyses();
-    	addDependencyFeatures(fid, configuration, head, tree.getLeftMostDependencies(), feats);
-    }
+   
     
-    private void addRightMostDependencyFeatures(String fid, Configuration<DepTree> configuration, Unit head, FeatureVector feats){
+        
+    
+    private void addSubTreeFeatures(String fid,Unit unit,Configuration<DepTree> configuration,FeatureVector feats){
+    	if(unit == NULL_UNIT){    		
+    		return;    		
+    	}
+    	
+    	Unit lmdu = getLeftMostDependencyElement(unit,configuration);
+    	Unit rmdu = getRightMostDependencyElement(unit,configuration);
+    	
+    	
     	DepTree tree = configuration.getAnalyses();
-    	addDependencyFeatures(fid, configuration, head, tree.getRightMostDependencies(), feats);
+    	
+    	String lmd = lmdu == NULL_UNIT?"_":tree.getlabel(lmdu.getId());
+    	feats.add(fid+"_lmd:"+lmd);
+    	String rmd = rmdu == NULL_UNIT?"_":tree.getlabel(rmdu.getId());
+    	feats.add(fid+"_rmd:"+rmd);
+    	feats.add(fid+"_t_lmd:"+unit.getPos()+"#"+lmd);
+    	feats.add(fid+"_t_rmd:"+unit.getPos()+"#"+rmd);
+    	feats.add(fid+"_t_lmd_rmd:"+unit.getPos()+"#"+lmd+"#"+rmd);
+    	
+    	//System.err.println(fid+"_t_lmd_rmd:"+unit.getPos()+"#"+lmd+"#"+rmd);
     }
     
 	
@@ -220,45 +254,64 @@ public class DefaultFeatureExtractor implements FeatureExtractor<DepTree> {
 		
 		Deque<Unit> stack = configuration.getFirstStack();
 		Buffer buffer = configuration.getFirstBuffer();
-		feats.add("BIAS");
+		//feats.add("BIAS");
 		//feats.add("EMPTY2");
 		Unit s0u = stack.peek();
 		Unit s1u = getSecondElementInStack(stack);
 		Unit s2u = getThirdElementInStack(stack);
 		Unit b0u = getFirstElementInBuffer(buffer);
 		Unit b1u = getSecondElementInBuffer(buffer);
-		
+		Unit b2u = getThirdElementInBuffer(buffer);
+		//System.err.println(configuration);
+		//System.err.println("STACK//"+s0u.getForm()+"::"+s1u.getForm()+"::"+s2u.getForm());
+		//System.err.println("BUFFER//"+b0u.getForm()+"::"+b1u.getForm()+"::"+b2u.getForm());
+		//System.err.println("LEFTMOST LEFT DEPS//"+lmds0u.getForm()+"::"+lmds1u.getForm());
+		//System.err.println("RIGHTMOST RIGHT DEPS//"+rmds0u.getForm()+"::"+rmds1u.getForm());
 		
 		//addSubtreeFeatures("s0u",s0u,configuration,feats);
 		//addSubtreeFeatures("s1u",s1u,configuration,feats);
-		addDistanceFeature("s0us1u",s0u,s1u,feats);
-		addDistanceFeature("s1us2u",s1u,s2u,feats);
-		addDistanceFeature("s0ub0u",s0u,b0u,feats);
+		
+		
+		addDistanceFeature("dist_s0u_s1u",s1u,s0u,feats);
+		//addDistanceFeature("dist_s1u_s2u",s2u,s1u,feats);
+		//addDistanceFeature("dist_s0u_b0u",s0u,b0u,feats);
+		
+		
 		addUnitFeatures("s0u", s0u,feats);
 		addUnitFeatures("s1u", s1u,feats);
 		addUnitFeatures("s2u", s2u,feats);
 		addUnitFeatures("b0u", b0u,feats);
 		addUnitFeatures("b1u", b1u,feats);
+		addUnitFeatures("b2u", b2u,feats);
+		addSubTreeFeatures("dep_s0u",s0u,configuration,feats);				
+		addSubTreeFeatures("dep_s1u",s1u,configuration,feats);
+		//addUnitFeatures("lmdb1u", lmdb1u,feats);
+		//addUnitFeatures("rmdb0u", rmdb0u,feats);
+		//addUnitFeatures("rmdb1u", rmdb1u,feats);
 		
-		addUnitPairFeatures("s0u_s2u",s0u,s2u,feats);	
-		addUnitPairFeatures("s0u_s1u",s0u,s1u,feats);
+		
 	
+		//addUnitPairFeatures("s0u_s1u",s0u,s1u,feats);	
 		addUnitPairFeatures("s0u_b0u",s0u,b0u,feats);
 		addUnitPairFeatures("b0u_b1u",b0u,b1u,feats);
-			
+		//addUnitPairFeatures("b1u_b2u",b1u,b2u,feats);
+		
 		
 		addUnitTripletFeatures("s2u_s1u_s0u",s2u,s1u,s0u,feats);
 		addUnitTripletFeatures("s1u_s0u_b0u",s1u,s0u,b0u,feats);
-		
 		addUnitTripletFeatures("s0u_b0u_b1u",s0u,b0u,b1u,feats);
+		addUnitTripletFeatures("b0u_b1u_b2u",b0u,b1u,b2u,feats);
+
+		
+		//addUnitTripletFeatures("s0u_b0u_b1u",s0u,b0u,b1u,feats);
 		
 	
 		addHistoryFeatures(configuration, feats);
-		addLeftMostDependencyFeatures("lmd_s0u", configuration, s0u, feats);
-		addLeftMostDependencyFeatures("lmd_s1u", configuration, s1u, feats);
+		//addLeftMostDependencyFeatures("lmd_s0u", configuration, s0u, feats);
+		//addLeftMostDependencyFeatures("lmd_s1u", configuration, s1u, feats);
 		
-		addRightMostDependencyFeatures("rmd_s0u", configuration, s0u, feats);
-		addRightMostDependencyFeatures("rmd_s1u", configuration, s1u, feats);
+		//addRightMostDependencyFeatures("rmd_s0u", configuration, s0u, feats);
+		//addRightMostDependencyFeatures("rmd_s1u", configuration, s1u, feats);
 		
 		
 		/*

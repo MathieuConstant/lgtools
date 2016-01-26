@@ -29,7 +29,7 @@ public class SimpleBuffer implements Buffer {
 		//	throw new IllegalStateException();
 		//}
 	    
-		return units[current];
+		return units[current+index];
 	}
 
 	@Override

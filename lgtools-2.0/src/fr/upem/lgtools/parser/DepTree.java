@@ -35,12 +35,12 @@ public class DepTree {
 		reverse[dep] = a;
 		if(h < a.getDep()){  //case of a right dependency
 			if(rightMostDependencies[h] == null || rightMostDependencies[h].getDep() < d){
-				rightMostDependencies[h] = a;
+				rightMostDependencies[h] = a;			
 			}
 		}
 		else{ //case of a left dependency
 			if(leftMostDependencies[h] == null || leftMostDependencies[h].getDep() > d){
-				leftMostDependencies[h] = a;
+				leftMostDependencies[h] = a;			
 			}
 			
 		}
@@ -71,6 +71,7 @@ public class DepTree {
 	
 	public Set<Integer> getChildren(final int node){
 		if(node < 0 || node >= reverse.length){
+			
 			return Collections.emptySet();
 		}
 		return new AbstractSet<Integer>() {
@@ -79,8 +80,10 @@ public class DepTree {
 			public Iterator<Integer> iterator() {
 				
 				return new Iterator<Integer>() {
-					private final Iterator<DepArc> it = nodeChildren[node] == null?Collections.<DepArc>emptyIterator():nodeChildren[node].iterator();
+					private final Iterator<DepArc> it = nodeChildren[node] == null?Collections.<DepArc>emptySet().iterator():nodeChildren[node].iterator();
 
+					
+					
 					@Override
 					public boolean hasNext() {						
 						return it.hasNext();
