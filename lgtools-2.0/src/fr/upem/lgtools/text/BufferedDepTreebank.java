@@ -20,4 +20,13 @@ public class BufferedDepTreebank extends DepTreebank {
 		return sentences.iterator();
 	}
 
+	
+	@Override
+	public int size() {
+		return sentences.size();
+	}
+	
+	
+
+	
 }

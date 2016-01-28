@@ -54,7 +54,7 @@ public class Test {
 		ArcStandardTransitionBasedParserModel tbm = new ArcStandardTransitionBasedParserModel(fm,tb);
 		//System.err.println(tbm);
 		TransitionBasedSystem<DepTree> parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
-		parser.staticOracleTrain(tb, "model", 20);
+		parser.staticOracleTrain(tb, "model", 15);
 		//parser.greedyParseTreebankAndEvaluate(tb);
 		
 		

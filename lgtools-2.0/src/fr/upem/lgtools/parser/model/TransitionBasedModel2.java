@@ -53,6 +53,18 @@ public abstract class TransitionBasedModel2<T> {
 	}
 	
 
+	public void setModel(Model newModel){
+		model.setModel(newModel);
+	}
+	
+	
+	public int getFeatureCount(){
+		return model.getFeatureCount();
+	}
+	
+	public int getLabelCount(){
+		return model.getLabelCount();
+	}
 	
 	
     public static <T> void save(TransitionBasedModel2<T> tbm, String filename){
@@ -156,9 +168,17 @@ public abstract class TransitionBasedModel2<T> {
 	
 	public void update(FeatureVector feats, Transition<T> ot, Transition<T> pt){
 		model.updatePlus(feats, transitions.getTransitionIndex(ot));
-		model.updateMinus(feats, transitions.getTransitionIndex(pt));
+		model.updateMinus(feats, transitions.getTransitionIndex(pt));		
+	}
+	
+	public void update(FeatureVector feats, Transition<T> ot, Transition<T> pt,Model averaged,double coef){
+		update(feats,ot,pt);
+		averaged.updatePlus(feats, transitions.getTransitionIndex(ot),coef);
+		averaged.updateMinus(feats, transitions.getTransitionIndex(pt),coef);	
 		
 	}
+	
+	
 	
 	
 	@Override

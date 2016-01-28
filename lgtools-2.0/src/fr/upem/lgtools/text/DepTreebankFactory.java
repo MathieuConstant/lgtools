@@ -9,6 +9,13 @@ public class DepTreebankFactory {
 		return new DepTreebank() {
 			
 			@Override
+			public int size() {
+				return tb.size();
+			}
+			
+			
+			
+			@Override
 			public Iterator<Sentence> iterator() {
 				
 				return new Iterator<Sentence>() {
@@ -86,6 +93,14 @@ public class DepTreebankFactory {
 					}
 				};
 			}
+			
+			@Override
+			public int size() {
+				return tb.size();
+			}
+			
+
+	
 		};
 		
 	}

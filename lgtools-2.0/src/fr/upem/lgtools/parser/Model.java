@@ -17,6 +17,13 @@ public class Model {
 		this.nFeatures = nFeatures;				
 		
 	}
+	
+	public void setModel(Model newModel){
+		if(newModel.nFeatures != this.nFeatures || newModel.nLabels != this.nLabels || newModel.weights.length != this.weights.length){
+			throw new IllegalStateException("Cannot set new model if does not same feature and label counts.");
+		}
+		System.arraycopy(newModel.weights, 0, this.weights, 0, this.weights.length);
+	}
 
 	private int getId(int label, int feat){
 		return nFeatures*label+ feat;		
@@ -186,16 +193,25 @@ public class Model {
 	
 	
 	public void updatePlus(FeatureVector feats, int label){
+		updatePlus(feats, label, 1.0);
+	}
+	
+	public void updatePlus(FeatureVector feats, int label,double coef){
 	    for(Feature feat:feats){
 	    	int id = getId(label,feat.getFeat());
-		     weights[id] += feat.getValue();	
+		     weights[id] += coef*feat.getValue();	
 	    }	
 	}
 	
+	
 	public void updateMinus(FeatureVector feats, int label){
+		updateMinus(feats, label, 1.0);
+	}
+	
+	public void updateMinus(FeatureVector feats, int label, double coef){
 		for(Feature feat:feats){
 	    	int id = getId(label,feat.getFeat());
-		     weights[id] -= feat.getValue();	
+		     weights[id] -= coef*feat.getValue();	
 	    }
 	}
 	
