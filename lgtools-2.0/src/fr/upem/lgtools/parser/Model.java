@@ -24,9 +24,35 @@ public class Model {
 		}
 		System.arraycopy(newModel.weights, 0, this.weights, 0, this.weights.length);
 	}
+	
+	
+	public Model getAveragedModel(Model averaged, double cnt){
+		//TODO: test sizes of models to check compatibility
+		Model newModel = new Model(averaged.nFeatures,averaged.nLabels);
+		for(int i = 0; i < weights.length ; i++){
+			newModel.weights[i] = this.weights[i] - (averaged.weights[i]/cnt);
+		}
+		return newModel;
+		
+	}
+	
+	
 
 	private int getId(int label, int feat){
 		return nFeatures*label+ feat;		
+	}
+	
+	
+	public static int nextNonZero(int i,Model m){
+		while(i < m.weights.length && m.weights[i] == 0 ){
+			i++;
+		}
+		return i;
+	}
+	
+	
+	public double getWeight(int i){
+		return weights[i];
 	}
 	
 	
@@ -105,14 +131,28 @@ public class Model {
 	
 	
 	public void set(int feat, int label, double weight){
+		/*
 		if(feat >= nFeatures || feat < 0){
 			throw new IllegalArgumentException("feature "+feat+" does not exist!");
 		}
 		if(label < 0 || label >= nLabels){
 	    	throw new IllegalArgumentException("Label "+ label + " does not exist!");
-	    }
+	    }*/
 		weights[getId(label, feat)] = weight;
 	}
+	
+	
+	/**
+	 * Sets a weight at a given index in array weights
+	 * 
+	 * @param index 
+	 * @param weight
+	 */
+	
+	public void set(int index,double weight){
+		weights[index] = weight;
+	}
+	
 	
 	/**
 	 * gets the weight of a feature with respect to a label
@@ -124,12 +164,13 @@ public class Model {
 	
 	
 	public double get(int feat, int label){
+		/*
 		if(feat >= nFeatures || feat < 0){
 			throw new IllegalArgumentException("feature "+feat+" does not exist!");
 		}
 		if(label < 0 || label >= nLabels){
 	    	throw new IllegalArgumentException("Label "+ label + "does not exist!");
-	    }
+	    }*/
 		return weights[getId(label, feat)];
 	}
 	

@@ -3,6 +3,7 @@
  */
 package fr.upem.lgtools.parser.model;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.LinkedList;
@@ -36,7 +37,7 @@ public class ArcStandardTransitionBasedParserModel extends
 
 
 
-	public ArcStandardTransitionBasedParserModel(String filename) {
+	public ArcStandardTransitionBasedParserModel(String filename) throws IOException {
 		super(filename);		
 	}
 

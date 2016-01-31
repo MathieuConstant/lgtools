@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import fr.upem.lgtools.parser.DepTree;
+import fr.upem.lgtools.parser.Model;
 import fr.upem.lgtools.parser.PerceptronTransitionBasedSystem;
 import fr.upem.lgtools.parser.TransitionBasedSystem;
 import fr.upem.lgtools.parser.features.FeatureMapping;
@@ -49,18 +50,32 @@ public class Test {
 		
 		
 		DepTreebank tb = readTreebank("train.expandedcpd.conll");
-		//DepTreebank tb = readTreebank("corpus.conll");
+		DepTreebank dev = readTreebank("dev.expandedcpd.conll");
 		FeatureMapping fm = new  HashMapFeatureMapping(10000000);
 		ArcStandardTransitionBasedParserModel tbm = new ArcStandardTransitionBasedParserModel(fm,tb);
 		//System.err.println(tbm);
 		TransitionBasedSystem<DepTree> parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
-		parser.staticOracleTrain(tb, "model", 15);
+		parser.staticOracleTrain(tb,dev, "model",15);
 		//parser.greedyParseTreebankAndEvaluate(tb);
+		//System.err.println(tbm);
 		
+		//tb = readTreebank("dev.expandedcpd.conll");
+		//parser.greedyParseTreebankAndEvaluate(tb);
+		//Utils.saveTreebank(tb, "output20-lemma.conll");
+		
+		
+		
+		
+		
+		tbm = new ArcStandardTransitionBasedParserModel("model.final");
+		parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
+		//System.err.println(tbm);
 		
 		tb = readTreebank("dev.expandedcpd.conll");
 		parser.greedyParseTreebankAndEvaluate(tb);
-		Utils.saveTreebank(tb, "output20-lemma.conll");
+		Utils.saveTreebank(tb, "output20-lemma2.conll");
+		
+		
 		
 		//TransitionBasedModel<DepTree> model = trainingTest("train.expandedcpd.conll", "test10M", 5, 10000000,-1);
 		//TransitionBasedModel.countCollisions(model);

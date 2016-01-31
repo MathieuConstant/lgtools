@@ -4,9 +4,11 @@
 package fr.upem.lgtools.parser;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 
 import fr.upem.lgtools.evaluation.ParsingAccuracy;
+import fr.upem.lgtools.evaluation.ParsingResult;
 import fr.upem.lgtools.parser.features.FeatureVector;
 import fr.upem.lgtools.parser.model.TransitionBasedModel2;
 import fr.upem.lgtools.parser.transitions.Transition;
@@ -35,11 +37,22 @@ public abstract class TransitionBasedSystem<T> {
  			FeatureVector fv = tbm.extractFeatures(c);
 			Transition<T> t = tbm.getBestValidTransition(fv,c); 
  			c = t.perform(c);
- 			c.getHistory().add(t.id());
+ 			c.getHistory().add(t.id()); // do we keep it?
  		}
  		return c.getAnalyses();
  	}
     
+     
+     
+     public T beamSearchParse(List<Unit> units){
+    	 
+    	 //TODO 
+    	 
+    	 return null;
+    	 
+     }
+     
+     
      
      public T oracleParse(List<Unit> units){
   		Configuration<T> c = tbm.getInitialConfiguration(units);
@@ -74,16 +87,16 @@ public abstract class TransitionBasedSystem<T> {
  	}
     
  	
-public DepTreebank parseTreebankAndEvaluate(DepTreebank tb, ParsingMethod<T> pm) throws FileNotFoundException{
+public ParsingResult parseTreebankAndEvaluate(DepTreebank tb, ParsingMethod<T> pm) throws FileNotFoundException{
  	   tb = parseTreebank(tb,pm); 
  	   ParsingAccuracy eval = ParsingAccuracy.computeParsingAccuracy(tb);
 	   System.err.println(eval);
- 		return tb;
+ 		return new ParsingResult(tb,eval);
  		
  	}
  	
  	
-public DepTreebank oracleParseTreebankAndEvaluate(DepTreebank tb) throws FileNotFoundException{
+public ParsingResult oracleParseTreebankAndEvaluate(DepTreebank tb) throws FileNotFoundException{
 	  return parseTreebankAndEvaluate(tb, new ParsingMethod<T>() {
 
 		@Override
@@ -97,7 +110,7 @@ public DepTreebank oracleParseTreebankAndEvaluate(DepTreebank tb) throws FileNot
     
  	
 	
-public DepTreebank greedyParseTreebankAndEvaluate(DepTreebank tb) throws FileNotFoundException{
+public ParsingResult greedyParseTreebankAndEvaluate(DepTreebank tb) throws FileNotFoundException{
   return parseTreebankAndEvaluate(tb, new ParsingMethod<T>() {
 
 	@Override
@@ -109,8 +122,11 @@ public DepTreebank greedyParseTreebankAndEvaluate(DepTreebank tb) throws FileNot
 }
 
  	
-     abstract public void staticOracleTrain(DepTreebank tb, String modelFilename, int iterations);
+     abstract public void staticOracleTrain(DepTreebank tb, DepTreebank dev, String modelFilename, int iterations) throws IOException;
      
+     public void staticOracleTrain(DepTreebank tb, String modelFilename, int iterations) throws IOException{
+    	 staticOracleTrain(tb, null, modelFilename, iterations);
+     }
      
      
 	

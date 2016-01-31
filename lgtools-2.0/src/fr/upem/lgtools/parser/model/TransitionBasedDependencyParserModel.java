@@ -3,6 +3,7 @@
  */
 package fr.upem.lgtools.parser.model;
 
+import java.io.IOException;
 import java.util.List;
 
 import fr.upem.lgtools.parser.Configuration;
@@ -27,7 +28,7 @@ public abstract class TransitionBasedDependencyParserModel extends
 		
 	}
 
-	public TransitionBasedDependencyParserModel(String filename) {
+	public TransitionBasedDependencyParserModel(String filename) throws IOException {
 		super(filename);		
 	}
 

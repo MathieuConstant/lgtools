@@ -5,6 +5,7 @@ package fr.upem.lgtools.parser.features;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Mathieu
@@ -13,12 +14,18 @@ import java.util.HashMap;
 public class HashMapFeatureMapping extends FeatureMapping{
 	
 
-	private final HashMap<String, Integer> features = new HashMap<String,Integer>();
+	private final Map<String, Integer> features;
 	
 	public HashMapFeatureMapping(int max) {
 		super(max);
-		
+		features = new HashMap<String,Integer>();
 	}
+	
+	public HashMapFeatureMapping(int max, Map<String,Integer> map){
+		super(max);
+		features = map;
+	}
+	
 	
 	
 	// to be used at parsing time

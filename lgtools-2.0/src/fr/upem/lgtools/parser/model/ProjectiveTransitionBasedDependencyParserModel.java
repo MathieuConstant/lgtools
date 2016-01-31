@@ -3,6 +3,8 @@
  */
 package fr.upem.lgtools.parser.model;
 
+import java.io.IOException;
+
 import fr.upem.lgtools.parser.features.FeatureMapping;
 import fr.upem.lgtools.text.DepTreebank;
 import fr.upem.lgtools.text.DepTreebankFactory;
@@ -23,7 +25,7 @@ public abstract class ProjectiveTransitionBasedDependencyParserModel extends
 	}
 
 
-	public ProjectiveTransitionBasedDependencyParserModel(String filename) {
+	public ProjectiveTransitionBasedDependencyParserModel(String filename) throws IOException {
 		super(filename);
 		
 	}
