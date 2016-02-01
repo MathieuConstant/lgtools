@@ -303,10 +303,10 @@ public class DefaultFeatureExtractor implements FeatureExtractor<DepTree> {
 		addUnitTripletFeatures("b0u_b1u_b2u",b0u,b1u,b2u,feats);
 
 		
-		//addUnitTripletFeatures("s0u_b0u_b1u",s0u,b0u,b1u,feats);
+		addUnitTripletFeatures("s0u_b0u_b1u",s0u,b0u,b1u,feats);
 		
 	
-		addHistoryFeatures(configuration, feats);
+		//addHistoryFeatures(configuration, feats);
 		//addLeftMostDependencyFeatures("lmd_s0u", configuration, s0u, feats);
 		//addLeftMostDependencyFeatures("lmd_s1u", configuration, s1u, feats);
 		

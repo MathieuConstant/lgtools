@@ -5,6 +5,7 @@ package fr.upem.lgtools.parser.transitions;
 
 import java.util.Deque;
 
+import fr.upem.lgtools.parser.Analysis;
 import fr.upem.lgtools.parser.Buffer;
 import fr.upem.lgtools.parser.Configuration;
 import fr.upem.lgtools.text.Unit;
@@ -13,7 +14,7 @@ import fr.upem.lgtools.text.Unit;
  * @author Mathieu Constant
  *
  */
-public class ShiftTransition<T> extends AbstractTransition<T>{
+public class ShiftTransition<T extends Analysis> extends AbstractTransition<T>{
 	
 	public ShiftTransition(String id) {
 		super(id);

@@ -16,7 +16,7 @@ import fr.upem.lgtools.parser.transitions.Transitions;
  * @author mconstant
  *
  */
-public class TransitionSet<T> implements Iterable<Transition<T>>{	
+public class TransitionSet<T extends Analysis> implements Iterable<Transition<T>>{	
 	private final List<Transition<T>> transitions = new ArrayList<Transition<T>>();
 	private final Map<String,Transition<T>> map = new HashMap<String, Transition<T>>();
 	private final Map<String,Integer> transitionIds = new HashMap<String,Integer>();

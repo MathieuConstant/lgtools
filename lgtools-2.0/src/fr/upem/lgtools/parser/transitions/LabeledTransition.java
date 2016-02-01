@@ -3,12 +3,14 @@
  */
 package fr.upem.lgtools.parser.transitions;
 
+import fr.upem.lgtools.parser.Analysis;
+
 /**
  * @author Matthieu Constant
  *
  */
 
-public abstract class LabeledTransition<T> extends AbstractTransition<T> {
+public abstract class LabeledTransition<T extends Analysis> extends AbstractTransition<T> {
     final String label;
 	
 	public LabeledTransition(String type,String label) {

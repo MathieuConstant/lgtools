@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import fr.upem.lgtools.parser.Analysis;
 import fr.upem.lgtools.parser.Configuration;
 import fr.upem.lgtools.parser.Model;
 import fr.upem.lgtools.parser.TransitionSet;
@@ -33,7 +34,7 @@ import fr.upem.lgtools.text.Unit;
  * @author Matthieu Constant
  *
  */
-public abstract class TransitionBasedModel2<T> {
+public abstract class TransitionBasedModel2<T extends Analysis> {
 	protected final FeatureMapping features;
 	private Model model;
 	protected final TransitionSet<T> transitions = new TransitionSet<T>();
@@ -125,9 +126,12 @@ public abstract class TransitionBasedModel2<T> {
 	
 	
 	
-	
-	
-    public void save(String filename) throws IOException{
+		
+    public FeatureMapping getFeatures() {
+		return features;
+	}
+
+	public void save(String filename) throws IOException{
     	DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(filename)));
 		out.writeInt(model.getFeatureCount());
 		out.writeInt(model.getLabelCount());
@@ -198,7 +202,7 @@ public abstract class TransitionBasedModel2<T> {
 	}
 
 	
-	private Set<Transition<T>> getValidTransitions(Configuration<T> config){
+	public Set<Transition<T>> getValidTransitions(Configuration<T> config){
 		Set<Transition<T>> set = new HashSet<Transition<T>>();
 		for(Transition<T> t:transitions){
 			if(t.isValid(config)){
@@ -209,7 +213,7 @@ public abstract class TransitionBasedModel2<T> {
 	}
 	
 	
-	private Set<Transition<T>> getCorrectTransitions(Configuration<T> config){
+	public Set<Transition<T>> getCorrectTransitions(Configuration<T> config){
 		Set<Transition<T>> set = new HashSet<Transition<T>>();
 		set.add(staticOracle(config));
 		return set;
@@ -225,6 +229,14 @@ public abstract class TransitionBasedModel2<T> {
 	public Transition<T> getBestCorrectTransition(FeatureVector fv, Configuration<T> c){
 		return getBestTransition(fv,getCorrectTransitions(c));
 	}
+	
+	
+	
+	public double getScore(FeatureVector feats, Transition<T> transition){
+		int l = transitions.getTransitionIndex(transition);
+		return model.score(feats,l);
+	}
+	
 	
 	
 	private Transition<T> getBestTransition(FeatureVector feats, Set<Transition<T>> possibleTransitions){

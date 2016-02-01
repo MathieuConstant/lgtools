@@ -22,6 +22,13 @@ public class SimpleBuffer implements Buffer {
 	}
 	
 	
+	public SimpleBuffer(SimpleBuffer buffer){
+		this.units = buffer.units;
+		this.current = buffer.current;
+	}
+	
+	
+	
 
 	@Override
 	public Unit get(int index) {

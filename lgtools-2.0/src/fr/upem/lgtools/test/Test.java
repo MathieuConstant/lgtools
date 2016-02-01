@@ -49,13 +49,14 @@ public class Test {
 		 
 		
 		
-		DepTreebank tb = readTreebank("train.expandedcpd.conll");
-		DepTreebank dev = readTreebank("dev.expandedcpd.conll");
+		DepTreebank dev = readTreebank("dev.expandedcpd.conll",1);
+		DepTreebank tb = readTreebank("dev.expandedcpd.conll",1);
 		FeatureMapping fm = new  HashMapFeatureMapping(10000000);
 		ArcStandardTransitionBasedParserModel tbm = new ArcStandardTransitionBasedParserModel(fm,tb);
 		//System.err.println(tbm);
 		TransitionBasedSystem<DepTree> parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
-		parser.staticOracleTrain(tb,dev, "model",15);
+		parser.inexactSearchTrain(tb,"beam",1,1);
+		//parser.staticOracleTrain(tb, "model",5);
 		//parser.greedyParseTreebankAndEvaluate(tb);
 		//System.err.println(tbm);
 		
@@ -67,13 +68,15 @@ public class Test {
 		
 		
 		
-		tbm = new ArcStandardTransitionBasedParserModel("model.final");
+		//ArcStandardTransitionBasedParserModel tbm = new ArcStandardTransitionBasedParserModel("model.final");
+		//TransitionBasedSystem<DepTree> parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
 		parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
 		//System.err.println(tbm);
 		
-		tb = readTreebank("dev.expandedcpd.conll");
-		parser.greedyParseTreebankAndEvaluate(tb);
-		Utils.saveTreebank(tb, "output20-lemma2.conll");
+		
+		//parser.greedyParseTreebankAndEvaluate(dev);
+		parser.beamSearchParseTreebankAndEvaluate(dev, 1);
+		Utils.saveTreebank(dev, "output20-lemma2.conll");
 		
 		
 		

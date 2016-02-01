@@ -3,11 +3,13 @@
  */
 package fr.upem.lgtools.parser.transitions;
 
+import fr.upem.lgtools.parser.Analysis;
+
 /**
  * @author Matthieu Constant
  *
  */
-public abstract class AbstractTransition<T> implements Transition<T> {
+public abstract class AbstractTransition<T extends Analysis> implements Transition<T> {
 	final String type;
 	
 	public AbstractTransition(String type) {

@@ -15,12 +15,44 @@ import fr.upem.lgtools.text.Sentence;
  * @author Mathieu
  *
  */
-public class PerceptronTransitionBasedSystem<T> extends TransitionBasedSystem<T> {
+public class PerceptronTransitionBasedSystem<T extends Analysis> extends TransitionBasedSystem<T> {
 
 	public PerceptronTransitionBasedSystem(TransitionBasedModel2<T> tbm) {
 		super(tbm);
 	}
 
+	
+	@Override
+	public void inexactSearchTrain(DepTreebank tb, DepTreebank dev, String modelFilename, int iterations, int k) throws IOException{
+		tb = tbm.filter(tb);
+	   	 Model averaged = new Model(tbm.getFeatureCount(),tbm.getLabelCount());
+	   	int step = 1;
+	   	for(int i = 0 ; i < iterations ; i++){
+	   		 System.err.println("Iteration "+ (i+1));
+	   		 int cnt = 0;
+	   		 int sent = 0;
+	   		 int total = 0;
+	   		for(Sentence gold:tb.shuffle()){
+	   			sent++;
+	   			if(sent % 1000 == 0){System.err.println("Processed "+ sent+ " sentences");}
+	   			ParseHypothesis<T> hyp = beamSearchParse(gold.getTokens(), k, true);
+	   			if(!hyp.isGold()){
+	   				tbm.update(hyp.getFeatures(),hyp.getGoldHypothesis().getTransition(),hyp.getTransition(),averaged,step);
+	   				System.err.println(hyp.getGoldHypothesis().getTransition()+"=="+hyp.getTransition());
+	   			}
+	   			step++;
+	   			cnt += hyp.getConfiguration().getHistory().size();
+	   			total += gold.getTokens().size()*2;	   			
+	   		}
+	   		System.err.println("Accuracy on training transition sequence: "+((double)cnt)/total+ "  ("+cnt+"/"+total+")");
+	       	 System.err.println("Number of sentences: "+sent);	   	    
+	   	}   	
+	   	tbm.setModel(tbm.getAveragedModel(averaged,step));
+	   	 tbm.save(modelFilename+".final");
+	   	 System.err.println("Done.");
+	}
+	
+	
 	
 	@Override
 	public void staticOracleTrain(DepTreebank tb, DepTreebank dev, String modelFilename, int iterations) throws IOException{
@@ -34,6 +66,7 @@ public class PerceptronTransitionBasedSystem<T> extends TransitionBasedSystem<T>
    		 int total = 0;
    		 boolean stop = false;
    		 for(Sentence gold:tb.shuffle()){
+   			 sent++;
    			 if(sent % 1000 == 0){System.err.println("Processed "+ sent+ " sentences");}
    			 Configuration<T> c = tbm.getInitialConfiguration(gold.getTokens());
    			 stop = false;
@@ -62,7 +95,7 @@ public class PerceptronTransitionBasedSystem<T> extends TransitionBasedSystem<T>
    				step++;
    			 }
    			 
-   			 sent++;
+   			 
    		 }
    		 if(dev != null){
    			 Model old = tbm.getModel();

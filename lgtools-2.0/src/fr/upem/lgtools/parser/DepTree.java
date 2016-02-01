@@ -5,9 +5,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
-public class DepTree {
+import fr.upem.lgtools.text.Unit;
+
+public class DepTree implements Analysis{
 	private final Set<DepArc>[] nodeChildren;
 	private final DepArc[] reverse;
 	private final DepArc[] leftMostDependencies;
@@ -50,7 +53,16 @@ public class DepTree {
 		return reverse;
 	}
 	
-	
+	@Override
+	public Analysis copy(){
+		DepTree tree = new DepTree(reverse.length);
+		for(DepArc a:reverse){
+			if(a != null){
+			  tree.addArc(a);
+			}
+		}		
+		return tree;
+	}
 	
 	
 	public DepArc[] getLeftMostDependencies() {
@@ -116,6 +128,24 @@ public class DepTree {
 	@Override
 	public String toString() {		
 		return Arrays.toString(reverse);
+	}
+
+	@Override
+	public boolean isGold(List<Unit> units) {
+		//System.err.println(units);
+		for(DepArc a:reverse){
+			if(a != null){
+				int d = a.getDep();
+				int h = a.getHead();
+				String l = a.getLabel();
+				Unit u = units.get(d - 1);
+				
+				if(u.getGoldSheadId() != h || !l.equals(u.getGoldSlabel())){
+					return false;
+				}				
+			}
+		}
+		return true;
 	}
 	
 	

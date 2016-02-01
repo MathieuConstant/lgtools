@@ -30,7 +30,7 @@ import fr.upem.lgtools.text.Unit;
  * @author Mathieu Constant
  *
  */
-public abstract class TransitionBasedModel<T> {
+public abstract class TransitionBasedModel<T extends Analysis> {
 	private final HashSet<String> featureSet = new HashSet<String>();
 	private final HashSet<String>[] featuresSets ;
 	private final Model model;
@@ -111,7 +111,7 @@ public abstract class TransitionBasedModel<T> {
 	}
 		
 	
-	public static <T> void countCollisions(TransitionBasedModel<T> model){
+	public static <T extends Analysis> void countCollisions(TransitionBasedModel<T > model){
 		int collisions=0;
 		for(int i = 0 ; i < model.featuresSets.length ; i++){
 			if(model.featuresSets[i] != null && model.featuresSets[i].size() > 1){

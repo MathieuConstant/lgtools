@@ -4,12 +4,11 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
-import java.util.Stack;
 
 import fr.upem.lgtools.text.Unit;
 import fr.upem.lgtools.text.UnitFactory;
 
-public class Configuration<T> {
+public class Configuration<T extends Analysis> {
 	private final Unit[] allUnits;
 	private final Buffer[] buffers;
     private final Deque<Unit>[] stacks;
@@ -49,8 +48,30 @@ public class Configuration<T> {
     		this.allUnits[u.getId()] = u;
     	}
     	this.analyses = analyses;
-    	
     }
+    
+   @SuppressWarnings("unchecked")
+   public Configuration(Configuration<T> configuration){
+
+	   buffers = (SimpleBuffer[])new SimpleBuffer[configuration.buffers.length];
+	   for(int i = 0 ; i < configuration.buffers.length ; i++){
+		   buffers[i] = new SimpleBuffer((SimpleBuffer)configuration.buffers[i]);    		
+	   }
+	   stacks =  (Deque<Unit>[])new Deque<?>[configuration.stacks.length];
+	   for(int i = 0 ; i < configuration.stacks.length ; i++){
+		   stacks[i] = new ArrayDeque<Unit>(configuration.stacks[i]);   		  
+
+	   }
+	   this.allUnits = new Unit[configuration.allUnits.length];
+	   for(int i = 0 ; i < configuration.allUnits.length ; i++){
+		   this.allUnits[i] = configuration.allUnits[i];
+	   }
+
+	   this.analyses = (T)configuration.analyses.copy();
+
+   }
+
+    
    
     public Unit getUnit(int id){
     	return this.allUnits[id];

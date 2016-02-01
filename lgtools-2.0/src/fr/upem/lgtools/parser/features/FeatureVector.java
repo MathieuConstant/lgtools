@@ -24,7 +24,11 @@ public class FeatureVector implements Iterable<Feature>{
 
 	public void add(String feat){
 		features.add(new Feature(featureMapping.getFeatureIdWithMemory(feat)));
-	}	
+	}
+	
+	public void add(Feature feat){
+		features.add(feat);
+	}
 
 
 	@Override
