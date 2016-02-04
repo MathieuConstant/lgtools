@@ -1,7 +1,13 @@
 package fr.upem.lgtools.text;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 public class DepTreebankFactory {
 	
@@ -106,6 +112,9 @@ public class DepTreebankFactory {
 	}
 	
 	
+	
+	
+	
 	public static DepTreebank filterNonProjective(DepTreebank tb){
 		return filter(tb, new FilterTreebank() {
 			
@@ -117,4 +126,300 @@ public class DepTreebankFactory {
 		
 	}
 
+	
+	private static Map<Integer,List<Unit>> getMWEs(Sentence s,Set<String> mweLabels,boolean goldMWEs){
+		Map<Integer,List<Unit>> mwes = new HashMap<Integer, List<Unit>>();
+	    for(Unit u:s.getTokens()){
+	    	String label = u.getGoldSlabel();
+	    	if(!goldMWEs){
+	    		
+	    	}
+	    	if(mweLabels.contains(label)){
+	    		int head = u.getGoldSheadId(); 
+	    		List<Unit> mwe = mwes.get(head);
+	    		if(mwe == null){
+	    			mwe = new LinkedList<Unit>();
+	    			mwes.put(head, mwe);
+	    		}
+	    		mwe.add(u);
+	    	}
+	    }	
+	    return mwes;
+	}
+	
+	
+	
+	//for now, it only deals with MWE component positions and not POS of the MWE 
+	
+	/**
+	 * 
+	 * 
+	 * 
+	 * @param mwePositions
+	 * @param s
+	 * @return the existing mwe unit, retun null if not found
+	 */
+	
+	private static Unit mweUnitAlreadyExists(int[] mwePositions, Sentence s){
+		List<Unit> units = s.getMWUnits();
+		//System.err.println(units);
+		for(Unit u:units){
+			//System.err.println(u);
+			//System.err.println("already "+Arrays.toString(u.getPositions()));
+			//System.err.println(Arrays.toString(mwePositions));
+			if(Arrays.equals(u.getPositions(), mwePositions)){
+				return u;
+			}
+			
+		}
+		
+		return null;
+	}
+	
+	
+	private static void addMWEUnit(Unit head, List<Unit> components,Sentence s,boolean goldMwes){
+        int[] positions = new int[components.size() + 1];
+        StringBuilder mweForm = new StringBuilder(head.getForm());
+        positions[0] = head.getId();
+        int i = 1;
+		for(Unit c: components){
+			positions[i] = c.getId();
+			mweForm.append("_").append(c.getForm());
+			if(goldMwes){
+			  c.setGoldShead(-1);
+			  c.setGoldSlabel(null);
+			}
+			else{
+				c.setShead(-1);
+				c.setSlabel(null);
+			}
+			i++;
+		}
+		Arrays.sort(positions);
+		Unit mwe = mweUnitAlreadyExists(positions, s); 
+		if(mwe == null){
+			mwe = new Unit(s.getUnits().size() + 1,mweForm.toString(),positions);
+			
+			s.add(mwe);
+			//System.err.println("MWE="+mwe);
+		}
+		if(goldMwes){
+			
+			mwe.setGoldShead(head.getGoldSheadId());
+			mwe.setGoldSlabel(head.getGoldSlabel());
+			head.setGoldShead(-1);
+			head.setGoldSlabel(null);
+		}
+		else{
+			//System.err.println("----"+head.getSheadId());
+		    mwe.setShead(head.getSheadId());
+		    mwe.setSlabel(head.getSlabel());
+		    head.setShead(-1);
+			head.setSlabel(null);
+		}
+		
+		
+		for(Unit c:components){
+
+			if(goldMwes){
+			   c.setGoldLHead(mwe.getId());
+			   head.setGoldLHead(mwe.getId());
+			}
+			else{
+				c.setLhead(mwe.getId());
+				head.setLhead(mwe.getId());
+			}	
+		}
+		
+		
+	}
+	
+	
+	private static void addMWEUnits(Map<Integer,List<Unit>> mwes,Sentence s,boolean goldMwes){
+		for(int i = 0 ; i < s.getTokens().size() ; i++){
+			Unit h = s.getTokens().get(i);
+			if(mwes.containsKey(h.getId())){
+				addMWEUnit(h,mwes.get(h.getId()),s,goldMwes);
+				//System.err.println(h+"--"+goldMwes);
+			}
+			
+		}
+	}
+	
+	
+	
+	private static Sentence mergeFixedMWEs(Sentence s,Set<String> mweLabels){
+		Sentence res = new Sentence(s);
+		Map<Integer,List<Unit>> gmwes = getMWEs(res, mweLabels,true);
+		Map<Integer,List<Unit>> mwes = getMWEs(res, mweLabels,false);
+		
+		addMWEUnits(gmwes, res, true);
+		addMWEUnits(mwes, res, false);
+		
+	    //System.err.println(s);
+	    //System.err.println(mwes);
+	   
+		return res;
+	}
+	
+	//mergeFixedMWEs(s,mweLabels)
+	
+	public static DepTreebank mergeFixedMWEs(final DepTreebank tb,final Set<String> mweLabels){
+		return modifyTreebank(tb,new SentenceModifier() {
+			
+			@Override
+			public Sentence modify(Sentence s) {
+				return mergeFixedMWEs(s,mweLabels);
+			}
+		});
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	//on gold annotation only
+	
+	public static DepTreebank binarizeMWE(DepTreebank tb,final boolean rightBinarization){
+		return modifyTreebank(tb,new SentenceModifier() {
+			
+			
+			private Unit mergeUnits(Unit u1, Unit u2,Sentence s){
+				String form = u1.getForm()+"_"+u2.getForm();
+				int [] pos1 = u1.getPositions();
+				int [] pos2 = u2.getPositions();
+				int[] positions = new int[pos1.length+pos2.length];
+				
+				// fill positions
+				for(int i = 0 ; i < pos1.length ; i++){
+					positions[i] = pos1[i];
+				}
+				for(int i = 0 ; i < pos2.length ; i++){
+					positions[i+pos1.length] = pos2[i];
+				}
+				
+				int id = s.getUnits().size() + 1;
+				//System.err.println(form);
+				//System.err.println(Arrays.toString(positions));
+				
+				Unit mwe = mweUnitAlreadyExists(positions, s);
+				//System.err.println(mwe);
+				
+				
+				if(mwe == null){
+					 //System.err.println("NEW");
+				      mwe = new Unit(id,form, positions);
+				      s.add(mwe);
+				}
+				u1.setGoldLHead(mwe.getId());
+			      u2.setGoldLHead(mwe.getId());
+				//System.err.println(u1+" "+mwe.getId());
+				
+				return mwe;
+			}
+			
+	
+			
+			// for now left binarizarion only
+			private void binarizeMWE(Unit mwe,Sentence s, boolean rightBinarization){
+				int[] positions = mwe.getPositions();
+				//System.err.println(Arrays.toString(positions));
+				Unit u = s.get(positions[0]);
+				//System.err.println(u);
+				for(int i = 1 ; i < positions.length ; i++){
+					Unit up = s.get(positions[i]);
+					//System.err.println(up);
+					u = mergeUnits(u,up,s);
+				}
+				
+			}
+			
+			
+			@Override
+			public Sentence modify(Sentence s) {
+				Sentence res = new Sentence(s);
+				List<Unit> mwes = s.getMWUnits();
+				int size = mwes.size();
+				for(int i = 0 ; i < size ; i++){
+					Unit mwe = mwes.get(i);
+					//System.err.println(mwe);
+					binarizeMWE(mwe,res,rightBinarization);
+				}
+				
+				return res;
+			}
+		});
+	}
+	
+	
+	
+	//on predicted annotation only
+	public static DepTreebank unbinarizeMWE(DepTreebank tb,boolean rightBinarization){
+		return modifyTreebank(tb, new SentenceModifier(){
+
+			
+			private Sentence unbinarize(Sentence s){
+				Sentence res = new Sentence(s);
+				for(Unit mwe:res.getMWUnits()){
+					//System.err.println(mwe+"="+mwe.getGoldLHead());
+					if(mwe.isPredictedLexicalRoot() && mwe.isPredictedMWE(res)){
+						
+						//System.err.println(mwe);
+						int[] positions = mwe.getPositions();
+						for(int i:positions){ //for each component
+							Unit c = res.get(i);
+							//System.err.println(c);
+							c.setLhead(mwe.getId());
+						}
+					}
+				}
+				return res;
+			}
+			
+			@Override
+			public Sentence modify(Sentence s) {
+				return unbinarize(s);
+			}
+			
+		});
+	}
+	
+	
+	static interface SentenceModifier{
+		Sentence modify(Sentence s);
+	}
+	
+	private static DepTreebank modifyTreebank(final DepTreebank tb,final SentenceModifier mod){
+		return new DepTreebank() {
+
+			@Override
+			public Iterator<Sentence> iterator() {
+				return new Iterator<Sentence>() {
+					Iterator<Sentence> it = tb.iterator();
+
+					@Override
+					public boolean hasNext() {
+						return it.hasNext();
+					}
+
+					@Override
+					public Sentence next() {
+						Sentence s = it.next();
+						return mod.modify(s);
+					}
+
+					@Override
+					public void remove() {
+						throw new IllegalStateException();
+
+					}
+				};
+			}
+		};
+	}
+	
+	
 }

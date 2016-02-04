@@ -5,19 +5,19 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.HashSet;
 
 import fr.upem.lgtools.parser.DepTree;
-import fr.upem.lgtools.parser.Model;
 import fr.upem.lgtools.parser.PerceptronTransitionBasedSystem;
 import fr.upem.lgtools.parser.TransitionBasedSystem;
+import fr.upem.lgtools.parser.arcstandard.ArcStandardTransitionBasedParserModel;
 import fr.upem.lgtools.parser.features.FeatureMapping;
 import fr.upem.lgtools.parser.features.HashMapFeatureMapping;
-import fr.upem.lgtools.parser.model.ArcStandardTransitionBasedParserModel;
 import fr.upem.lgtools.text.BufferedDepTreebank;
 import fr.upem.lgtools.text.DepTreebank;
 import fr.upem.lgtools.text.DepTreebankFactory;
 import fr.upem.lgtools.text.StreamDepTreebank;
-import fr.upem.lgtools.text.Utils;
 
 public class Test {
 
@@ -48,16 +48,21 @@ public class Test {
 	public static void main(String[] args) throws IOException {
 		 
 		
+		DepTreebank tb = readTreebank("train.expandedcpd.conll");
+		DepTreebank dev1 = DepTreebankFactory.mergeFixedMWEs(tb, new HashSet<String>(Arrays.asList("dep_cpd")));
+		DepTreebank dev2 = DepTreebankFactory.binarizeMWE(dev1, false);
+		DepTreebank dev3 = DepTreebankFactory.unbinarizeMWE(dev2, false);
 		
-		DepTreebank dev = readTreebank("dev.expandedcpd.conll",1);
-		DepTreebank tb = readTreebank("dev.expandedcpd.conll",1);
+		//Utils.saveTreebankInXConll(dev3, "test.conll");
+		
+		//DepTreebank tb = readTreebank("dev.expandedcpd.conll",1);
 		FeatureMapping fm = new  HashMapFeatureMapping(10000000);
 		ArcStandardTransitionBasedParserModel tbm = new ArcStandardTransitionBasedParserModel(fm,tb);
 		//System.err.println(tbm);
 		TransitionBasedSystem<DepTree> parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
-		parser.inexactSearchTrain(tb,"beam",1,1);
-		//parser.staticOracleTrain(tb, "model",5);
-		//parser.greedyParseTreebankAndEvaluate(tb);
+		//parser.inexactSearchTrain(tb,"beam",1,4);
+		parser.staticOracleTrain(tb, "model",2);
+		parser.greedyParseTreebankAndEvaluate(tb);
 		//System.err.println(tbm);
 		
 		//tb = readTreebank("dev.expandedcpd.conll");
@@ -70,13 +75,13 @@ public class Test {
 		
 		//ArcStandardTransitionBasedParserModel tbm = new ArcStandardTransitionBasedParserModel("model.final");
 		//TransitionBasedSystem<DepTree> parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
-		parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
+		//parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
 		//System.err.println(tbm);
 		
 		
 		//parser.greedyParseTreebankAndEvaluate(dev);
-		parser.beamSearchParseTreebankAndEvaluate(dev, 1);
-		Utils.saveTreebank(dev, "output20-lemma2.conll");
+		//parser.beamSearchParseTreebankAndEvaluate(dev, 4);
+		//Utils.saveTreebank(dev, "output20-lemma2.conll");
 		
 		
 		

@@ -26,6 +26,8 @@ public class Unit {
      private String cpos;
      private String pos;
      private final HashMap<String,String> feats = new HashMap<String, String>();
+     private Boolean predictedSeg;
+     private Boolean goldSeg;
      
      
      private int shead;  //syntactic head
@@ -36,20 +38,125 @@ public class Unit {
      private int goldShead;  //gold syntactic head
      private String goldSlabel;  //gold label
      
-     private int lhead;  // lexical head     
+     private int lhead;  // lexical head  
+     private int goldLHead;  // lexical head 
      
-     private final List<Integer> subunits = new ArrayList<Integer>();  // lexical head     
+     
+     private final List<Integer> subunits = new ArrayList<Integer>();  //list of subunits??  one-token compounds?   
 
      
      
+     /**
+      * Constructor which deeply copy input unit
+      * 
+      * @param u input unit
+      */
+     
+     public Unit(Unit u){
+    	 this.id = u.id;
+    	 this.form = u.form;
+    	 this.positions = Arrays.copyOf(u.positions,u.positions.length);
+    	 this.lemma = u.lemma;
+    	 this.cpos = u.cpos;
+    	 this.pos = u.pos;
+    	 this.feats.putAll(u.feats);
+    	 this.shead = u.shead;
+    	 this.slabel = u.slabel;
+    	 this.goldShead = u.goldShead;
+    	 this.goldSlabel = u.goldSlabel;
+    	 this.lhead = u.lhead;
+    	 this.goldLHead = u.goldLHead;
+    	 this.subunits.addAll(u.subunits);
+    	 
+    	 
+    	 
+     }
      
      
+	
+
 	public Unit(int id, String form, int... positions) {
 		this.id = id;
 		this.form = form;
 		this.positions = positions;
 	}
 
+	
+	public boolean isMWE(){
+		return positions.length > 1;
+	}
+	
+	
+	
+	
+	
+	private int findPredictedLexicalRoot(Unit tok,Sentence s){
+		int root = tok.getLheadId();
+		int res = root;
+		while(root > 0){
+			Unit u = s.get(root);
+			root = u.getLheadId();
+			if(root > 0){
+				res = root;
+			}
+		}
+		return res;
+	}
+	
+	
+	private int findGoldLexicalRoot(Unit tok,Sentence s){
+		int root = tok.getGoldLHead();
+		int res = root;
+		while(root > 0){
+			Unit u = s.get(root);
+			root = u.getGoldLHead();
+			if(root > 0){
+				res = root;
+			}
+		}
+		return res;
+	}
+	
+	public boolean isPredictedMWE(Sentence s){
+		if(!isMWE()){
+			return false;
+		}
+		if(predictedSeg != null){
+			return predictedSeg;
+		}
+		for(int c:positions){
+			Unit tok = s.get(c);
+			int lroot = findPredictedLexicalRoot(tok,s);
+			if(lroot != id){
+				predictedSeg = false;
+				return predictedSeg;
+			}
+		}
+		predictedSeg = true;
+		return predictedSeg;
+	}
+	
+	public boolean isGoldMWE(Sentence s){
+		if(!isMWE()){
+			return false;
+		}
+		if(goldSeg != null){
+			return goldSeg;
+		}
+		for(int c:positions){
+			Unit tok = s.get(c);
+			int lroot = findGoldLexicalRoot(tok,s);
+			if(lroot != id){
+				goldSeg = false;
+				return goldSeg;
+			}
+		}
+		goldSeg = true;
+		return goldSeg;
+	}
+	
+	
+	
 	public String getLemma() {
 		return lemma;
 	}
@@ -113,13 +220,32 @@ public class Unit {
 		this.slabel = slabel;
 	}
 
+	
 	public int getLheadId() {
 		return lhead;
 	}
 
+	
 	public void setLhead(int lhead) {
 		this.lhead = lhead;
 	}
+
+	
+	
+	
+	public int getGoldLHead() {
+		return goldLHead;
+	}
+
+
+
+
+	public void setGoldLHead(int goldLHead) {
+		this.goldLHead = goldLHead;
+	}
+
+
+
 
 	public int getId() {
 		return id;
@@ -156,6 +282,45 @@ public class Unit {
 		return id == 0;
 	}
 	
+
+	
+	public boolean isGoldLexicalRoot(){
+		return getGoldLHead() <= 0;
+	}
+	
+	public boolean isPredictedLexicalRoot(){
+		return getLheadId() <= 0;
+	}
+	
+	
+	public boolean isPredictedSeg() {
+		return predictedSeg;
+	}
+
+
+
+
+	public void setPredictedSeg(boolean predictedSeg) {
+		this.predictedSeg = predictedSeg;
+	}
+
+
+
+
+	public boolean isGoldSeg() {
+		return goldSeg;
+	}
+
+
+
+
+	public void setGoldSeg(boolean goldSeg) {
+		this.goldSeg = goldSeg;
+	}
+
+
+
+
 	@Override
 	public String toString(){
 		/*StringBuilder sb = new StringBuilder();

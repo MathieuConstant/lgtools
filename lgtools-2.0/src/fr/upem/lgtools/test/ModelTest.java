@@ -8,9 +8,9 @@ import java.util.List;
 
 import org.junit.Test;
 
-import fr.upem.lgtools.parser.Model;
 import fr.upem.lgtools.parser.features.Feature;
 import fr.upem.lgtools.parser.features.FeatureVector;
+import fr.upem.lgtools.parser.model.Model;
 
 public class ModelTest {
 

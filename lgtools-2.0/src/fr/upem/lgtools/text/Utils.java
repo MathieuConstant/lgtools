@@ -4,6 +4,8 @@ import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 public class Utils {
@@ -32,8 +34,18 @@ public class Utils {
 		
 	}
 	
+	private static void writeUnitInXConll(BufferedWriter out, Unit u) throws IOException{
+		out.write(u.getId()+"\t"+Arrays.toString(u.getPositions())+"\t"+u.getForm()+"\t"+u.getLemma()+"\t"+u.getCpos());
+		out.write("\t"+u.getPos()+"\t"+feats(u.getFeatures()));
+		out.write("\t"+u.getSheadId()+"\t"+u.getSlabel());
+		out.write("\t"+u.getGoldSheadId()+"\t"+u.getGoldSlabel());
+		out.write("\t"+u.getLheadId()+"\t"+u.getGoldLHead());
+		out.write("\n");
+		
+	}
 	
-	public static void saveTreebank(DepTreebank tb,String filename) throws IOException{
+	
+	public static void saveTreebankInConll(DepTreebank tb,String filename) throws IOException{
 		BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename), "UTF-8"));
 		for(Sentence s:tb){
 			for(Unit u:s.getTokens()){
@@ -44,6 +56,16 @@ public class Utils {
 		out.close();			
 	}
 	
+	public static void saveTreebankInXConll(DepTreebank tb,String filename) throws IOException{
+		BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename), "UTF-8"));
+		for(Sentence s:tb){
+			for(Unit u:s.getUnits()){
+				writeUnitInXConll(out,u);
+			}
+			out.write("\n");
+		}
+		out.close();			
+	}
 	
 	
 	private static boolean isCrossing(int i1, int j1, int i2, int j2){
@@ -81,4 +103,54 @@ public class Utils {
 		return true;
 	}
 
+	
+	
+	//for now, it only deals with MWE component positions and not POS of the MWE 
+	
+		/**
+		 * 
+		 * 
+		 * 
+		 * @param mwePositions
+		 * @param s
+		 * @return the existing mwe unit, retun null if not found
+		 */
+		
+		public static Unit findExistingMweUnitByPosition(int[] mwePositions, List<Unit> units){
+			for(Unit u:units){
+				if(Arrays.equals(u.getPositions(), mwePositions)){
+					return u;
+				}
+			}
+			
+			return null;
+		}
+	
+	public static Unit mergeUnits(Unit u1, Unit u2,List<Unit> units){
+		String form = u1.getForm()+"_"+u2.getForm();
+		int [] pos1 = u1.getPositions();
+		int [] pos2 = u2.getPositions();
+		int[] positions = new int[pos1.length+pos2.length];
+		
+		// fill positions
+		for(int i = 0 ; i < pos1.length ; i++){
+			positions[i] = pos1[i];
+		}
+		for(int i = 0 ; i < pos2.length ; i++){
+			positions[i+pos1.length] = pos2[i];
+		}
+		
+		int id = units.size() + 1;
+		//System.err.println(form);
+		//System.err.println(Arrays.toString(positions));
+		
+		Unit mwe = findExistingMweUnitByPosition(positions, units);
+		//System.err.println(mwe);
+		
+		if(mwe == null){
+		      mwe = new Unit(id,form, positions);
+		}
+		return mwe;
+	}
+	
 }

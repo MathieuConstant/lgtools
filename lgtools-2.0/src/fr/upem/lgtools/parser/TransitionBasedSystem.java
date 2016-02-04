@@ -14,7 +14,7 @@ import java.util.Set;
 import fr.upem.lgtools.evaluation.ParsingAccuracy;
 import fr.upem.lgtools.evaluation.ParsingResult;
 import fr.upem.lgtools.parser.features.FeatureVector;
-import fr.upem.lgtools.parser.model.TransitionBasedModel2;
+import fr.upem.lgtools.parser.model.TransitionBasedModel;
 import fr.upem.lgtools.parser.transitions.Transition;
 import fr.upem.lgtools.text.DepTreebank;
 import fr.upem.lgtools.text.Sentence;
@@ -26,10 +26,10 @@ import fr.upem.lgtools.text.Unit;
  *
  */
 public abstract class TransitionBasedSystem<T extends Analysis> {
-     final TransitionBasedModel2<T> tbm;
+     final TransitionBasedModel<T> tbm;
      
      
-     public TransitionBasedSystem(TransitionBasedModel2<T> tbm){
+     public TransitionBasedSystem(TransitionBasedModel<T> tbm){
     	 this.tbm = tbm;
      }
 	
@@ -105,14 +105,13 @@ public abstract class TransitionBasedSystem<T extends Analysis> {
     	 beam.add(h0);
     	 ParseHypothesis<T> gold = h0;
     	     	 
-    	 //System.err.println("#####");
     	 //System.err.println(units);
     	 
     	 while(!beamHasOnlyTerminalConfigurations(beam)){    	     
-    		 //System.err.println("==");
     		 
     		 LinkedList<ParseHypothesis<T>> newBeam = new LinkedList<ParseHypothesis<T>>();
     		 for(ParseHypothesis<T> h:beam){
+    			 //System.err.println("START="+h);
     			 Configuration<T> c = h.getConfiguration();
     			 FeatureVector fv = tbm.extractFeatures(c);
     			 Set<Transition<T>> transitions = tbm.getValidTransitions(c);
@@ -124,14 +123,18 @@ public abstract class TransitionBasedSystem<T extends Analysis> {
     				 
     				 for(Transition<T> t:transitions){
     				     double newScore = tbm.getScore(fv,t);
-    				     Configuration<T> newConfig = new Configuration<T>(c);    				     
+    				     Configuration<T> newConfig = new Configuration<T>(c); 
+    				     //System.err.println("NEW="+newConfig);
+    				     //System.err.println("OLD="+c);
     				     newConfig = t.perform(newConfig);
     				     newConfig.getHistory().add(t.id());
     				     boolean isGold = h.isGold();
     				     if(returnWhenFail && isGold){
-    				    	 isGold = newConfig.getAnalyses().isGold(units);    				    	 
+    				    	 isGold = newConfig.getAnalyses().isGold(units);    
+    				    	 //System.err.println(isGold);
     				     }    				     
     				     ParseHypothesis<T> newHyp = new ParseHypothesis<T>(newConfig, newScore, fv, h,isGold,t);
+    				     
     				     newBeam.add(newHyp);
     				     if(isGold){
     				    	 gold = newHyp;
@@ -142,12 +145,15 @@ public abstract class TransitionBasedSystem<T extends Analysis> {
     		 } 
     		 
     		 beam = prune(newBeam,k);
+    		 //for(ParseHypothesis<T> h:beam){
+    			 //System.err.println("DEST="+h);
+    		 //}
     		 //System.err.println(beam);
-    		 ParseHypothesis<T> h1 = beam.getFirst();
-    		 System.err.println(h1.getTransition()+"="+h1.getConfiguration());
+    		 //ParseHypothesis<T> h1 = beam.getFirst();
+    		 //System.err.println(h1.getTransition()+"="+h1.getConfiguration());
     		 
     		 if(returnWhenFail && goldIsOffTheBeam(beam)){
-    			 System.err.println("OFFBEAM");
+    			 //System.err.println("OFFBEAM");
     			 ParseHypothesis<T> h = beam.getFirst();
     			 h.setGoldHypothesis(gold);
     			 

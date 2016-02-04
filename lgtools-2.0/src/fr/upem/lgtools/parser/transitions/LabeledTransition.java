@@ -11,7 +11,7 @@ import fr.upem.lgtools.parser.Analysis;
  */
 
 public abstract class LabeledTransition<T extends Analysis> extends AbstractTransition<T> {
-    final String label;
+    final protected String label;
 	
 	public LabeledTransition(String type,String label) {
 		super(type);

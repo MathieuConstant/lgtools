@@ -86,7 +86,13 @@ public class ParseHypothesis<T extends Analysis> implements Comparable<ParseHypo
 		return isGold;
 	}
 	
-	
+	@Override
+	public String toString() {
+		if(transition == null){
+			return "NULL-HYP\n";
+		}
+		return "HYP:"+configuration.toString()+"\n---"+isGold+"=="+score+"=="+transition.toString()+"---\n";
+	}
 	
 	
 	

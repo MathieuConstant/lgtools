@@ -11,42 +11,63 @@ import java.util.Set;
 import fr.upem.lgtools.text.Unit;
 
 public class DepTree implements Analysis{
-	private final Set<DepArc>[] nodeChildren;
-	private final DepArc[] reverse;
-	private final DepArc[] leftMostDependencies;
-	private final DepArc[] rightMostDependencies;
+	private int edgeCount;
+	private Set<DepArc>[] nodeChildren;
+	private DepArc[] reverse;
+	private DepArc[] leftMostDependencies;
+	private DepArc[] rightMostDependencies;
+	private int[] links;
 	
 	@SuppressWarnings("unchecked")
 	public DepTree(int size){
 		nodeChildren = (Set<DepArc>[])new Set<?>[size];
 		reverse = new DepArc[size];
 		leftMostDependencies = new DepArc[size];	
-		rightMostDependencies = new DepArc[size];		
+		rightMostDependencies = new DepArc[size];
+		links = new int[size];
+		this.edgeCount = size;
 	}
 	
 	public void addArc(DepArc a){
+		
 		int dep = a.getDep();
+		int h = a.getHead();
+		
 		if(reverse[dep] != null){
 			throw new IllegalStateException("Node "+dep+ " has already a parent");
 		}
-		int h = a.getHead();
-		int d = a.getDep();
+		
 		if(nodeChildren[h] == null){
 			nodeChildren[h] = new HashSet<DepArc>();
 		}
 		nodeChildren[h].add(a);
 		reverse[dep] = a;
 		if(h < a.getDep()){  //case of a right dependency
-			if(rightMostDependencies[h] == null || rightMostDependencies[h].getDep() < d){
+			if(rightMostDependencies[h] == null || rightMostDependencies[h].getDep() < dep){
 				rightMostDependencies[h] = a;			
 			}
 		}
 		else{ //case of a left dependency
-			if(leftMostDependencies[h] == null || leftMostDependencies[h].getDep() > d){
+			if(leftMostDependencies[h] == null || leftMostDependencies[h].getDep() > dep){
 				leftMostDependencies[h] = a;			
 			}
 			
 		}
+	}
+	
+	
+	public void addEdgeWithLinks(int i, int j){
+		if(edgeCount >= nodeChildren.length){
+			nodeChildren = Arrays.copyOf(nodeChildren, nodeChildren.length *2);
+			reverse = Arrays.copyOf(reverse, reverse.length *2);
+			leftMostDependencies = Arrays.copyOf(leftMostDependencies, leftMostDependencies.length *2);
+			rightMostDependencies = Arrays.copyOf(rightMostDependencies, rightMostDependencies.length *2);
+			links = Arrays.copyOf(links, links.length * 2);
+		}
+		links[i] = edgeCount;
+		links[j] = edgeCount;
+		edgeCount++;
+		
 	}
 	
 	public DepArc[] getArcs(){

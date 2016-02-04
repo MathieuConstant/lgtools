@@ -8,7 +8,7 @@ import java.util.List;
 
 import fr.upem.lgtools.parser.Configuration;
 import fr.upem.lgtools.parser.DepTree;
-import fr.upem.lgtools.parser.features.DefaultFeatureExtractor;
+import fr.upem.lgtools.parser.arcstandard.DefaultFeatureExtractor;
 import fr.upem.lgtools.parser.features.FeatureExtractor;
 import fr.upem.lgtools.parser.features.FeatureMapping;
 import fr.upem.lgtools.text.DepTreebank;
@@ -20,7 +20,7 @@ import fr.upem.lgtools.text.Unit;
  *
  */
 public abstract class TransitionBasedDependencyParserModel extends
-		TransitionBasedModel2<DepTree> {
+		TransitionBasedModel<DepTree> {
 
 	public TransitionBasedDependencyParserModel(FeatureMapping fm,
 			DepTreebank tb) {

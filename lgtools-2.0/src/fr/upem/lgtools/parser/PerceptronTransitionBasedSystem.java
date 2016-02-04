@@ -6,7 +6,8 @@ package fr.upem.lgtools.parser;
 import java.io.IOException;
 
 import fr.upem.lgtools.parser.features.FeatureVector;
-import fr.upem.lgtools.parser.model.TransitionBasedModel2;
+import fr.upem.lgtools.parser.model.Model;
+import fr.upem.lgtools.parser.model.TransitionBasedModel;
 import fr.upem.lgtools.parser.transitions.Transition;
 import fr.upem.lgtools.text.DepTreebank;
 import fr.upem.lgtools.text.Sentence;
@@ -17,7 +18,7 @@ import fr.upem.lgtools.text.Sentence;
  */
 public class PerceptronTransitionBasedSystem<T extends Analysis> extends TransitionBasedSystem<T> {
 
-	public PerceptronTransitionBasedSystem(TransitionBasedModel2<T> tbm) {
+	public PerceptronTransitionBasedSystem(TransitionBasedModel<T> tbm) {
 		super(tbm);
 	}
 
@@ -32,10 +33,13 @@ public class PerceptronTransitionBasedSystem<T extends Analysis> extends Transit
 	   		 int cnt = 0;
 	   		 int sent = 0;
 	   		 int total = 0;
+	   		 
 	   		for(Sentence gold:tb.shuffle()){
 	   			sent++;
 	   			if(sent % 1000 == 0){System.err.println("Processed "+ sent+ " sentences");}
 	   			ParseHypothesis<T> hyp = beamSearchParse(gold.getTokens(), k, true);
+	   			System.err.println("Result parse:");
+	   			System.err.println(hyp);
 	   			if(!hyp.isGold()){
 	   				tbm.update(hyp.getFeatures(),hyp.getGoldHypothesis().getTransition(),hyp.getTransition(),averaged,step);
 	   				System.err.println(hyp.getGoldHypothesis().getTransition()+"=="+hyp.getTransition());
@@ -76,6 +80,8 @@ public class PerceptronTransitionBasedSystem<T extends Analysis> extends Transit
    				 Transition<T> ot = tbm.getBestCorrectTransition(fv,c);
    				 //System.err.println("OT "+ot);
    				 //System.err.println("PT "+pt);
+   				// System.err.println("CONF="+c);
+   				//System.err.println("COPY="+new Configuration<T>(c));
    				 if(pt.equals(ot)){ // true prediction
    					 c = pt.perform(c); 
    					 c.getHistory().add(pt.id());

@@ -2,6 +2,7 @@ package fr.upem.lgtools.parser;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.List;
 
@@ -9,7 +10,8 @@ import fr.upem.lgtools.text.Unit;
 import fr.upem.lgtools.text.UnitFactory;
 
 public class Configuration<T extends Analysis> {
-	private final Unit[] allUnits;
+	private Unit[] allUnits;
+	private int unitCount;
 	private final Buffer[] buffers;
     private final Deque<Unit>[] stacks;
     private final T analyses;
@@ -47,6 +49,7 @@ public class Configuration<T extends Analysis> {
     	for(Unit u:units){
     		this.allUnits[u.getId()] = u;
     	}
+    	this.unitCount = allUnits.length;
     	this.analyses = analyses;
     }
     
@@ -66,12 +69,21 @@ public class Configuration<T extends Analysis> {
 	   for(int i = 0 ; i < configuration.allUnits.length ; i++){
 		   this.allUnits[i] = configuration.allUnits[i];
 	   }
+	   this.unitCount = allUnits.length;
 
 	   this.analyses = (T)configuration.analyses.copy();
 
    }
 
     
+   public void addUnit(Unit u){
+	   if(unitCount >= allUnits.length){
+		   allUnits = Arrays.copyOf(allUnits, unitCount*2);
+	   }
+	   allUnits[unitCount] = u;
+	   unitCount++;
+   }
+   
    
     public Unit getUnit(int id){
     	return this.allUnits[id];
@@ -135,7 +147,11 @@ public class Configuration<T extends Analysis> {
 	
 	@Override
 	public String toString() {
-		return getFirstStack().toString()+""+getFirstBuffer().toString();
+		return getFirstStack().toString()+""+getFirstBuffer().toString()+"\n";//+analyses.toString();
+	}
+	
+	public List<Unit> getUnits(){
+		return Arrays.asList(allUnits);
 	}
 	
 }
