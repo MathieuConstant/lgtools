@@ -32,7 +32,7 @@ public abstract class ProjectiveTransitionBasedDependencyParserModel extends
 
 
 	/* (non-Javadoc)
-	 * @see fr.upem.lgtools.parser.model.TransitionBasedModel2#filter(fr.upem.lgtools.text.DepTreebank)
+	 * @see fr.upem.lgtools.parser.model.TransitionBasedModel2filter(fr.upem.lgtools.text.DepTreebank)
 	 */
 	@Override
 	public DepTreebank filter(DepTreebank tb) {		

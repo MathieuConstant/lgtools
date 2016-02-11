@@ -6,12 +6,12 @@ import java.util.Arrays;
 import java.util.Deque;
 import java.util.List;
 
+import fr.upem.lgtools.text.Sentence;
 import fr.upem.lgtools.text.Unit;
 import fr.upem.lgtools.text.UnitFactory;
 
 public class Configuration<T extends Analysis> {
-	private Unit[] allUnits;
-	private int unitCount;
+	private final Sentence sentence;
 	private final Buffer[] buffers;
     private final Deque<Unit>[] stacks;
     private final T analyses;
@@ -20,13 +20,13 @@ public class Configuration<T extends Analysis> {
     
     //units is a list of non-root units
     @SuppressWarnings("unchecked")
-	public Configuration(List<Unit> units,T analyses, int nBuffers, int nStacks){
-    	if(units == null){
+	public Configuration(Sentence s,T analyses, int nBuffers, int nStacks){
+    	/*if(units == null){
     		throw new IllegalArgumentException("List of units cannot be null");
     	}
     	if(units.isEmpty()){
     		throw new IllegalArgumentException("List of units cannot be empty");
-    	}
+    	}*/
     	if(nBuffers < 1){
     		throw new IllegalArgumentException("There should be at least one buffer (instead of "+nBuffers + ")");
     	}
@@ -37,7 +37,7 @@ public class Configuration<T extends Analysis> {
     	Unit root = UnitFactory.createRootUnit();
     	buffers = (SimpleBuffer[])new SimpleBuffer[nBuffers];
     	for(int i = 0 ; i < nBuffers ; i++){
-    		buffers[i] = new SimpleBuffer(units);    		
+    		buffers[i] = new SimpleBuffer(s);    		
     	}
     	stacks =  (Deque<Unit>[])new Deque<?>[nStacks];
     	for(int i = 0 ; i < nStacks ; i++){
@@ -45,11 +45,8 @@ public class Configuration<T extends Analysis> {
     		  stacks[i].push(root);
     		  
     	}
-    	this.allUnits = new Unit[units.size() + 1];
-    	for(Unit u:units){
-    		this.allUnits[u.getId()] = u;
-    	}
-    	this.unitCount = allUnits.length;
+    	this.sentence = s;
+    	
     	this.analyses = analyses;
     }
     
@@ -65,28 +62,24 @@ public class Configuration<T extends Analysis> {
 		   stacks[i] = new ArrayDeque<Unit>(configuration.stacks[i]);   		  
 
 	   }
-	   this.allUnits = new Unit[configuration.allUnits.length];
-	   for(int i = 0 ; i < configuration.allUnits.length ; i++){
-		   this.allUnits[i] = configuration.allUnits[i];
-	   }
-	   this.unitCount = allUnits.length;
-
+	   this.sentence = configuration.sentence;
+	   
 	   this.analyses = (T)configuration.analyses.copy();
 
    }
 
     
+   public Sentence getSentence(){
+	   return sentence;
+   }
+   
    public void addUnit(Unit u){
-	   if(unitCount >= allUnits.length){
-		   allUnits = Arrays.copyOf(allUnits, unitCount*2);
-	   }
-	   allUnits[unitCount] = u;
-	   unitCount++;
+	   sentence.add(u);
    }
    
    
     public Unit getUnit(int id){
-    	return this.allUnits[id];
+    	return sentence.get(id);
     }
     
     public Deque<Unit> getStack(int index){
@@ -151,7 +144,7 @@ public class Configuration<T extends Analysis> {
 	}
 	
 	public List<Unit> getUnits(){
-		return Arrays.asList(allUnits);
+		return sentence.getUnits();
 	}
 	
 }

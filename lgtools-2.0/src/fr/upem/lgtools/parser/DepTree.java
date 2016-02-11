@@ -11,7 +11,7 @@ import java.util.Set;
 import fr.upem.lgtools.text.Unit;
 
 public class DepTree implements Analysis{
-	private int edgeCount;
+	private int nodeCount;
 	private Set<DepArc>[] nodeChildren;
 	private DepArc[] reverse;
 	private DepArc[] leftMostDependencies;
@@ -25,7 +25,8 @@ public class DepTree implements Analysis{
 		leftMostDependencies = new DepArc[size];	
 		rightMostDependencies = new DepArc[size];
 		links = new int[size];
-		this.edgeCount = size;
+		this.nodeCount = size;
+		//System.err.println("INIT: " +nodeCount);
 	}
 	
 	public void addArc(DepArc a){
@@ -55,18 +56,23 @@ public class DepTree implements Analysis{
 		}
 	}
 	
+	public boolean nodeHasChildren(int i){
+		return nodeChildren[i] == null?false:!nodeChildren[i].isEmpty();
+	}
+	
 	
 	public void addEdgeWithLinks(int i, int j){
-		if(edgeCount >= nodeChildren.length){
+		
+		if(nodeCount >= nodeChildren.length){
 			nodeChildren = Arrays.copyOf(nodeChildren, nodeChildren.length *2);
 			reverse = Arrays.copyOf(reverse, reverse.length *2);
 			leftMostDependencies = Arrays.copyOf(leftMostDependencies, leftMostDependencies.length *2);
 			rightMostDependencies = Arrays.copyOf(rightMostDependencies, rightMostDependencies.length *2);
 			links = Arrays.copyOf(links, links.length * 2);
 		}
-		links[i] = edgeCount;
-		links[j] = edgeCount;
-		edgeCount++;
+		links[i] = nodeCount;
+		links[j] = nodeCount;
+		nodeCount++;
 		
 	}
 	
@@ -95,11 +101,21 @@ public class DepTree implements Analysis{
 	}
 
 	public int getHead(int node){
+		if(reverse[node] == null){
+			return -1;
+		}
 		return reverse[node].getHead();
 	}
 
 	public String getlabel(int node){
+		if(reverse[node] == null){
+			return null;
+		}
 		return reverse[node].getLabel();
+	}
+	
+	public int getLexicalNodeId(int node){
+		return links[node];
 	}
 	
 	public Set<Integer> getChildren(final int node){
@@ -139,7 +155,7 @@ public class DepTree implements Analysis{
 
 			@Override
 			public int size() {				
-				return nodeChildren[node].size();
+				return nodeChildren[node] == null?0:nodeChildren[node].size();
 			}
 		};
 		

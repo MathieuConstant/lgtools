@@ -15,11 +15,12 @@ public class ParsingAccuracy {
 	public static void computeParsingAccuracy(Sentence sentence, ParsingAccuracy acc){
 		
 		boolean exact = true;
-		for(Unit u:sentence.getTokens()){
-			
+		for(Unit u:sentence.getTokenSequence(true)){
+			//System.err.println(u);
 			acc.addUnit();
 			if(u.getGoldSheadId() == u.getSheadId()){
 				acc.addUnlabeledMatch();
+				
 				if(u.getGoldSlabel().equals(u.getSlabel())){
 					acc.addLabeledMatch();
 				}

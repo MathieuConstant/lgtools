@@ -34,16 +34,19 @@ public abstract class TransitionBasedDependencyParserModel extends
 
 	
 	@Override
-	public Configuration<DepTree> getInitialConfiguration(List<Unit> units) {		
-		return new Configuration<DepTree>(units, new DepTree(units.size() + 1), 1, 1);
+	public Configuration<DepTree> getInitialConfiguration(Sentence s) {		
+		return new Configuration<DepTree>(s, new DepTree(s.getUnits().size() + 1), 1, 1);
 	}
 
 	
 	@Override
 	public void updateSentenceAfterAnalysis(Sentence s, DepTree analysis) {
-		for(Unit u:s.getTokens()){
+		for(Unit u:s.getUnits()){
+			//System.err.println(u);
 			u.setShead(analysis.getHead(u.getId()));			
 			u.setSlabel(analysis.getlabel(u.getId()));
+			int lh = analysis.getLexicalNodeId(u.getId());
+			u.setLhead(lh);	
 		}
 		
 	}

@@ -37,7 +37,7 @@ public class PerceptronTransitionBasedSystem<T extends Analysis> extends Transit
 	   		for(Sentence gold:tb.shuffle()){
 	   			sent++;
 	   			if(sent % 1000 == 0){System.err.println("Processed "+ sent+ " sentences");}
-	   			ParseHypothesis<T> hyp = beamSearchParse(gold.getTokens(), k, true);
+	   			ParseHypothesis<T> hyp = beamSearchParse(gold, k, true);
 	   			System.err.println("Result parse:");
 	   			System.err.println(hyp);
 	   			if(!hyp.isGold()){
@@ -72,15 +72,19 @@ public class PerceptronTransitionBasedSystem<T extends Analysis> extends Transit
    		 for(Sentence gold:tb.shuffle()){
    			 sent++;
    			 if(sent % 1000 == 0){System.err.println("Processed "+ sent+ " sentences");}
-   			 Configuration<T> c = tbm.getInitialConfiguration(gold.getTokens());
+   			 Configuration<T> c = tbm.getInitialConfiguration(gold);
    			 stop = false;
+   			 //System.err.println(gold.getTokenSequence(true));
+   			 
    			 while(!c.isTerminal() && !stop){
    				 FeatureVector fv = tbm.extractFeatures(c);
    				 Transition<T> pt = tbm.getBestValidTransition(fv,c);
    				 Transition<T> ot = tbm.getBestCorrectTransition(fv,c);
-   				 //System.err.println("OT "+ot);
-   				 //System.err.println("PT "+pt);
-   				// System.err.println("CONF="+c);
+   				 //System.err.println("valid: "+tbm.getValidTransitions(c));
+   				//System.err.println("OT "+ot);
+   				//System.err.println("CONF="+c);
+   				//System.err.println("OT "+ot);
+   				//System.err.println("CONF="+c);
    				//System.err.println("COPY="+new Configuration<T>(c));
    				 if(pt.equals(ot)){ // true prediction
    					 c = pt.perform(c); 
@@ -92,9 +96,12 @@ public class PerceptronTransitionBasedSystem<T extends Analysis> extends Transit
    					 stop = false;//early update if stop == true
    					 if(!stop){
    					    c = ot.perform(c);
+   					    
    					    c.getHistory().add(ot.id());
    					 }
    				 }
+   				
+   				 
    				 total++;
    				 //System.err.println(c);
    				 //System.err.println(tbm);

@@ -37,6 +37,24 @@ public class SimpleMergeArcStandardTransitionBasedParserModel extends ArcStandar
 	}
 
 
+	private String getMerge(Configuration<DepTree> configuration){
+		Deque<Unit> stack = configuration.getFirstStack();
+		if(stack.size() > 2){
+			Unit u1 = stack.pop();
+			Unit u2 = stack.peek();
+			stack.push(u1);
+			int l1 = u2.getGoldLHead();
+			int l2 = u1.getGoldLHead();
+			if(l1 <= 0 || l2 <= 0){
+				return null;
+			}
+			if(l1 == l2){	
+				return "";
+			}
+		}
+		return null;
+	}
+	
 	
 
 	/* (non-Javadoc)
@@ -48,7 +66,9 @@ public class SimpleMergeArcStandardTransitionBasedParserModel extends ArcStandar
 		
 		//if ME is possible, then ME
 		
-		//TODO
+		if((label = getMerge(configuration)) != null){
+			return transitions.getTransition(MERGE,null);
+		}
 		
 		// if LA is possible, then LA
 		if((label = getLeftArcLabel(configuration)) != null){
@@ -76,7 +96,7 @@ public class SimpleMergeArcStandardTransitionBasedParserModel extends ArcStandar
 	@Override
 	protected Transition<DepTree> createTransition(String type, String label) {
 		if(MERGE.equals(type)){
-			return null; //imlement merge transition
+			return new MergeTransition(MERGE); 
 		}
 		return super.createTransition(type, label);
 	}

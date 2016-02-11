@@ -20,12 +20,15 @@ public class MergeTransition extends AbstractTransition<DepTree> {
 		DepTree tree = configuration.getAnalyses();
 		Unit u0 = stack.pop();
 		Unit u1 = stack.pop();
-		Unit u = Utils.mergeUnits(u1,u0,configuration.getUnits());
-		configuration.addUnit(u);
+		Unit u = Utils.mergeUnitsAndAdd(u1,u0,configuration.getUnits());
+		//System.err.println(u+" "+u1+" "+u0);
+		//configuration.addUnit(u);
 		tree.addEdgeWithLinks(u1.getId(),u0.getId());
-		return null;
+		stack.push(u);
+		return configuration;
 	}
 
+	
 	@Override
 	public boolean isValid(Configuration<DepTree> configuration) {
 		Deque<Unit> stack = configuration.getFirstStack();
@@ -36,12 +39,10 @@ public class MergeTransition extends AbstractTransition<DepTree> {
 		boolean res = true;
 		Unit u0 = stack.pop();
 		Unit u1 = stack.pop();
-		if(tree.getChildren(u0.getId()).size() > 0){ //if u0 has children, transition not valid
+		if(tree.nodeHasChildren(u0.getId()) || tree.nodeHasChildren(u1.getId())){ //if u0 or u1 has children, transition not valid
 			res = false;
 		}
-		if(tree.getChildren(u1.getId()).size() > 0){ //if u1 has children, transition not valid
-			res = false;
-		}
+		
 		stack.push(u1);  //stack in initial state of this method call
 		stack.push(u0);
 		

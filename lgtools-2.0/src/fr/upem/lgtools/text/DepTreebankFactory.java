@@ -1,7 +1,9 @@
 package fr.upem.lgtools.text;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -105,8 +107,6 @@ public class DepTreebankFactory {
 				return tb.size();
 			}
 			
-
-	
 		};
 		
 	}
@@ -132,10 +132,13 @@ public class DepTreebankFactory {
 	    for(Unit u:s.getTokens()){
 	    	String label = u.getGoldSlabel();
 	    	if(!goldMWEs){
-	    		
+	    		label = u.getSlabel();
 	    	}
 	    	if(mweLabels.contains(label)){
-	    		int head = u.getGoldSheadId(); 
+	    		int head = u.getGoldSheadId();
+	    		if(!goldMWEs){
+	    			head = u.getSheadId();
+	    		}
 	    		List<Unit> mwe = mwes.get(head);
 	    		if(mwe == null){
 	    			mwe = new LinkedList<Unit>();
@@ -232,6 +235,8 @@ public class DepTreebankFactory {
 		}
 		
 		
+		
+		
 	}
 	
 	
@@ -241,9 +246,34 @@ public class DepTreebankFactory {
 			if(mwes.containsKey(h.getId())){
 				addMWEUnit(h,mwes.get(h.getId()),s,goldMwes);
 				//System.err.println(h+"--"+goldMwes);
+			}	
+		}
+	
+		//modify the head of units that are governed by the MWEs
+		for(Unit u:s.getTokenSequence(goldMwes)){
+			Set<Integer> mwe= new HashSet<Integer>();
+			for(int p:u.getPositions()){
+				mwe.add(p);
+			}
+			for(Unit v:s.getTokenSequence(goldMwes)){
+				if(goldMwes){
+				   int h = v.getGoldSheadId();
+				   if(mwe.contains(h)){
+					   v.setGoldShead(u.getId());
+				   }
+				}
+				else{
+					int h = v.getSheadId();
+					   if(mwe.contains(h)){
+						   v.setShead(u.getId());
+					   }
+				}
 			}
 			
 		}
+		
+		
+				
 	}
 	
 	
@@ -252,7 +282,8 @@ public class DepTreebankFactory {
 		Sentence res = new Sentence(s);
 		Map<Integer,List<Unit>> gmwes = getMWEs(res, mweLabels,true);
 		Map<Integer,List<Unit>> mwes = getMWEs(res, mweLabels,false);
-		
+		//System.err.println(mwes);
+		//System.err.println(gmwes);
 		addMWEUnits(gmwes, res, true);
 		addMWEUnits(mwes, res, false);
 		
@@ -312,6 +343,8 @@ public class DepTreebankFactory {
 				if(mwe == null){
 					 //System.err.println("NEW");
 				      mwe = new Unit(id,form, positions);
+				      mwe.setGoldShead(-1);
+				      mwe.setGoldSlabel(null);
 				      s.add(mwe);
 				}
 				u1.setGoldLHead(mwe.getId());

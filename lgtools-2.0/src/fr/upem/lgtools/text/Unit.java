@@ -17,7 +17,8 @@ import java.util.Map;
  */
 
 
-public class Unit {	 
+public class Unit {	
+	private final static String DUMMY="_";
 	
 	 private final int id;
      private final String form;
@@ -90,32 +91,33 @@ public class Unit {
 	
 	
 	
-	private int findPredictedLexicalRoot(Unit tok,Sentence s){
-		int root = tok.getLheadId();
-		int res = root;
-		while(root > 0){
-			Unit u = s.get(root);
-			root = u.getLheadId();
-			if(root > 0){
-				res = root;
-			}
+	public Unit findPredictedLexicalRoot(Sentence s){
+		Unit root = this;
+		//System.err.println(root);
+		int lh;
+		while((lh = root.getLheadId()) > 0){
+			root = s.get(lh);
 		}
-		return res;
+		return root;
 	}
 	
 	
-	private int findGoldLexicalRoot(Unit tok,Sentence s){
-		int root = tok.getGoldLHead();
-		int res = root;
-		while(root > 0){
-			Unit u = s.get(root);
-			root = u.getGoldLHead();
-			if(root > 0){
-				res = root;
-			}
+	public Unit findGoldLexicalRoot(Sentence s){
+		Unit root = this;
+		//System.err.println(root);
+		int lh;
+		while((lh = root.getGoldLHead()) > 0){
+			root = s.get(lh);
 		}
-		return res;
+		return root;
 	}
+	
+	
+	public int getUnitFirstTokenPosition(){
+		return positions[0];
+	}
+	
+	
 	
 	public boolean isPredictedMWE(Sentence s){
 		if(!isMWE()){
@@ -126,8 +128,8 @@ public class Unit {
 		}
 		for(int c:positions){
 			Unit tok = s.get(c);
-			int lroot = findPredictedLexicalRoot(tok,s);
-			if(lroot != id){
+			Unit lroot = tok.findPredictedLexicalRoot(s);
+			if(lroot != this){
 				predictedSeg = false;
 				return predictedSeg;
 			}
@@ -145,8 +147,8 @@ public class Unit {
 		}
 		for(int c:positions){
 			Unit tok = s.get(c);
-			int lroot = findGoldLexicalRoot(tok,s);
-			if(lroot != id){
+			Unit lroot = tok.findGoldLexicalRoot(s);
+			if(lroot != this){
 				goldSeg = false;
 				return goldSeg;
 			}
@@ -199,7 +201,7 @@ public class Unit {
 	
 
 	public String getGoldSlabel() {
-		return goldSlabel;
+		return goldSlabel == null?DUMMY:goldSlabel;
 	}
 
 	public void setGoldSlabel(String goldSlabel) {
@@ -212,7 +214,7 @@ public class Unit {
 	}
 
 	public String getSlabel() {
-		return slabel;
+		return slabel==null?DUMMY:slabel;
 	}
 	
 

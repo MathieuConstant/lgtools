@@ -5,8 +5,8 @@ package fr.upem.lgtools.parser;
 
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 
+import fr.upem.lgtools.text.Sentence;
 import fr.upem.lgtools.text.Unit;
 
 /**
@@ -17,8 +17,8 @@ public class SimpleBuffer implements Buffer {
 	private final Unit[] units;
 	private int current = 0;
 	
-	public SimpleBuffer(List<Unit> units){
-		this.units = units.toArray(new Unit[units.size()]);
+	public SimpleBuffer(Sentence s){
+		this.units = s.getTokens().toArray(new Unit[s.getTokens().size()]);
 	}
 	
 	

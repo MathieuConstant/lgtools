@@ -61,9 +61,9 @@ public class ArcStandardTransitionBasedParserModel extends
 	public static boolean rightDependentHasAllItsDependents(Unit d,Configuration<DepTree> c){
 		int id = d.getId();
 		for(Unit u:c.getFirstBuffer()){
-			if(id == u.getGoldSheadId()) return false;
+			Unit r = u.findGoldLexicalRoot(c.getSentence());
+			if(id == r.getGoldSheadId()) return false;
 		}
-		
 		
 		return true;
 	}

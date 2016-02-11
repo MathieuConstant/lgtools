@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -77,28 +78,56 @@ public class Utils {
 		j2 = Math.max(tmp,j2);
 		//System.err.println(i1+","+j1+":"+i2+","+j2);
 		if(i1 < i2 && i2 < j1 && j1 < j2){
-			System.err.println("Non projective sentence (class Utils)");
 			return true;
 		}
 		return false;
 	}
 	
+	
+	
+	
+	
 	public static boolean isProjectiveSentence(Sentence sentence){
-		for(Unit u1:sentence.getTokens()){
-			for(Unit u2:sentence.getTokens()){
-				if(u1 != u2){
-					 int i1 = u1.getId();
-					 int j1 = u1.getSheadId();
-					 int i2 = u2.getId();
-					 int j2 = u2.getSheadId();
-					 if(isCrossing(i1,j1,i2,j2)){
-						 return false;
-					 }
-					 
+		//Necessary condition: fixed MWEs must be contiguous
+		
+		for(Unit u:sentence.getTokenSequence(true)){
+			int[] positions = u.getPositions();
+			Arrays.sort(positions);
+			int pos0 = positions[0];
+			for(int i = 1; i < positions.length ; i++){
+				int pos1 = positions[i];
+				if(pos1 != pos0 + 1){
+					System.err.println("Sentence with non-contiguous fixed expressions");
+					return false;
 				}
+				pos0 = pos1;
 				
 			}
 			
+		}
+		
+		//Standard non-projectivity test
+		for(Unit u1:sentence.getTokenSequence(true)){
+			for(Unit u2:sentence.getTokenSequence(true)){
+				if(u1 != u2){
+					int j1 = sentence.get(u1.getGoldSheadId()).getUnitFirstTokenPosition();
+					Unit u = sentence.get(u2.getGoldSheadId());
+					//System.err.println(u2);
+					int j2 = u.getUnitFirstTokenPosition();
+					int i1 = u1.getUnitFirstTokenPosition();
+					int i2 = u2.getUnitFirstTokenPosition();
+					if(isCrossing(i1,j1,i2,j2)){
+						  //System.err.println(u1+"--"+i1+" "+j1);
+						  //System.err.println(u2+"--"+i2+" "+j2);
+						  //System.err.println(sentence);
+						System.err.println("Non projective sentence (class Utils)");
+								return false;
+					}
+					
+				}
+
+			}
+
 		}
 		return true;
 	}
@@ -118,7 +147,7 @@ public class Utils {
 		
 		public static Unit findExistingMweUnitByPosition(int[] mwePositions, List<Unit> units){
 			for(Unit u:units){
-				if(Arrays.equals(u.getPositions(), mwePositions)){
+				if(u != null && Arrays.equals(u.getPositions(), mwePositions)){
 					return u;
 				}
 			}
@@ -126,7 +155,7 @@ public class Utils {
 			return null;
 		}
 	
-	public static Unit mergeUnits(Unit u1, Unit u2,List<Unit> units){
+	public static Unit mergeUnitsAndAdd(Unit u1, Unit u2,List<Unit> units){
 		String form = u1.getForm()+"_"+u2.getForm();
 		int [] pos1 = u1.getPositions();
 		int [] pos2 = u2.getPositions();
@@ -140,15 +169,19 @@ public class Utils {
 			positions[i+pos1.length] = pos2[i];
 		}
 		
+		
 		int id = units.size() + 1;
 		//System.err.println(form);
 		//System.err.println(Arrays.toString(positions));
+		//System.err.println(units);
+		
 		
 		Unit mwe = findExistingMweUnitByPosition(positions, units);
 		//System.err.println(mwe);
 		
 		if(mwe == null){
-		      mwe = new Unit(id,form, positions);
+			mwe = new Unit(id,form, positions);
+		      units.add(mwe);
 		}
 		return mwe;
 	}

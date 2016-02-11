@@ -161,6 +161,7 @@ public class DefaultFeatureExtractor implements FeatureExtractor<DepTree> {
     	DepTree tree = configuration.getAnalyses();
     	DepArc[] lefts = tree.getLeftMostDependencies();
     	int h = unit.getId();
+    	//System.err.println(lefts.length+"---"+h+"--"+unit);
     	if(h < 0 || lefts[h] == null){
     		return NULL_UNIT;
     	}

@@ -34,15 +34,34 @@ public abstract class TransitionBasedSystem<T extends Analysis> {
      }
 	
      
-     public T greedyParse(List<Unit> units){
- 		Configuration<T> c = tbm.getInitialConfiguration(units);
- 		//System.out.println(model); 
+     private void initSentence(Sentence s){
+    	 for(Unit u:s.getUnits()){
+    		 u.setShead(-1);
+    		 u.setLhead(0);
+    		 u.setSlabel(null);
+    	 }
+    	 
+     }
+     
+     public T greedyParse(Sentence s){
+    	initSentence(s);
+ 		Configuration<T> c = tbm.getInitialConfiguration(s);
+ 		//System.err.println(s.getTokens()); 
+ 		//System.err.println(s.getTokenSequence(false));
  		while(!c.isTerminal()){
  			FeatureVector fv = tbm.extractFeatures(c);
-			Transition<T> t = tbm.getBestValidTransition(fv,c); 
+			Transition<T> t = tbm.getBestValidTransition(fv,c);
+			Transition<T> o = tbm.getBestCorrectTransition(fv,c);
+			//System.err.println("PRED: "+t);
+			//System.err.println("G: "+o);
+			//System.err.println(c);
+			//System.err.println(c.getAnalyses());
  			c = t.perform(c);
  			c.getHistory().add(t.id()); // do we keep it?
  		}
+ 		
+ 		//System.err.println(s.getTokenSequence(true));
+ 		//System.err.println(s.getTokenSequence(false));
  		return c.getAnalyses();
  	}
     
@@ -98,8 +117,8 @@ public abstract class TransitionBasedSystem<T extends Analysis> {
      }
      
      
-     public ParseHypothesis<T> beamSearchParse(List<Unit> units, int k, boolean returnWhenFail){
-    	 Configuration<T> c0 = tbm.getInitialConfiguration(units);
+     public ParseHypothesis<T> beamSearchParse(Sentence s, int k, boolean returnWhenFail){
+    	 Configuration<T> c0 = tbm.getInitialConfiguration(s);
     	 ParseHypothesis<T> h0 = new ParseHypothesis<T>(c0, 0.0, new FeatureVector(tbm.getFeatures()),null,true,null);
     	 LinkedList<ParseHypothesis<T>> beam = new LinkedList<ParseHypothesis<T>>();
     	 beam.add(h0);
@@ -130,7 +149,7 @@ public abstract class TransitionBasedSystem<T extends Analysis> {
     				     newConfig.getHistory().add(t.id());
     				     boolean isGold = h.isGold();
     				     if(returnWhenFail && isGold){
-    				    	 isGold = newConfig.getAnalyses().isGold(units);    
+    				    	 isGold = newConfig.getAnalyses().isGold(s.getTokens());    
     				    	 //System.err.println(isGold);
     				     }    				     
     				     ParseHypothesis<T> newHyp = new ParseHypothesis<T>(newConfig, newScore, fv, h,isGold,t);
@@ -172,8 +191,8 @@ public abstract class TransitionBasedSystem<T extends Analysis> {
      
      
      
-     public T oracleParse(List<Unit> units){
-  		Configuration<T> c = tbm.getInitialConfiguration(units);
+     public T oracleParse(Sentence s){
+  		Configuration<T> c = tbm.getInitialConfiguration(s);
   		while(!c.isTerminal()){
   			Transition<T> t = tbm.staticOracle(c); 
   			c = t.perform(c);
@@ -183,7 +202,7 @@ public abstract class TransitionBasedSystem<T extends Analysis> {
      
    
      private static interface ParsingMethod<A>{
-    	 public A parse(List<Unit> units);
+    	 public A parse(Sentence s);
      }
      
      
@@ -192,7 +211,7 @@ public abstract class TransitionBasedSystem<T extends Analysis> {
  		
  		int cnt = 0;
  		for(Sentence s:tb){
- 			T analysis = pm.parse(s.getTokens());
+ 			T analysis = pm.parse(s);
  			//System.err.println(analysis);
  			tbm.updateSentenceAfterAnalysis(s,analysis); 			
  			cnt++;
@@ -219,8 +238,8 @@ public ParsingResult oracleParseTreebankAndEvaluate(DepTreebank tb) throws FileN
 	  return parseTreebankAndEvaluate(tb, new ParsingMethod<T>() {
 
 		@Override
-		public T parse(List<Unit> units) {
-			return oracleParse(units);
+		public T parse(Sentence s) {
+			return oracleParse(s);
 		}
 		  
 	});
@@ -233,8 +252,8 @@ public ParsingResult greedyParseTreebankAndEvaluate(DepTreebank tb) throws FileN
   return parseTreebankAndEvaluate(tb, new ParsingMethod<T>() {
 
 	@Override
-	public T parse(List<Unit> units) {
-		return greedyParse(units);
+	public T parse(Sentence s) {
+		return greedyParse(s);
 	}
 	  
 });
@@ -246,8 +265,8 @@ public ParsingResult beamSearchParseTreebankAndEvaluate(DepTreebank tb,final int
 	  return parseTreebankAndEvaluate(tb, new ParsingMethod<T>() {
 
 		@Override
-		public T parse(List<Unit> units) {
-			return beamSearchParse(units, k,false).getConfiguration().getAnalyses();
+		public T parse(Sentence s) {
+			return beamSearchParse(s, k,false).getConfiguration().getAnalyses();
 		}
 		  
 	});

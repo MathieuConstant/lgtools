@@ -12,6 +12,7 @@ import java.util.List;
  *
  */
 public class Sentence {
+	private static final Unit ROOT = UnitFactory.createRootUnit();
 	private final List<Unit> units = new ArrayList<Unit>(); 
 	private final int size; //token count 
 	private final HashMap<Integer,Unit> map = new HashMap<Integer, Unit>();
@@ -41,10 +42,14 @@ public class Sentence {
 	
 	
 	public Unit get(int id){
-		return map.get(id);
+		Unit u = map.get(id);
+		return u == null?ROOT:u; 
 	}
 	
 	public boolean add(Unit u){
+		if(map.containsKey(u.getId())){
+			return false;
+		}
 		map.put(u.getId(), u);
 		return units.add(u);
 		
@@ -60,6 +65,36 @@ public class Sentence {
 	
 	public List<Unit> getMWUnits(){
 		return units.subList(size,units.size());
+	}
+	
+	
+	/**
+	 * 
+	 * @return the sequence of tokens after merging of irregular/fixed MWEs
+	 */
+	
+	public List<Unit> getTokenSequence(boolean goldAnnotation){
+		List<Unit> tokens = new ArrayList<Unit>();
+		boolean[] handled = new boolean[getUnits().size()+1];
+		//System.err.println(getTokens());
+		for(Unit u:getTokens()){
+			Unit r;
+			if(goldAnnotation){
+				r = u.findGoldLexicalRoot(this);
+			}
+			else{
+				r = u.findPredictedLexicalRoot(this);
+			}
+			//System.err.println(u);
+			//System.err.println(r);
+			
+		    if(!handled[r.getId()]){
+				handled[r.getId()] = true;
+				tokens.add(r);
+			}
+			
+		}
+		return tokens;
 	}
 	
 	
