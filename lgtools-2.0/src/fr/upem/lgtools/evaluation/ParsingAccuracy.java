@@ -15,7 +15,7 @@ public class ParsingAccuracy {
 	public static void computeParsingAccuracy(Sentence sentence, ParsingAccuracy acc){
 		
 		boolean exact = true;
-		for(Unit u:sentence.getTokenSequence(true)){
+		for(Unit u:sentence.getTokens()){
 			//System.err.println(u);
 			acc.addUnit();
 			if(u.getGoldSheadId() == u.getSheadId()){

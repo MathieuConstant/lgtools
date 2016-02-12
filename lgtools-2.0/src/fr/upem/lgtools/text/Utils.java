@@ -157,6 +157,8 @@ public class Utils {
 	
 	public static Unit mergeUnitsAndAdd(Unit u1, Unit u2,List<Unit> units){
 		String form = u1.getForm()+"_"+u2.getForm();
+		String lemma = u1.getLemma()+"_"+u2.getLemma();
+		String cat = u1.getPos()+"_"+u2.getPos();
 		int [] pos1 = u1.getPositions();
 		int [] pos2 = u2.getPositions();
 		int[] positions = new int[pos1.length+pos2.length];
@@ -179,10 +181,13 @@ public class Utils {
 		Unit mwe = findExistingMweUnitByPosition(positions, units);
 		//System.err.println(mwe);
 		
+		
 		if(mwe == null){
 			mwe = new Unit(id,form, positions);
 		      units.add(mwe);
 		}
+		mwe.setLemma(lemma);
+		mwe.setPos(cat);
 		return mwe;
 	}
 	

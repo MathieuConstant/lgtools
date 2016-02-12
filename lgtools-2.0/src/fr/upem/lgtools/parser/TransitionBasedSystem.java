@@ -228,7 +228,7 @@ public abstract class TransitionBasedSystem<T extends Analysis> {
 public ParsingResult parseTreebankAndEvaluate(DepTreebank tb, ParsingMethod<T> pm) throws FileNotFoundException{
  	   tb = parseTreebank(tb,pm); 
  	   ParsingAccuracy eval = ParsingAccuracy.computeParsingAccuracy(tb);
-	   System.err.println(eval);
+	   //System.err.println(eval);
  		return new ParsingResult(tb,eval);
  		
  	}

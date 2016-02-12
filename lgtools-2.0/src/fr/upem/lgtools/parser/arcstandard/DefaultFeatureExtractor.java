@@ -5,6 +5,7 @@ package fr.upem.lgtools.parser.arcstandard;
 
 import java.util.Deque;
 import java.util.List;
+import java.util.Map;
 
 import fr.upem.lgtools.parser.Buffer;
 import fr.upem.lgtools.parser.Configuration;
@@ -30,8 +31,28 @@ public class DefaultFeatureExtractor implements FeatureExtractor<DepTree> {
 	
 	
 	
+   private void addUnitFeatures(String fid,Unit u,FeatureVector feats){
+		
+		feats.add(fid+"_f="+u.getForm());
+		feats.add(fid+"_l="+u.getLemma());
+		feats.add(fid+"_t="+u.getPos());
+		feats.add(fid+"_ft="+u.getForm()+"/"+u.getPos());
+		feats.add(fid+"_lt="+u.getLemma()+"/"+u.getPos());
+		
+		for(Map.Entry<String,String> e:u.getFeatures().entrySet()){
+			String att = e.getKey();
+			String val = e.getValue();
+			feats.add(fid+"_feat="+att+":"+val);
+		}
+		
+		
+		
+	}
 	
-	private void addUnitFeatures(String fid,Unit u,FeatureVector feats){
+	
+	
+	
+	private void addUnitFeaturesTmp(String fid,Unit u,FeatureVector feats){
 		
 		feats.add(fid+"_f="+u.getForm());
 		//feats.add(fid+"_l="+u.getLemma());
@@ -41,6 +62,9 @@ public class DefaultFeatureExtractor implements FeatureExtractor<DepTree> {
 		
 		
 	}
+
+		
+
 	
 	private void addUnitPairFeatures(String fid,Unit u1,Unit u2,FeatureVector feats){
 		

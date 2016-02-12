@@ -1,7 +1,7 @@
 package fr.upem.lgtools.text;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -387,6 +387,133 @@ public class DepTreebankFactory {
 		});
 	}
 	
+	
+	public static DepTreebank unMergeMWE(DepTreebank tb,final String mweLabel){
+		return modifyTreebank(tb, new SentenceModifier() {
+			
+			private void getMWEs(Sentence res, boolean goldAnnotation,Map<Unit,List<Unit>> map,Map<Unit,Unit> mweHeads){
+								
+				for(Unit u:res.getTokens()){
+				    Unit r = u.findGoldLexicalRoot(res);
+				    
+				    if(!goldAnnotation){
+				    	r = u.findPredictedLexicalRoot(res);
+				    }
+				    
+				    if(r != u){  //u is part of an MWE
+				    	if(mweHeads.get(r) == null){
+					    	mweHeads.put(r,u);
+					    }
+				    	List<Unit> list = map.get(r);
+				    	if(list == null){
+				    		list = new ArrayList<Unit>();
+				    		map.put(r, list);
+				    	}
+				    	list.add(u);				    	
+				    }
+					
+				}
+				
+				
+			}
+			
+			
+			private void modifyInternalArcs(Map<Unit,List<Unit>> mwes,Map<Unit,Unit> mweHeads,Sentence res, boolean goldAnnotation){
+				
+				for(Unit mwe:mwes.keySet()){
+					List<Unit> components = mwes.get(mwe);
+					Unit root = components.get(0);
+					
+				
+					
+					for(int i = 1 ; i < components.size() ; i++){
+						Unit u = components.get(i);
+						if(goldAnnotation){
+							//u.setGoldLHead(0);
+							u.setGoldShead(root.getId());
+							u.setGoldSlabel(mweLabel);
+						}
+						else{
+							//u.setLhead(0);
+							u.setShead(root.getId());
+							u.setSlabel(mweLabel);
+						}
+						
+					}
+				}
+				
+			}
+			
+			private Unit getRoot(Unit u,Map<Unit,Unit> mweHeads){
+				Unit r = mweHeads.get(u);
+				if(r == null) {
+					return u;
+				}
+				return r;
+			}
+			
+			
+			private void modifyExternalArcs(Sentence s,Map<Unit,Unit> mweHeads,boolean goldAnnotation){
+				//System.err.println(mweHeads);
+				for(Unit u:s.getTokenSequence(goldAnnotation)){
+					Unit dep = getRoot(u,mweHeads);					
+					
+					String label = u.getGoldSlabel();
+					int h = u.getGoldSheadId();
+					if(!goldAnnotation){
+						label = u.getSlabel();
+						h = u.getSheadId();
+					}					
+					
+					Unit head = getRoot(s.get(h),mweHeads);
+					//System.err.println(u+" "+mweHeads.get(u)+ " "+head );
+					if(goldAnnotation){
+						dep.setGoldShead(head.getId());
+						dep.setGoldSlabel(label);
+					}
+					else{
+						dep.setShead(head.getId());
+						dep.setSlabel(label);
+					}
+				
+					
+				}
+				
+			}
+			
+			private void clearLexicalLinks(Sentence s){
+				for(Unit u:s.getTokens()){
+					u.setLhead(0);
+					u.setGoldLHead(0);
+				}
+			}
+			
+			
+			
+			private Sentence unmerge(Sentence s){
+				Sentence res = new Sentence(s);
+				Map<Unit,List<Unit>> mwes = new HashMap<Unit, List<Unit>>();
+				Map<Unit,Unit> mweHeads = new HashMap<Unit,Unit>();
+				getMWEs(res,true,mwes,mweHeads);
+				modifyInternalArcs(mwes, mweHeads, res, true);
+				modifyExternalArcs(res,mweHeads,true);
+				mwes = new HashMap<Unit, List<Unit>>();
+				mweHeads = new HashMap<Unit,Unit>();
+				getMWEs(res,false,mwes,mweHeads);
+				modifyInternalArcs(mwes, mweHeads, res, false);
+				modifyExternalArcs(res,mweHeads,false);
+				clearLexicalLinks(res);
+				return res;
+			}
+			
+			
+			@Override
+			public Sentence modify(Sentence s) {				
+				return unmerge(s);
+			}
+		});
+		
+	}
 	
 	
 	//on predicted annotation only
