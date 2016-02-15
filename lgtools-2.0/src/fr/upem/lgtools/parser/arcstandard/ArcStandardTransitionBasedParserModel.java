@@ -14,6 +14,7 @@ import fr.upem.lgtools.parser.features.FeatureMapping;
 import fr.upem.lgtools.parser.model.ProjectiveTransitionBasedDependencyParserModel;
 import fr.upem.lgtools.parser.transitions.Transition;
 import fr.upem.lgtools.text.DepTreebank;
+import fr.upem.lgtools.text.Sentence;
 import fr.upem.lgtools.text.Unit;
 
 /**
@@ -121,7 +122,7 @@ public class ArcStandardTransitionBasedParserModel extends
 	 * @see fr.upem.lgtools.parser.model.TransitionBasedModel2#createLabelDependentTransition(fr.upem.lgtools.text.Unit)
 	 */
 	@Override
-	protected Transition<DepTree> createLabelDependentTransition(Unit unit) {
+	protected Transition<DepTree> createLabelDependentTransition(Unit unit,Sentence s) {
 		String label = unit.getGoldSlabel();
 		int head = unit.getGoldSheadId();
 		int current = unit.getId();

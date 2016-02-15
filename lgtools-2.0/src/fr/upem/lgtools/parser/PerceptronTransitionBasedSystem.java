@@ -62,6 +62,7 @@ public class PerceptronTransitionBasedSystem<T extends Analysis> extends Transit
 	public void staticOracleTrain(DepTreebank tb, DepTreebank dev, String modelFilename, int iterations) throws IOException{
    	 tb = tbm.filter(tb);
    	 Model averaged = new Model(tbm.getFeatureCount(),tbm.getLabelCount());
+   	 //System.err.println(tbm.getTransitions());
    	 int step = 1;
    	 for(int i = 0 ; i < iterations ; i++){
    		 System.err.println("Iteration "+ (i+1));

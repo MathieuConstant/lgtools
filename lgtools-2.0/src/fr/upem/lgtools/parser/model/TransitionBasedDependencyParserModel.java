@@ -4,7 +4,6 @@
 package fr.upem.lgtools.parser.model;
 
 import java.io.IOException;
-import java.util.List;
 
 import fr.upem.lgtools.parser.Configuration;
 import fr.upem.lgtools.parser.DepTree;

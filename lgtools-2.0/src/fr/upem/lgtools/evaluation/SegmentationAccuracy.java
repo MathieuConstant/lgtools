@@ -3,10 +3,11 @@
  */
 package fr.upem.lgtools.evaluation;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-
-import javax.print.attribute.standard.PresentationDirection;
 
 import fr.upem.lgtools.text.DepTreebank;
 import fr.upem.lgtools.text.Sentence;
@@ -92,6 +93,36 @@ public class SegmentationAccuracy {
 	
 	public void addGoldMWE(){
 		goldMWECount++;
+	}
+	
+	
+	
+	public static List<Score> computeMergeParsingScore(DepTreebank tb){
+		Score uas = new Score("muas");
+		Score las = new Score("mlas");
+		for(Sentence s:tb){
+			computeMergeParsingScore(s,uas,las);
+		}
+		
+		return Arrays.asList(uas,las);
+	}
+	
+	
+	public static void computeMergeParsingScore(Sentence sentence, Score uas, Score las){
+		for(Unit u:sentence.getTokenSequence(true)){
+			uas.addGold();
+			las.addGold();
+			if(u.getGoldSheadId() == u.getSheadId()){
+				uas.addGood();
+				if(u.getGoldSlabel().equals(u.getSlabel())){
+					las.addGood();
+				}
+			}
+		}
+		for(Unit u:sentence.getTokenSequence(false)){
+			uas.addPredicted();
+			las.addPredicted();
+		}
 	}
 	
 	

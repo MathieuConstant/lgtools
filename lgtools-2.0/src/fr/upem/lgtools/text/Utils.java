@@ -110,6 +110,7 @@ public class Utils {
 		for(Unit u1:sentence.getTokenSequence(true)){
 			for(Unit u2:sentence.getTokenSequence(true)){
 				if(u1 != u2){
+					
 					int j1 = sentence.get(u1.getGoldSheadId()).getUnitFirstTokenPosition();
 					Unit u = sentence.get(u2.getGoldSheadId());
 					//System.err.println(u2);
@@ -117,6 +118,7 @@ public class Utils {
 					int i1 = u1.getUnitFirstTokenPosition();
 					int i2 = u2.getUnitFirstTokenPosition();
 					if(isCrossing(i1,j1,i2,j2)){
+						//System.err.println(u1.getGoldSheadId());
 						  //System.err.println(u1+"--"+i1+" "+j1);
 						  //System.err.println(u2+"--"+i2+" "+j2);
 						  //System.err.println(sentence);

@@ -125,6 +125,10 @@ public abstract class TransitionBasedModel<T extends Analysis> {
 	
 	
 	
+	public TransitionSet<T> getTransitions(){
+		return transitions;
+	}
+	
 		
     public FeatureMapping getFeatures() {
 		return features;
@@ -167,7 +171,7 @@ public abstract class TransitionBasedModel<T extends Analysis> {
 	
 	//internal abstract methods
 	abstract protected FeatureExtractor<T> getFeatureExtractor(FeatureMapping fm);
-	abstract protected Transition<T> createLabelDependentTransition(Unit unit);	
+	abstract protected Transition<T> createLabelDependentTransition(Unit unit,Sentence s);	
 	abstract protected Transition<T> createTransition(String type, String label);	
 	abstract protected Collection<Transition<T>> createLabelIndependentTransitions();	
 	
@@ -179,7 +183,7 @@ public abstract class TransitionBasedModel<T extends Analysis> {
 		}
 		for(Sentence s:tb){
 			for(Unit u:s.getUnits()){
-				addTransition(createLabelDependentTransition(u));
+				addTransition(createLabelDependentTransition(u,s));
 			}
 		}		
 	}

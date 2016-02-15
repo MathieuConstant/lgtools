@@ -14,6 +14,7 @@ import fr.upem.lgtools.parser.DepTree;
 import fr.upem.lgtools.parser.features.FeatureExtractor;
 import fr.upem.lgtools.parser.features.FeatureMapping;
 import fr.upem.lgtools.parser.features.FeatureVector;
+import fr.upem.lgtools.text.Sentence;
 import fr.upem.lgtools.text.Unit;
 import fr.upem.lgtools.text.UnitFactory;
 
@@ -31,7 +32,7 @@ public class DefaultFeatureExtractor implements FeatureExtractor<DepTree> {
 	
 	
 	
-   private void addUnitFeatures(String fid,Unit u,FeatureVector feats){
+   private void addUnitFeatures(String fid,Unit u,FeatureVector feats,Configuration<DepTree> configuration){
 		
 		feats.add(fid+"_f="+u.getForm());
 		feats.add(fid+"_l="+u.getLemma());
@@ -39,13 +40,28 @@ public class DefaultFeatureExtractor implements FeatureExtractor<DepTree> {
 		feats.add(fid+"_ft="+u.getForm()+"/"+u.getPos());
 		feats.add(fid+"_lt="+u.getLemma()+"/"+u.getPos());
 		
+		
 		for(Map.Entry<String,String> e:u.getFeatures().entrySet()){
 			String att = e.getKey();
 			String val = e.getValue();
 			feats.add(fid+"_feat="+att+":"+val);
 		}
 		
-		
+		/*
+		//feats.add(fid+"_mwe="+u.isMWE());
+		if(u.isMWE()){
+			Unit u0 = configuration.getUnit(u.getUnitFirstTokenPosition());
+			feats.add(fid+"-first_f="+u0.getForm());
+			feats.add(fid+"-first_t="+u0.getPos());
+			feats.add(fid+"-first_ft="+u0.getForm()+"/"+u0.getPos());
+			for(int i = 1 ; i < u.getPositions().length ; i++){
+				Unit ui = configuration.getUnit(i);
+				feats.add(fid+"-c_f="+ui.getForm());
+				feats.add(fid+"-c_t="+ui.getPos());
+				feats.add(fid+"-c_ft="+ui.getForm()+"/"+ui.getPos());
+			}
+			
+		}*/
 		
 	}
 	
@@ -58,15 +74,13 @@ public class DefaultFeatureExtractor implements FeatureExtractor<DepTree> {
 		//feats.add(fid+"_l="+u.getLemma());
 		feats.add(fid+"_t="+u.getPos());
 		feats.add(fid+"_ft="+u.getForm()+"/"+u.getPos());
-		//feats.add(fid+"_lt="+u.getLemma()+"/"+u.getPos());
-		
-		
+		//feats.add(fid+"_lt="+u.getLemma()+"/"+u.getPos());	
 	}
 
 		
 
 	
-	private void addUnitPairFeatures(String fid,Unit u1,Unit u2,FeatureVector feats){
+	private void addUnitPairFeatures(String fid,Unit u1,Unit u2,FeatureVector feats, Configuration<DepTree> configuration){
 		
 		
 		feats.add(fid+"_t_t="+u1.getPos()+"#"+u2.getPos());
@@ -77,14 +91,31 @@ public class DefaultFeatureExtractor implements FeatureExtractor<DepTree> {
 		feats.add(fid+"_t_f="+u1.getPos()+"#"+u2.getForm());
 		feats.add(fid+"_t_ft="+u1.getPos()+"#"+u2.getForm()+"/"+u2.getPos());
 		
+		/*
+		if(u1.isMWE() || u2.isMWE()){
+			Unit u10 = configuration.getUnit(u1.getUnitFirstTokenPosition());
+			Unit u20 = configuration.getUnit(u2.getUnitFirstTokenPosition());
+			addUnitPairFeatures(fid+"-first",u10,u20,feats,configuration);
+			
+		}*/
+		
+		
 	}	
 	
-	private void addUnitTripletFeatures(String fid,Unit u1,Unit u2,Unit u3,FeatureVector feats){
+	private void addUnitTripletFeatures(String fid,Unit u1,Unit u2,Unit u3,FeatureVector feats,Configuration<DepTree> configuration){
 		
 		feats.add(fid+"_t_t_t="+u1.getPos()+"#"+u2.getPos()+"#"+u3.getPos());		
 		feats.add(fid+"_f_t_t="+u1.getForm()+"#"+u2.getPos()+"#"+u3.getPos());
 		feats.add(fid+"_t_f_t="+u1.getPos()+"#"+u2.getForm()+"#"+u3.getPos());
 		feats.add(fid+"_t_t_f="+u1.getPos()+"#"+u2.getPos()+"#"+u3.getForm());
+		/*
+		if(u1.isMWE() || u2.isMWE() || u3.isMWE()){
+			Unit u10 = configuration.getUnit(u1.getUnitFirstTokenPosition());
+			Unit u20 = configuration.getUnit(u2.getUnitFirstTokenPosition());
+			Unit u30 = configuration.getUnit(u3.getUnitFirstTokenPosition());
+			addUnitTripletFeatures(fid+"-first",u10,u20,u20,feats,configuration);
+			
+		}*/
 	}
 	
 	private static Unit getSecondElementInStack(Deque<Unit> stack){
@@ -241,8 +272,8 @@ public class DefaultFeatureExtractor implements FeatureExtractor<DepTree> {
     	feats.add(fid+"_label:"+arc.getLabel());
     	
     	
-    	addUnitFeatures(fid+"#dep", dep, feats);
-    	addUnitPairFeatures(fid+"#head#dep", head, dep, feats);
+    	addUnitFeatures(fid+"#dep", dep, feats,configuration);
+    	addUnitPairFeatures(fid+"#head#dep", head, dep, feats,configuration);
     	
     }
     
@@ -271,13 +302,34 @@ public class DefaultFeatureExtractor implements FeatureExtractor<DepTree> {
     	feats.add(fid+"_t_rmd:"+unit.getPos()+"#"+rmd);
     	feats.add(fid+"_t_lmd_rmd:"+unit.getPos()+"#"+lmd+"#"+rmd);
     	
+    	
+    	
+    	
     	//System.err.println(fid+"_t_lmd_rmd:"+unit.getPos()+"#"+lmd+"#"+rmd);
+    }
+    
+    private void addUnitComponents(String fid,Unit u, Configuration<DepTree> configuration, FeatureVector feats){
+    	if(u.isMWE()){
+    		
+    	   Sentence s = configuration.getSentence();
+    	   int[] positions = u.getPositions();
+    	   Unit lc = s.get(positions[0]);
+    	   //addUnitFeatures(fid+"-left", lc,feats);
+    	   feats.add(fid+"-left_f="+lc.getForm());
+   		   feats.add(fid+"-left_l="+lc.getLemma());
+   		   feats.add(fid+"-left_t="+lc.getPos());
+    	   Unit rc = s.get(positions[positions.length-1]);
+    	   //addUnitFeatures(fid+"-right", rc,feats);
+    	   feats.add(fid+"-right_t="+rc.getPos());
+    	}
+    	
     }
     
 	
 	@Override
 	public FeatureVector perform(Configuration<DepTree> configuration) {
 		FeatureVector feats = new FeatureVector(fm);
+		
 		
 		Deque<Unit> stack = configuration.getFirstStack();
 		Buffer buffer = configuration.getFirstBuffer();
@@ -304,33 +356,35 @@ public class DefaultFeatureExtractor implements FeatureExtractor<DepTree> {
 		//addDistanceFeature("dist_s0u_b0u",s0u,b0u,feats);
 		
 		
-		addUnitFeatures("s0u", s0u,feats);
-		addUnitFeatures("s1u", s1u,feats);
-		addUnitFeatures("s2u", s2u,feats);
-		addUnitFeatures("b0u", b0u,feats);
-		addUnitFeatures("b1u", b1u,feats);
-		addUnitFeatures("b2u", b2u,feats);
+		addUnitFeatures("s0u", s0u,feats,configuration);
+		addUnitFeatures("s1u", s1u,feats,configuration);
+		addUnitFeatures("s2u", s2u,feats,configuration);
+		addUnitFeatures("b0u", b0u,feats,configuration);
+		addUnitFeatures("b1u", b1u,feats,configuration);
+		addUnitFeatures("b2u", b2u,feats,configuration);
 		addSubTreeFeatures("dep_s0u",s0u,configuration,feats);				
 		addSubTreeFeatures("dep_s1u",s1u,configuration,feats);
 		//addUnitFeatures("lmdb1u", lmdb1u,feats);
 		//addUnitFeatures("rmdb0u", rmdb0u,feats);
 		//addUnitFeatures("rmdb1u", rmdb1u,feats);
 		
+		//addUnitComponents("comp_s0u",s0u,configuration,feats);
+		//addUnitComponents("comp_s1u",s1u,configuration,feats);
 		
 	
 		//addUnitPairFeatures("s0u_s1u",s0u,s1u,feats);	
-		addUnitPairFeatures("s0u_b0u",s0u,b0u,feats);
-		addUnitPairFeatures("b0u_b1u",b0u,b1u,feats);
+		addUnitPairFeatures("s0u_b0u",s0u,b0u,feats,configuration);
+		addUnitPairFeatures("b0u_b1u",b0u,b1u,feats,configuration);
 		//addUnitPairFeatures("b1u_b2u",b1u,b2u,feats);
 		
 		
-		addUnitTripletFeatures("s2u_s1u_s0u",s2u,s1u,s0u,feats);
-		addUnitTripletFeatures("s1u_s0u_b0u",s1u,s0u,b0u,feats);
-		addUnitTripletFeatures("s0u_b0u_b1u",s0u,b0u,b1u,feats);
-		addUnitTripletFeatures("b0u_b1u_b2u",b0u,b1u,b2u,feats);
+		addUnitTripletFeatures("s2u_s1u_s0u",s2u,s1u,s0u,feats,configuration);
+		addUnitTripletFeatures("s1u_s0u_b0u",s1u,s0u,b0u,feats,configuration);
+		addUnitTripletFeatures("s0u_b0u_b1u",s0u,b0u,b1u,feats,configuration);
+		addUnitTripletFeatures("b0u_b1u_b2u",b0u,b1u,b2u,feats,configuration);
 
 		
-		addUnitTripletFeatures("s0u_b0u_b1u",s0u,b0u,b1u,feats);
+		addUnitTripletFeatures("s0u_b0u_b1u",s0u,b0u,b1u,feats,configuration);
 		
 	
 		//addHistoryFeatures(configuration, feats);

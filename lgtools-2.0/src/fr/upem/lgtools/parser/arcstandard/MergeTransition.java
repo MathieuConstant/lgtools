@@ -4,14 +4,14 @@ import java.util.Deque;
 
 import fr.upem.lgtools.parser.Configuration;
 import fr.upem.lgtools.parser.DepTree;
-import fr.upem.lgtools.parser.transitions.AbstractTransition;
+import fr.upem.lgtools.parser.transitions.LabeledTransition;
 import fr.upem.lgtools.text.Unit;
 import fr.upem.lgtools.text.Utils;
 
-public class MergeTransition extends AbstractTransition<DepTree> {
+public class MergeTransition extends LabeledTransition<DepTree> {
 
-	public MergeTransition(String type) {
-		super(type);
+	public MergeTransition(String type,String label) {
+		super(type,label);
 	}
 
 	@Override
@@ -21,6 +21,10 @@ public class MergeTransition extends AbstractTransition<DepTree> {
 		Unit u0 = stack.pop();
 		Unit u1 = stack.pop();
 		Unit u = Utils.mergeUnitsAndAdd(u1,u0,configuration.getUnits());
+		if(label != null && !label.equals("")){
+		   u.setPos(label);
+		   //System.err.println(label);
+		}
 		//System.err.println(u+" "+u1+" "+u0);
 		//configuration.addUnit(u);
 		tree.addEdgeWithLinks(u1.getId(),u0.getId());

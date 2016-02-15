@@ -26,6 +26,7 @@ public class Unit {
      private String lemma;
      private String cpos;
      private String pos;
+     private String goldPos;
      private final HashMap<String,String> feats = new HashMap<String, String>();
      private Boolean predictedSeg;
      private Boolean goldSeg;
@@ -89,6 +90,16 @@ public class Unit {
 	
 	
 	
+	public String getPOSPattern(Sentence s){
+		StringBuilder sb = new StringBuilder();
+		for(int i:getPositions()){
+			sb.append("_");
+			sb.append(s.get(i));
+		}
+		return sb.substring(1);
+		
+	}
+	
 	
 	
 	public Unit findPredictedLexicalRoot(Sentence s){
@@ -113,10 +124,22 @@ public class Unit {
 	}
 	
 	
+	public Unit GetGoldLexicalParent(Sentence s){
+		int l = this.getGoldLHead();
+		if(l > 0){
+			return s.get(l);
+		}
+		return null;
+	}
+	
+	
 	public int getUnitFirstTokenPosition(){
 		return positions[0];
 	}
 	
+	public int getUnitLastTokenPosition(){
+		return positions[positions.length - 1];
+	}
 	
 	
 	public boolean isPredictedMWE(Sentence s){
@@ -178,7 +201,15 @@ public class Unit {
 	public String getPos() {
 		return pos;
 	}
+	
+	public String getGoldPos() {
+		return goldPos;
+	}
 
+	public void setGoldPos(String goldPos) {
+		this.goldPos = goldPos;
+	}
+	
 	public void setPos(String pos) {
 		this.pos = pos;
 	}

@@ -11,29 +11,37 @@ import java.util.LinkedList;
 import fr.upem.lgtools.parser.Configuration;
 import fr.upem.lgtools.parser.DepTree;
 import fr.upem.lgtools.parser.features.FeatureMapping;
-import fr.upem.lgtools.parser.model.ProjectiveTransitionBasedDependencyParserModel;
 import fr.upem.lgtools.parser.transitions.Transition;
 import fr.upem.lgtools.text.DepTreebank;
+import fr.upem.lgtools.text.Sentence;
 import fr.upem.lgtools.text.Unit;
 
 /**
  * @author mconstant
  *
  */
-public class SimpleMergeArcStandardTransitionBasedParserModel extends ArcStandardTransitionBasedParserModel {
+public abstract class SimpleMergeArcStandardTransitionBasedParserModel extends ArcStandardTransitionBasedParserModel {
 
 	final String MERGE = "ME";
 	
 	
 	public SimpleMergeArcStandardTransitionBasedParserModel(FeatureMapping fm,
 			DepTreebank tb) {
-		super(fm, tb);		
+		//this.withLabeledMerge = withLabeledMerge;
+		super(fm, tb);
+		
+	
 	}
+	
+	
+	public abstract boolean isWithLabeledMerge();
+	
 
 
 
 	public SimpleMergeArcStandardTransitionBasedParserModel(String filename)  throws IOException {
-		super(filename);		
+		super(filename);
+	
 	}
 
 
@@ -48,8 +56,11 @@ public class SimpleMergeArcStandardTransitionBasedParserModel extends ArcStandar
 			if(l1 <= 0 || l2 <= 0){
 				return null;
 			}
-			if(l1 == l2){	
-				return "";
+			if(l1 == l2){
+				if(!isWithLabeledMerge()){
+				   return "";
+				}
+				return configuration.getUnit(l1).getPos();
 			}
 		}
 		return null;
@@ -67,7 +78,7 @@ public class SimpleMergeArcStandardTransitionBasedParserModel extends ArcStandar
 		//if ME is possible, then ME
 		
 		if((label = getMerge(configuration)) != null){
-			return transitions.getTransition(MERGE,null);
+			return transitions.getTransition(MERGE,label);
 		}
 		
 		// if LA is possible, then LA
@@ -96,7 +107,7 @@ public class SimpleMergeArcStandardTransitionBasedParserModel extends ArcStandar
 	@Override
 	protected Transition<DepTree> createTransition(String type, String label) {
 		if(MERGE.equals(type)){
-			return new MergeTransition(MERGE); 
+			return new MergeTransition(MERGE,label); 
 		}
 		return super.createTransition(type, label);
 	}
@@ -107,10 +118,28 @@ public class SimpleMergeArcStandardTransitionBasedParserModel extends ArcStandar
 	 */
 	@Override
 	protected Collection<Transition<DepTree>> createLabelIndependentTransitions() {
+		//System.err.println(withLabeledMerge);
 		Collection<Transition<DepTree>> transitions = new LinkedList<Transition<DepTree>>();
 		transitions.add(createTransition(SHIFT,null));
-		transitions.add(createTransition(MERGE,null));
+		if(!isWithLabeledMerge()){
+		    transitions.add(createTransition(MERGE,""));
+		}
         return transitions;
 	}
 
+	
+	@Override
+	protected Transition<DepTree> createLabelDependentTransition(Unit unit,Sentence s) {
+		//System.err.println(withLabeledMerge);
+		if(isWithLabeledMerge()){
+			Unit r = unit.GetGoldLexicalParent(s);
+			
+			if(r != null){
+				//System.err.println(r+"=="+unit+ " --"+r.getPos());
+				return createTransition(MERGE, r.getPos());
+			}
+		}
+		return super.createLabelDependentTransition(unit,s);
+	}
+	
 }

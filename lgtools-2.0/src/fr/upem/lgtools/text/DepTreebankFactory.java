@@ -127,14 +127,19 @@ public class DepTreebankFactory {
 	}
 
 	
-	private static Map<Integer,List<Unit>> getMWEs(Sentence s,Set<String> mweLabels,boolean goldMWEs){
+	private static Map<Integer,List<Unit>> getMWEs(Sentence s,String mweLabel,boolean goldMWEs, Map<Integer,String> poses){
 		Map<Integer,List<Unit>> mwes = new HashMap<Integer, List<Unit>>();
 	    for(Unit u:s.getTokens()){
 	    	String label = u.getGoldSlabel();
 	    	if(!goldMWEs){
 	    		label = u.getSlabel();
 	    	}
-	    	if(mweLabels.contains(label)){
+	    	
+	    	if(label.startsWith(mweLabel)){
+	    		String pos = "";
+	    		if(!mweLabel.equals(label)){
+	    		    pos = label.substring(mweLabel.length() +1);
+	    		}
 	    		int head = u.getGoldSheadId();
 	    		if(!goldMWEs){
 	    			head = u.getSheadId();
@@ -143,6 +148,7 @@ public class DepTreebankFactory {
 	    		if(mwe == null){
 	    			mwe = new LinkedList<Unit>();
 	    			mwes.put(head, mwe);
+	    			poses.put(head, pos);
 	    		}
 	    		mwe.add(u);
 	    	}
@@ -180,7 +186,7 @@ public class DepTreebankFactory {
 	}
 	
 	
-	private static void addMWEUnit(Unit head, List<Unit> components,Sentence s,boolean goldMwes){
+	private static void addMWEUnit(Unit head, List<Unit> components,Sentence s,boolean goldMwes,String pos){
         int[] positions = new int[components.size() + 1];
         StringBuilder mweForm = new StringBuilder(head.getForm());
         positions[0] = head.getId();
@@ -207,7 +213,7 @@ public class DepTreebankFactory {
 			//System.err.println("MWE="+mwe);
 		}
 		if(goldMwes){
-			
+			mwe.setGoldPos(pos);
 			mwe.setGoldShead(head.getGoldSheadId());
 			mwe.setGoldSlabel(head.getGoldSlabel());
 			head.setGoldShead(-1);
@@ -215,7 +221,8 @@ public class DepTreebankFactory {
 		}
 		else{
 			//System.err.println("----"+head.getSheadId());
-		    mwe.setShead(head.getSheadId());
+		    mwe.setPos(pos);
+			mwe.setShead(head.getSheadId());
 		    mwe.setSlabel(head.getSlabel());
 		    head.setShead(-1);
 			head.setSlabel(null);
@@ -240,11 +247,11 @@ public class DepTreebankFactory {
 	}
 	
 	
-	private static void addMWEUnits(Map<Integer,List<Unit>> mwes,Sentence s,boolean goldMwes){
+	private static void addMWEUnits(Map<Integer,List<Unit>> mwes,Sentence s,boolean goldMwes,Map<Integer,String> mwePoses){
 		for(int i = 0 ; i < s.getTokens().size() ; i++){
 			Unit h = s.getTokens().get(i);
 			if(mwes.containsKey(h.getId())){
-				addMWEUnit(h,mwes.get(h.getId()),s,goldMwes);
+				addMWEUnit(h,mwes.get(h.getId()),s,goldMwes,mwePoses.get(h.getId()));
 				//System.err.println(h+"--"+goldMwes);
 			}	
 		}
@@ -278,14 +285,16 @@ public class DepTreebankFactory {
 	
 	
 	
-	private static Sentence mergeFixedMWEs(Sentence s,Set<String> mweLabels){
+	private static Sentence mergeFixedMWEs(Sentence s,String mweLabels){
 		Sentence res = new Sentence(s);
-		Map<Integer,List<Unit>> gmwes = getMWEs(res, mweLabels,true);
-		Map<Integer,List<Unit>> mwes = getMWEs(res, mweLabels,false);
+		Map<Integer,String> gmwePoses = new HashMap<Integer, String>();
+		Map<Integer,String> mwePoses = new HashMap<Integer, String>();
+		Map<Integer,List<Unit>> gmwes = getMWEs(res, mweLabels,true,gmwePoses);
+		Map<Integer,List<Unit>> mwes = getMWEs(res, mweLabels,false,mwePoses);
 		//System.err.println(mwes);
 		//System.err.println(gmwes);
-		addMWEUnits(gmwes, res, true);
-		addMWEUnits(mwes, res, false);
+		addMWEUnits(gmwes, res, true,gmwePoses);
+		addMWEUnits(mwes, res, false,mwePoses);
 		
 	    //System.err.println(s);
 	    //System.err.println(mwes);
@@ -295,12 +304,12 @@ public class DepTreebankFactory {
 	
 	//mergeFixedMWEs(s,mweLabels)
 	
-	public static DepTreebank mergeFixedMWEs(final DepTreebank tb,final Set<String> mweLabels){
+	public static DepTreebank mergeFixedMWEs(final DepTreebank tb,final String mweLabel){
 		return modifyTreebank(tb,new SentenceModifier() {
 			
 			@Override
 			public Sentence modify(Sentence s) {
-				return mergeFixedMWEs(s,mweLabels);
+				return mergeFixedMWEs(s,mweLabel);
 			}
 		});
 	}
@@ -345,6 +354,7 @@ public class DepTreebankFactory {
 				      mwe = new Unit(id,form, positions);
 				      mwe.setGoldShead(-1);
 				      mwe.setGoldSlabel(null);
+				      mwe.setPos("*"); //intermediate MWE node
 				      s.add(mwe);
 				}
 				u1.setGoldLHead(mwe.getId());
