@@ -8,9 +8,9 @@ import fr.upem.lgtools.parser.transitions.LabeledTransition;
 import fr.upem.lgtools.text.Unit;
 import fr.upem.lgtools.text.Utils;
 
-public class MergeTransition extends LabeledTransition<DepTree> {
+public class MergeBothTransition extends LabeledTransition<DepTree> {
 
-	public MergeTransition(String type,String label) {
+	public MergeBothTransition(String type,String label) {
 		super(type,label);
 	}
 

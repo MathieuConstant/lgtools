@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import fr.upem.lgtools.parser.Analysis;
 import fr.upem.lgtools.parser.Configuration;
@@ -54,8 +56,8 @@ public abstract class TransitionBasedModel<T extends Analysis> {
 	
 	// constructor used before parsing
 	public TransitionBasedModel(String filename) throws IOException{
-		
-		DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(filename)));
+		GZIPInputStream gin = new GZIPInputStream(new BufferedInputStream(new FileInputStream(filename)));
+		DataInputStream in = new DataInputStream(gin);
 		int nFeatCapacity = in.readInt();
 		int nLabels = in.readInt();
 		in.readInt(); // option
@@ -135,7 +137,10 @@ public abstract class TransitionBasedModel<T extends Analysis> {
 	}
 
 	public void save(String filename) throws IOException{
-    	DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(filename)));
+		
+		GZIPOutputStream gout = new GZIPOutputStream(new BufferedOutputStream(new FileOutputStream(filename))); 
+		DataOutputStream out = new DataOutputStream(gout);
+		
 		out.writeInt(model.getFeatureCount());
 		out.writeInt(model.getLabelCount());
 		out.writeInt(0); //Integer for putting some options

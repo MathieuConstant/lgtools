@@ -99,9 +99,9 @@ public class Test {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		 //DepTreebank tb = readTreebank("train.labeled.acl14.conll");
-		 //trainWithMerge(tb, "lmodel", 5);
-		 DepTreebank tb = readTreebank("dev.acl14.conll");
+		 DepTreebank tb = readTreebank("train.labeled.acl14.conll");
+		 trainWithMerge(tb, "lmodel", 8);
+		 tb = readTreebank("dev.acl14.conll");
 		 parseWithMerge(tb, "lmodel.final", "res-merge.conll");
 		
 		/*DepTreebank tb = readTreebank("train.expandedcpd.conll");

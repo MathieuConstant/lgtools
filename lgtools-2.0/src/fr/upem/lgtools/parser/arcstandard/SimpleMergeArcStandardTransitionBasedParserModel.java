@@ -107,7 +107,7 @@ public abstract class SimpleMergeArcStandardTransitionBasedParserModel extends A
 	@Override
 	protected Transition<DepTree> createTransition(String type, String label) {
 		if(MERGE.equals(type)){
-			return new MergeTransition(MERGE,label); 
+			return new MergeBothTransition(MERGE,label); 
 		}
 		return super.createTransition(type, label);
 	}
