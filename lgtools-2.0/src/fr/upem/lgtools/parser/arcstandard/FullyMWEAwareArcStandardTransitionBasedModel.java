@@ -50,6 +50,7 @@ public class FullyMWEAwareArcStandardTransitionBasedModel extends
 	
 	@Override
 	public Transition<DepTree> staticOracle(Configuration<DepTree> configuration){
+		String label;
 		//COMPLETE
 		
 		//MERGE_BOTH
@@ -60,12 +61,12 @@ public class FullyMWEAwareArcStandardTransitionBasedModel extends
 		
 
 		//if ME is possible, then ME
-		String label;
+		
 		
 		/*if((label = getMerge(configuration)) != null){
 			return transitions.getTransition(MERGE,label);
 		}*/
-		
+		/*
 		// if LA is possible, then LA
 		if((label = getLeftArcLabel(configuration)) != null){
 			//System.err.println("Oracle: LA+"+label);
@@ -80,9 +81,10 @@ public class FullyMWEAwareArcStandardTransitionBasedModel extends
 		//System.err.println("Oracle: SH");
 		//default: SH				
 		return transitions.getTransition(SHIFT, null);
+		*/
 
 		
-		//return super.staticOracle(configuration);
+		return super.staticOracle(configuration);
 	}
 	
 	

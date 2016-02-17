@@ -189,6 +189,7 @@ public class Utils {
 		      units.add(mwe);
 		}
 		mwe.setLemma(lemma);
+		
 		mwe.setPos(cat);
 		return mwe;
 	}

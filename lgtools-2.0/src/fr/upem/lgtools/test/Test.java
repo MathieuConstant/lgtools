@@ -99,16 +99,17 @@ public class Test {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		 DepTreebank tb = readTreebank("train.labeled.acl14.conll");
-		 trainWithMerge(tb, "lmodel", 8);
+		 /*DepTreebank tb = readTreebank("train.labeled.acl14.conll");
+		 trainWithMerge(tb, "lmodel", 6);
 		 tb = readTreebank("dev.acl14.conll");
 		 parseWithMerge(tb, "lmodel.final", "res-merge.conll");
+		*/
 		
-		/*DepTreebank tb = readTreebank("train.expandedcpd.conll");
-		 train(tb, "stdmodel", 5);
-		 tb = readTreebank("dev.expandedcpd.conll");
+		DepTreebank tb = readTreebank("train.labeled.acl14.conll");
+		 train(tb, "stdmodel", 6);
+		 tb = readTreebank("dev.acl14.conll");
 		 parse(tb, "stdmodel.final", "res-std.conll");
-		 */
+		 
 		
 	}
 
