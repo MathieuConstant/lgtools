@@ -17,8 +17,8 @@ import fr.upem.lgtools.text.Unit;
  */
 public class ShiftTransition<T extends Analysis> extends AbstractTransition<T>{
 	
-	public ShiftTransition(String id) {
-		super(id);
+	public ShiftTransition(String type) {
+		super(type);
 		
 	}
 

@@ -11,7 +11,6 @@ import fr.upem.lgtools.parser.Configuration;
 import fr.upem.lgtools.parser.DepTree;
 import fr.upem.lgtools.parser.features.FeatureExtractor;
 import fr.upem.lgtools.parser.features.FeatureMapping;
-import fr.upem.lgtools.parser.model.ProjectiveTransitionBasedDependencyParserModel;
 import fr.upem.lgtools.parser.transitions.Transition;
 import fr.upem.lgtools.text.DepTreebank;
 import fr.upem.lgtools.text.Sentence;
@@ -48,42 +47,56 @@ public class FullyMWEAwareArcStandardTransitionBasedModel extends
 	}
 
 	
+	private String getMergeBoth(Configuration<DepTree> configuration){
+		/*
+		Deque<Unit> stack = configuration.getFirstStack();
+		if(stack.size() > 2){
+			Unit u1 = stack.pop();
+			Unit u2 = stack.peek();
+			stack.push(u1);
+			int l1 = u2.getGoldLHead();
+			int l2 = u1.getGoldLHead();
+			if(l1 <= 0 || l2 <= 0){
+				return null;
+			}
+			if(l1 == l2){				
+				return configuration.getUnit(l1).getPos();
+			}
+		}*/
+		return null;
+	}
+	
+	private String getMerge(Configuration<DepTree> configuration){
+		/*
+		Deque<Unit> stack = configuration.getFirstStack();
+		if(stack.size() > 2){
+			Unit u1 = stack.pop();
+			Unit u2 = stack.peek();
+			stack.push(u1);
+			int l1 = u2.getGoldLHead();
+			int l2 = u1.getGoldLHead();
+			if(l1 <= 0 || l2 <= 0){
+				return null;
+			}
+			if(l1 == l2){				
+				return configuration.getUnit(l1).getPos();
+			}
+		}*/
+		return null;
+	}
+	
+	
 	@Override
 	public Transition<DepTree> staticOracle(Configuration<DepTree> configuration){
 		String label;
-		//COMPLETE
+		//if COMPLETE is possible
 		
 		//MERGE_BOTH
 		
 		//MERGE
 		
 		//static oracle du arc-standard
-		
-
-		//if ME is possible, then ME
-		
-		
-		/*if((label = getMerge(configuration)) != null){
-			return transitions.getTransition(MERGE,label);
-		}*/
-		/*
-		// if LA is possible, then LA
-		if((label = getLeftArcLabel(configuration)) != null){
-			//System.err.println("Oracle: LA+"+label);
-			return transitions.getTransition(LEFT_ARC, label);
-		}
-		
-		//if RA is possible, then RA
-		if((label = getRightArcLabel(configuration)) != null){
-			//System.err.println("Oracle: RA+"+label);
-			return transitions.getTransition(RIGHT_ARC, label);
-		}
-		//System.err.println("Oracle: SH");
-		//default: SH				
-		return transitions.getTransition(SHIFT, null);
-		*/
-
-		
+				
 		return super.staticOracle(configuration);
 	}
 	
@@ -106,7 +119,24 @@ public class FullyMWEAwareArcStandardTransitionBasedModel extends
 	protected Transition<DepTree> createLabelDependentTransition(Unit unit,
 			Sentence s) {
               String label;
-				return super.createLabelDependentTransition(unit, s);
+            //MERGE
+            //MERGEBOTH
+            Unit r = unit.GetGoldLexicalParent(s);
+  			
+            /* A REVOIR */
+            
+  			if(r != null){
+  				//NE MARCHE POUR LES NON-TOKENS
+  				
+  				if(unit.getGoldSheadId() == -1){ //unit has no gold syntactic head
+  					return createTransition(MERGE_BOTH, r.getPos());
+  				}
+  				//unit has a gold syntactic head
+  				return createTransition(MERGE, r.getPos());
+  			}  
+              
+              
+			return super.createLabelDependentTransition(unit, s);
 	}
 
 
@@ -116,10 +146,10 @@ public class FullyMWEAwareArcStandardTransitionBasedModel extends
 			return new MergeBothTransition(MERGE,label); 
 		}
 		if(MERGE.equals(type)){
-			//return new MergeTransition(MERGE_BOTH,label);
+			return new MergeTransition(MERGE_BOTH,label);
 		}
 		if(COMPLETE.equals(type)){
-			//return new CompleteTransition(COMPLETE,null);
+			return new CompleteTransition(COMPLETE);
 		}
 		return super.createTransition(type, label);
 	}

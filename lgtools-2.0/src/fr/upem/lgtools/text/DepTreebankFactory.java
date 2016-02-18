@@ -558,6 +558,32 @@ public class DepTreebankFactory {
 	}
 	
 	
+	public static DepTreebank unlabelMWEArcs(DepTreebank tb, final String mwelabel){
+		return modifyTreebank(tb, new SentenceModifier(){
+
+			@Override
+			public Sentence modify(Sentence s) {
+				Sentence res = new Sentence(s);
+				for(Unit u:res.getUnits()){
+					
+					String label = u.getGoldSlabel();
+					
+					if(label != null && label.startsWith(mwelabel)){
+						u.setGoldSlabel(mwelabel);					
+					}
+					label = u.getSlabel();
+					//System.err.println(label);
+					if(label != null && label.startsWith(mwelabel)){
+						u.setSlabel(mwelabel);
+					}
+				}
+				return res;
+			}
+			
+		});
+	}
+	
+	
 	static interface SentenceModifier{
 		Sentence modify(Sentence s);
 	}

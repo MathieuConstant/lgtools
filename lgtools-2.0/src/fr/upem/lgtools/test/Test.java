@@ -68,10 +68,11 @@ public class Test {
 	private static void parse(DepTreebank tb,String model,String output) throws IOException{
 		ArcStandardTransitionBasedParserModel tbm = new ArcStandardTransitionBasedParserModel(model);
 		TransitionBasedSystem<DepTree> parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
-		ParsingResult res = parser.greedyParseTreebankAndEvaluate(tb);
-		System.err.println(res.getAcccuracy());
-		Utils.saveTreebankInXConll(res.getTreebank(), output);
-		tb = DepTreebankFactory.mergeFixedMWEs(tb, MWE_LABEL);
+		ParsingResult res = parser.greedyParseTreebankAndEvaluate(tb);		
+		DepTreebank tmp = DepTreebankFactory.unlabelMWEArcs(res.getTreebank(), MWE_LABEL);
+		System.err.println(ParsingAccuracy.computeParsingAccuracy(tmp));
+		Utils.saveTreebankInXConll(tmp, output);
+		tb = DepTreebankFactory.mergeFixedMWEs(res.getTreebank(), MWE_LABEL);		
 		System.err.println(SegmentationAccuracy.computeSegmentationAccuracy(tb));
 		for(Score s:SegmentationAccuracy.computeMergeParsingScore(tb)){
 			System.err.println(s);
@@ -105,9 +106,9 @@ public class Test {
 		 parseWithMerge(tb, "lmodel.final", "res-merge.conll");
 		*/
 		
-		DepTreebank tb = readTreebank("train.labeled.acl14.conll");
-		 train(tb, "stdmodel", 6);
-		 tb = readTreebank("dev.acl14.conll");
+		/*DepTreebank tb = readTreebank("train.labeled.acl14.conll");
+		 train(tb, "stdmodel", 6);*/
+		 DepTreebank tb = readTreebank("dev.acl14.conll");
 		 parse(tb, "stdmodel.final", "res-std.conll");
 		 
 		

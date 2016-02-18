@@ -101,6 +101,15 @@ public class Unit {
 	}
 	
 	
+	public boolean hasGoldLexicalHead(){
+		return getGoldLHead() > 0;
+	}
+	
+	public boolean hasLexicalHead(){
+		return getLheadId() > 0;
+	}
+	
+	
 	
 	public Unit findPredictedLexicalRoot(Sentence s){
 		Unit root = this;

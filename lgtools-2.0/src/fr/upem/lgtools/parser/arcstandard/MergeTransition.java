@@ -3,6 +3,7 @@
  */
 package fr.upem.lgtools.parser.arcstandard;
 
+import java.util.ArrayList;
 import java.util.Deque;
 
 import fr.upem.lgtools.parser.Configuration;
@@ -23,8 +24,12 @@ public class MergeTransition extends LabeledTransition<DepTree> {
 	
 	@Override
 	public Configuration<DepTree> perform(Configuration<DepTree> configuration) {
-		
-		return null;
+		Deque<Unit> stack = configuration.getSecondStack();
+		ArrayList<Deque<Unit>> stacks = new ArrayList<Deque<Unit>>();
+		Unit u0 = stack.pop();
+		Unit u1 = stack.pop();
+		stacks.add(stack);
+		return MergeBothTransition.performMerge(configuration,label,u1,u0,stacks);
 	}
 
 	@Override
