@@ -123,14 +123,19 @@ public class ArcStandardTransitionBasedParserModel extends
 	 */
 	@Override
 	protected Transition<DepTree> createLabelDependentTransition(Unit unit,Sentence s) {
+		if(!unit.hasGoldSyntacticHead()){
+			return null;
+		} 
 		String label = unit.getGoldSlabel();
 		int head = unit.getGoldSheadId();
 		int current = unit.getId();
+		
+		
 		if(head > current){ // head after current:: LA
-			return createTransition(LEFT_ARC, label);
+			return createTransition(LEFT_ARC, label);			
 		}
 		// head before current:: RA
-		return createTransition(RIGHT_ARC, label);
+		return createTransition(RIGHT_ARC, label);		
 	}
 
 	/* (non-Javadoc)

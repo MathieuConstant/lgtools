@@ -188,7 +188,10 @@ public abstract class TransitionBasedModel<T extends Analysis> {
 		}
 		for(Sentence s:tb){
 			for(Unit u:s.getUnits()){
-				addTransition(createLabelDependentTransition(u,s));
+				  Transition<T> t = createLabelDependentTransition(u,s);
+				  if(t != null){
+				     addTransition(t);
+				  }
 			}
 		}		
 	}
@@ -271,6 +274,7 @@ public abstract class TransitionBasedModel<T extends Analysis> {
 	
 	
 	public void update(FeatureVector feats, Transition<T> ot, Transition<T> pt){
+		//System.err.println(ot+" "+pt);
 		model.updatePlus(feats, transitions.getTransitionIndex(ot));
 		model.updateMinus(feats, transitions.getTransitionIndex(pt));		
 	}

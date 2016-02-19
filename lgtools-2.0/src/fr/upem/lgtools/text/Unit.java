@@ -32,12 +32,12 @@ public class Unit {
      private Boolean goldSeg;
      
      
-     private int shead;  //syntactic head
+     private int shead = -1;  //syntactic head
      private String slabel;
    //Some day: unit may have several syntactic parents
      
      
-     private int goldShead;  //gold syntactic head
+     private int goldShead = -1;  //gold syntactic head
      private String goldSlabel;  //gold label
      
      private int lhead;  // lexical head  
@@ -88,6 +88,24 @@ public class Unit {
 		return positions.length > 1;
 	}
 	
+	public boolean isRegularMWE(Sentence s){
+		return isMWE() && !isFixedMWE(s);
+	}
+	
+	
+	public boolean isFixedMWE(Sentence s){
+		if(!isMWE()){
+			return false;
+		}
+		for(int i:getPositions()){
+      	    Unit c = s.get(i);
+      	    if(c.hasSyntacticHead()){
+      	    	return false;
+      	    }
+        }
+		return true;
+	}
+	
 	
 	
 	public String getPOSPattern(Sentence s){
@@ -100,6 +118,14 @@ public class Unit {
 		
 	}
 	
+	
+	public boolean hasGoldSyntacticHead(){
+		return getGoldSheadId() != -1;
+	}
+	
+	public boolean hasSyntacticHead(){
+		return getSheadId() != -1;
+	}
 	
 	public boolean hasGoldLexicalHead(){
 		return getGoldLHead() > 0;

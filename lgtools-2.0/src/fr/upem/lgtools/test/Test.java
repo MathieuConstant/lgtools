@@ -27,6 +27,7 @@ import fr.upem.lgtools.text.Utils;
 
 public class Test {
     private final static String MWE_LABEL = "dep_cpd";
+    private final static String REG_MWE = "rcpd";
 	
 	
 	
@@ -57,7 +58,8 @@ public class Test {
 	}
 	
 	
-	private static void train(DepTreebank tb,String model, int iter) throws IOException{		
+	private static void train(DepTreebank tb,String model, int iter) throws IOException{
+		tb = DepTreebankFactory.removeRegularMWEs(tb, REG_MWE);
 		FeatureMapping fm = new  HashMapFeatureMapping(10000000);
 		ArcStandardTransitionBasedParserModel tbm = new ArcStandardTransitionBasedParserModel(fm,tb);
 		TransitionBasedSystem<DepTree> parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
@@ -66,6 +68,7 @@ public class Test {
 	
 	
 	private static void parse(DepTreebank tb,String model,String output) throws IOException{
+		tb = DepTreebankFactory.removeRegularMWEs(tb, REG_MWE);
 		ArcStandardTransitionBasedParserModel tbm = new ArcStandardTransitionBasedParserModel(model);
 		TransitionBasedSystem<DepTree> parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
 		ParsingResult res = parser.greedyParseTreebankAndEvaluate(tb);		
@@ -106,9 +109,10 @@ public class Test {
 		 parseWithMerge(tb, "lmodel.final", "res-merge.conll");
 		*/
 		
-		/*DepTreebank tb = readTreebank("train.labeled.acl14.conll");
+		/*DepTreebank tb = readTreebank("train.acl14.joint.predmorph.lexcpd.conll");		
 		 train(tb, "stdmodel", 6);*/
-		 DepTreebank tb = readTreebank("dev.acl14.conll");
+		 DepTreebank tb = readTreebank("dev.acl14.joint.predmorph.lexcpd.conll",10);
+		 
 		 parse(tb, "stdmodel.final", "res-std.conll");
 		 
 		

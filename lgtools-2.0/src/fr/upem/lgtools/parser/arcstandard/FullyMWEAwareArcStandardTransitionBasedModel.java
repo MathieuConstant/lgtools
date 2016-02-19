@@ -5,6 +5,7 @@ package fr.upem.lgtools.parser.arcstandard;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.LinkedList;
 
 import fr.upem.lgtools.parser.Configuration;
@@ -47,56 +48,120 @@ public class FullyMWEAwareArcStandardTransitionBasedModel extends
 	}
 
 	
+	
+	
+	private boolean lexicalTreeReceivesSyntacticHead(Unit u, Sentence s){
+		if(u.hasGoldSyntacticHead()){
+			return true;
+		}
+		return !u.isFixedMWE(s);
+	}
+	
+	
 	private String getMergeBoth(Configuration<DepTree> configuration){
-		/*
+		
 		Deque<Unit> stack = configuration.getFirstStack();
-		if(stack.size() > 2){
+		Deque<Unit> lexStack = configuration.getSecondStack();
+		if(stack.size() > 2 && lexStack.size() > 2){
 			Unit u1 = stack.pop();
 			Unit u2 = stack.peek();
 			stack.push(u1);
-			int l1 = u2.getGoldLHead();
-			int l2 = u1.getGoldLHead();
-			if(l1 <= 0 || l2 <= 0){
+			//the two units on top of stask must have a lexical head
+			if(!u2.hasGoldLexicalHead() || !u1.hasGoldLexicalHead()){
 				return null;
 			}
+			int l1 = u2.getGoldLHead();
+			int l2 = u1.getGoldLHead();
+			
+			Unit u12 = lexStack.pop();
+			Unit u22 = lexStack.peek();
+			lexStack.push(u12);
+			
+			Sentence s = configuration.getSentence();
+			//the two units (and their respective internal components) to be merged cannot have syntactic heads
+			if(lexicalTreeReceivesSyntacticHead(u1, s) || lexicalTreeReceivesSyntacticHead(u2, s)){
+				return null;
+			}
+			
+			//the units on top-2 must be the same on the two stacks
+			if(u12.getId() != u1.getId() || u22.getId() !=  u2.getId()){
+			  return null;	
+			}
+			
+			
+			
+			//the lexical head of the two units must be the same
 			if(l1 == l2){				
 				return configuration.getUnit(l1).getPos();
 			}
-		}*/
+		}
 		return null;
 	}
 	
 	private String getMerge(Configuration<DepTree> configuration){
-		/*
-		Deque<Unit> stack = configuration.getFirstStack();
+		
+		Deque<Unit> stack = configuration.getSecondStack();
 		if(stack.size() > 2){
 			Unit u1 = stack.pop();
 			Unit u2 = stack.peek();
 			stack.push(u1);
-			int l1 = u2.getGoldLHead();
-			int l2 = u1.getGoldLHead();
-			if(l1 <= 0 || l2 <= 0){
+			if(!u2.hasGoldLexicalHead() || !u1.hasGoldLexicalHead()){
 				return null;
 			}
+			
+			Sentence s = configuration.getSentence();
+			if(!lexicalTreeReceivesSyntacticHead(u1, s) && !lexicalTreeReceivesSyntacticHead(u2, s)){
+				return null;
+			}
+			
+			int l1 = u2.getGoldLHead();
+			int l2 = u1.getGoldLHead();
+			
+			
 			if(l1 == l2){				
 				return configuration.getUnit(l1).getPos();
 			}
-		}*/
+		}
 		return null;
+	}
+	
+	private boolean completeIsPossible(Configuration<DepTree> configuration){
+		Deque<Unit> stack = configuration.getSecondStack();
+		if(stack.size() > 1){
+			Unit u = stack.peek();
+			if(!u.hasGoldLexicalHead()){
+				return true;
+			}
+		}
+		return false;
+		
 	}
 	
 	
 	@Override
 	public Transition<DepTree> staticOracle(Configuration<DepTree> configuration){
 		String label;
-		//if COMPLETE is possible
+		
 		
 		//MERGE_BOTH
+		label = getMergeBoth(configuration);
+		if(label != null){
+			return transitions.getTransition(MERGE_BOTH, label);
+		}
 		
 		//MERGE
+		label = getMerge(configuration);
+		if(label != null){
+			return transitions.getTransition(MERGE, label);
+		}
 		
-		//static oracle du arc-standard
-				
+		//if COMPLETE is possible
+		if(completeIsPossible(configuration)){
+			return transitions.getTransition(COMPLETE, null);
+		}
+		
+		
+		//static oracle du arc-standard		
 		return super.staticOracle(configuration);
 	}
 	
@@ -114,27 +179,39 @@ public class FullyMWEAwareArcStandardTransitionBasedModel extends
 		return new DefaultFeatureExtractor(fm);
 	}
 
+	
+	private String getMergeBothUnitLabel(Unit u, Sentence s){		
+		if(!u.isFixedMWE(s)){
+			return null;
+		}		
+		return u.getPos();
+	}
+	
+	
+	private String getMergeUnitLabel(Unit u, Sentence s){
+		if(!u.isMWE()){
+			return null;
+		}
+		return u.isFixedMWE(s)?null:u.getPos();		
+	}
+	
+	
+	
+	
 
 	@Override
 	protected Transition<DepTree> createLabelDependentTransition(Unit unit,
 			Sentence s) {
-              String label;
-            //MERGE
-            //MERGEBOTH
-            Unit r = unit.GetGoldLexicalParent(s);
-  			
-            /* A REVOIR */
-            
-  			if(r != null){
-  				//NE MARCHE POUR LES NON-TOKENS
-  				
-  				if(unit.getGoldSheadId() == -1){ //unit has no gold syntactic head
-  					return createTransition(MERGE_BOTH, r.getPos());
-  				}
-  				//unit has a gold syntactic head
-  				return createTransition(MERGE, r.getPos());
-  			}  
+              String label = getMergeBothUnitLabel(unit,s);
               
+              if(label != null){
+            	  return createTransition(MERGE_BOTH, label);
+              }
+              
+              label = getMergeUnitLabel(unit, s);
+              if(label != null){
+            	  return createTransition(MERGE,label);
+              }              
               
 			return super.createLabelDependentTransition(unit, s);
 	}

@@ -278,10 +278,11 @@ public class DepTreebankFactory {
 			}
 			
 		}
-		
-		
-				
+						
 	}
+	
+	
+	
 	
 	
 	
@@ -314,9 +315,81 @@ public class DepTreebankFactory {
 		});
 	}
 	
+	private static String[] splitLabel(String label, String regmweLabel){
+		if(!label.contains(regmweLabel)){		
+		  return null;
+		}
+		int i = label.indexOf(regmweLabel);
+		String function = label.substring(0,i-1);
+		String mwePos = label.substring(i+regmweLabel.length() + 1);
+		
+				
+		
+		return new String[]{function,mwePos};
+		
+	}
 	
 	
+	private static Sentence mergeRegularMWEs(Sentence s,String regmweLabel){
+		Sentence res = new Sentence(s);
+		
+		for(Unit u:res.getTokens()){
+			modifyLabel(u, regmweLabel, true);
+			modifyLabel(u, regmweLabel, false);
+			
+		}
+		
+		
+		return res;
+	}
 	
+	
+	public static DepTreebank mergeRegularMWEs(final DepTreebank tb,final String regmweLabel){
+		return modifyTreebank(tb,new SentenceModifier() {
+			
+			@Override
+			public Sentence modify(Sentence s) {
+				return mergeRegularMWEs(s,regmweLabel);
+			}
+		});
+	}
+	
+	
+	private static void modifyLabel(Unit u, String regmweLabel, boolean goldAnnotation){
+		String label = goldAnnotation?u.getGoldSlabel():u.getSlabel();
+
+		String[] labels = splitLabel(label,regmweLabel);
+		if(labels != null){
+			if(goldAnnotation){
+				u.setGoldSlabel(labels[0]);
+			}
+			else{
+					u.setSlabel(labels[0]);								
+			}
+
+		}
+	}
+	
+	
+	private static Sentence removeRegularMWEs(Sentence s, String regmweLabel){
+		Sentence res = new Sentence(s);
+		for(Unit u:res.getTokens()){
+			    modifyLabel(u,regmweLabel,true);
+			    modifyLabel(u,regmweLabel,false);
+		}
+		
+		return res;
+	}
+	
+	public static DepTreebank removeRegularMWEs(final DepTreebank tb,final String regmweLabel){
+return modifyTreebank(tb,new SentenceModifier() {
+			
+			@Override
+			public Sentence modify(Sentence s) {
+				return removeRegularMWEs(s,regmweLabel);
+			}
+		});
+	}
 	
 	
 	

@@ -130,16 +130,18 @@ public abstract class SimpleMergeArcStandardTransitionBasedParserModel extends A
 	
 	@Override
 	protected Transition<DepTree> createLabelDependentTransition(Unit unit,Sentence s) {
+		
 		//System.err.println(withLabeledMerge);
 		if(isWithLabeledMerge()){
 			Unit r = unit.GetGoldLexicalParent(s);
 			
 			if(r != null){
 				//System.err.println(r+"=="+unit+ " --"+r.getPos());
-				return createTransition(MERGE, r.getPos());
+				return createTransition(MERGE, r.getPos());				
 			}
 		}
 		return super.createLabelDependentTransition(unit,s);
+		
 	}
 	
 }

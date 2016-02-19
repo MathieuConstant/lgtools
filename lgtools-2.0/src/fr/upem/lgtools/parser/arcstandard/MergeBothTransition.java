@@ -79,6 +79,13 @@ public class MergeBothTransition extends LabeledTransition<DepTree> {
 			if(lexStack.size() <= 2){
 				res = false;
 			}
+			Unit u02 = lexStack.pop();
+			Unit u12 = lexStack.peek();
+			lexStack.push(u02);
+			if(u02.getId() != u0.getId() || u12.getId() != u1.getId()){
+				res = false;
+			}
+			
 		}
 		/*if(res){
 			System.err.println("ICI");
