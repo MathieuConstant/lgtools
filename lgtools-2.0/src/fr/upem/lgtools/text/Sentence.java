@@ -74,27 +74,8 @@ public class Sentence {
 	 */
 	
 	public List<Unit> getTokenSequence(boolean goldAnnotation){
-		List<Unit> tokens = new ArrayList<Unit>();
-		boolean[] handled = new boolean[getUnits().size()+1];
-		//System.err.println(getTokens());
-		for(Unit u:getTokens()){
-			Unit r;
-			if(goldAnnotation){
-				r = u.findGoldLexicalRoot(this);
-			}
-			else{
-				r = u.findPredictedLexicalRoot(this);
-			}
-			//System.err.println(u);
-			//System.err.println(r);
-			
-		    if(!handled[r.getId()]){
-				handled[r.getId()] = true;
-				tokens.add(r);
-			}
-			
-		}
-		return tokens;
+		return Utils.getTokenSequence(goldAnnotation,getUnits().size(),this,getTokens());
+		
 	}
 	
 	

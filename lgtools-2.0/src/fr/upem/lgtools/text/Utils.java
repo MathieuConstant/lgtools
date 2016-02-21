@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -113,7 +114,8 @@ public class Utils {
 					
 					int j1 = sentence.get(u1.getGoldSheadId()).getUnitFirstTokenPosition();
 					Unit u = sentence.get(u2.getGoldSheadId());
-					//System.err.println(u2);
+					//System.err.println(u2+"=="+u1);
+					
 					int j2 = u.getUnitFirstTokenPosition();
 					int i1 = u1.getUnitFirstTokenPosition();
 					int i2 = u2.getUnitFirstTokenPosition();
@@ -134,6 +136,39 @@ public class Utils {
 		return true;
 	}
 
+	
+	
+	
+	public static List<Unit> getTokenSequence(boolean goldAnnotation, int sizeMax, Sentence s, Iterable<Unit> initialTokenList){
+		List<Unit> tokens = new ArrayList<Unit>();
+		boolean[] handled = new boolean[sizeMax+1];
+		//System.err.println(getTokens());
+		for(Unit u:initialTokenList){
+			Unit r = u;
+			if(goldAnnotation){
+				if(!u.hasGoldSyntacticHead()){
+				   r = u.findGoldLexicalRoot(s);
+				}
+				
+			}
+			else{
+				if(!u.hasSyntacticHead()){
+				   r = u.findPredictedLexicalRoot(s);
+				}
+				
+			}
+			//System.err.println(u);
+			//System.err.println(r);
+			
+		    if(!handled[r.getId()]){
+				handled[r.getId()] = true;
+				tokens.add(r);
+			}
+			
+		}
+		return tokens;
+	}
+	
 	
 	
 	//for now, it only deals with MWE component positions and not POS of the MWE 
@@ -188,7 +223,7 @@ public class Utils {
 			mwe = new Unit(id,form, positions);
 		      units.add(mwe);
 		}
-		mwe.setLemma(lemma);
+		//mwe.setLemma(lemma);
 		
 		mwe.setPos(cat);
 		return mwe;

@@ -31,6 +31,10 @@ public class ShiftTransition<T extends Analysis> extends AbstractTransition<T>{
 		Unit u = buffer.next();
 		Deque<Unit> stack = configuration.getFirstStack();
 		stack.push(u);
+		if(configuration.stackCount() >= 2){
+			Deque<Unit> lexstack = configuration.getSecondStack();
+			lexstack.push(u);
+		}
 		return configuration;
 	}
 

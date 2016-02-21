@@ -10,6 +10,8 @@ import java.util.Collection;
  *
  */
 public abstract class FeatureMapping {
+	final static int HASHMAP_MAPPING = 1;
+	final static int HASH_MAPPING = 2;
    final protected int max;  
 	
    FeatureMapping(int max){
@@ -26,6 +28,7 @@ public abstract class FeatureMapping {
    
    abstract public int getFeatureId(String feat, boolean withMemoryIfPossible);
    abstract public Collection<String> getFeatures();
+   abstract public int mappingType();
    
    public int featureCapacity(){
 	   return max;

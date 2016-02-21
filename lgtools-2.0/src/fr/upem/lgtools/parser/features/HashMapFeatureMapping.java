@@ -26,7 +26,10 @@ public class HashMapFeatureMapping extends FeatureMapping{
 		features = map;
 	}
 	
-	
+	@Override
+	public int mappingType() {
+		return FeatureMapping.HASHMAP_MAPPING;
+	}
 	
 	// to be used at parsing time
 	public int getFeatureId(String feat){		

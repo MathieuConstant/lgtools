@@ -140,7 +140,7 @@ public class Configuration<T extends Analysis> {
 	
 	@Override
 	public String toString() {
-		return getFirstStack().toString()+""+getFirstBuffer().toString()+"\n";//+analyses.toString();
+		return getFirstStack().toString()+""+getFirstBuffer().toString()+"\n"+getSecondStack()+"\n";//+analyses.toString();
 	}
 	
 	public List<Unit> getUnits(){

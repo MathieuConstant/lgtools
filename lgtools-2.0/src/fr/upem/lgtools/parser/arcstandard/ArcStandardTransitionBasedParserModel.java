@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.List;
 
 import fr.upem.lgtools.parser.Configuration;
 import fr.upem.lgtools.parser.DepTree;
@@ -16,6 +17,7 @@ import fr.upem.lgtools.parser.transitions.Transition;
 import fr.upem.lgtools.text.DepTreebank;
 import fr.upem.lgtools.text.Sentence;
 import fr.upem.lgtools.text.Unit;
+import fr.upem.lgtools.text.Utils;
 
 /**
  * @author mconstant
@@ -61,8 +63,14 @@ public class ArcStandardTransitionBasedParserModel extends
 	
 	public static boolean rightDependentHasAllItsDependents(Unit d,Configuration<DepTree> c){
 		int id = d.getId();
-		for(Unit u:c.getFirstBuffer()){
-			Unit r = u.findGoldLexicalRoot(c.getSentence());
+		Sentence s = c.getSentence();
+		List<Unit> buffer = Utils.getTokenSequence(true,s.getUnits().size(),s,c.getFirstBuffer());
+		for(Unit u:buffer){
+			//System.err.println("RA:"+u);
+			Unit r = u;
+			if(!u.hasGoldLexicalHead()){
+			  r = u.findGoldLexicalRoot(c.getSentence());
+			}
 			if(id == r.getGoldSheadId()) return false;
 		}
 		

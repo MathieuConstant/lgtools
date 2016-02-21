@@ -161,7 +161,7 @@ public class SegmentationAccuracy {
 		if(goldseg.size() == predseg.size() && predseg.size() == goodseg.size()){
 			acc.addExactSegmentation();
 		}
-		acc.addSentence();			
+			
 	}
 	
 	

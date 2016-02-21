@@ -51,11 +51,17 @@ public class FullyMWEAwareArcStandardTransitionBasedModel extends
 	
 	
 	private boolean lexicalTreeReceivesSyntacticHead(Unit u, Sentence s){
+		
 		if(u.hasGoldSyntacticHead()){
 			return true;
 		}
+		if(!u.isMWE()){
+			return false;
+		}
 		return !u.isFixedMWE(s);
 	}
+	
+	
 	
 	
 	private String getMergeBoth(Configuration<DepTree> configuration){
@@ -76,24 +82,24 @@ public class FullyMWEAwareArcStandardTransitionBasedModel extends
 			Unit u12 = lexStack.pop();
 			Unit u22 = lexStack.peek();
 			lexStack.push(u12);
-			
+			//System.err.println(u1+"??"+u2);
 			Sentence s = configuration.getSentence();
 			//the two units (and their respective internal components) to be merged cannot have syntactic heads
 			if(lexicalTreeReceivesSyntacticHead(u1, s) || lexicalTreeReceivesSyntacticHead(u2, s)){
+				
 				return null;
 			}
-			
 			//the units on top-2 must be the same on the two stacks
 			if(u12.getId() != u1.getId() || u22.getId() !=  u2.getId()){
 			  return null;	
 			}
 			
 			
-			
 			//the lexical head of the two units must be the same
 			if(l1 == l2){				
 				return configuration.getUnit(l1).getPos();
 			}
+			
 		}
 		return null;
 	}
@@ -168,10 +174,7 @@ public class FullyMWEAwareArcStandardTransitionBasedModel extends
 	
 	
 	
-	@Override
-	public void updateSentenceAfterAnalysis(Sentence s, DepTree analysis) {
-		//TODO
-	}
+	
 	
 	@Override
 	protected FeatureExtractor<DepTree> getFeatureExtractor(FeatureMapping fm) {
@@ -180,10 +183,11 @@ public class FullyMWEAwareArcStandardTransitionBasedModel extends
 	}
 
 	
-	private String getMergeBothUnitLabel(Unit u, Sentence s){		
+	private String getMergeBothUnitLabel(Unit u, Sentence s){
+		
 		if(!u.isFixedMWE(s)){
 			return null;
-		}		
+		}
 		return u.getPos();
 	}
 	
@@ -205,11 +209,13 @@ public class FullyMWEAwareArcStandardTransitionBasedModel extends
               String label = getMergeBothUnitLabel(unit,s);
               
               if(label != null){
+ 
             	  return createTransition(MERGE_BOTH, label);
               }
               
               label = getMergeUnitLabel(unit, s);
               if(label != null){
+            	 
             	  return createTransition(MERGE,label);
               }              
               
@@ -220,10 +226,10 @@ public class FullyMWEAwareArcStandardTransitionBasedModel extends
 	@Override
 	protected Transition<DepTree> createTransition(String type, String label) {
 		if(MERGE_BOTH.equals(type)){
-			return new MergeBothTransition(MERGE,label); 
+			return new MergeBothTransition(MERGE_BOTH,label); 
 		}
 		if(MERGE.equals(type)){
-			return new MergeTransition(MERGE_BOTH,label);
+			return new MergeTransition(MERGE,label);
 		}
 		if(COMPLETE.equals(type)){
 			return new CompleteTransition(COMPLETE);

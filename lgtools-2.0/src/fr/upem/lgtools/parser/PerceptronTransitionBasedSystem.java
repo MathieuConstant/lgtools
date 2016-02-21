@@ -75,6 +75,7 @@ public class PerceptronTransitionBasedSystem<T extends Analysis> extends Transit
    			 if(sent % 1000 == 0){System.err.println("Processed "+ sent+ " sentences");}
    			 Configuration<T> c = tbm.getInitialConfiguration(gold);
    			 stop = false;
+   			 //System.err.println("#############################");
    			 //System.err.println(gold.getTokenSequence(true));
    			 
    			 while(!c.isTerminal() && !stop){
@@ -82,8 +83,9 @@ public class PerceptronTransitionBasedSystem<T extends Analysis> extends Transit
    				 Transition<T> pt = tbm.getBestValidTransition(fv,c);
    				 Transition<T> ot = tbm.getBestCorrectTransition(fv,c);
    				 //System.err.println("valid: "+tbm.getValidTransitions(c));
-   				//System.err.println("OT "+ot);
+   				
    				//System.err.println("CONF="+c);
+   				//System.err.println("PT "+pt);
    				//System.err.println("OT "+ot);
    				//System.err.println("CONF="+c);
    				//System.err.println("COPY="+new Configuration<T>(c));
