@@ -3,6 +3,9 @@
  */
 package fr.upem.lgtools.parser.features;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -56,6 +59,32 @@ public class HashMapFeatureMapping extends FeatureMapping{
 		
 		return id;
 		
+	}
+	
+	
+	
+
+	@Override
+	public void read(DataInputStream in)  throws IOException{
+		int nFeats = in.readInt();
+		
+		for(int f = 0 ; f < nFeats; f++){
+			String fval = in.readUTF();
+			int fid = in.readInt();
+			this.features.put(fval, fid);
+		}
+		
+	}
+
+	@Override
+	public void write(DataOutputStream out) throws IOException {
+		out.writeInt(FeatureMapping.HASHMAP_MAPPING); 
+		int nFeats = getFeatures().size();
+		out.writeInt(nFeats);
+		for(String k:getFeatures()){
+			out.writeUTF(k);
+			out.writeInt(getFeatureId(k));
+		}
 	}
 
 	@Override

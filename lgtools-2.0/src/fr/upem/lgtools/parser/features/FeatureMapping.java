@@ -3,6 +3,9 @@
  */
 package fr.upem.lgtools.parser.features;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.Collection;
 
 /**
@@ -29,6 +32,8 @@ public abstract class FeatureMapping {
    abstract public int getFeatureId(String feat, boolean withMemoryIfPossible);
    abstract public Collection<String> getFeatures();
    abstract public int mappingType();
+   abstract public void read(DataInputStream in) throws IOException ;
+   abstract public void write(DataOutputStream out) throws IOException ;
    
    public int featureCapacity(){
 	   return max;
@@ -43,5 +48,17 @@ public abstract class FeatureMapping {
 		sb.append("}");
 		return sb.toString();
 	}
+   
+   public static FeatureMapping createFeatureMapping(int type, int capacity){
+	   switch(type){
+	   case HASHMAP_MAPPING:
+		   return new HashMapFeatureMapping(capacity);
+	   case HASH_MAPPING:
+		   return new HashFeatureMapping(capacity);
+	   default:
+		   throw new IllegalStateException("The feature mapping type "+type+ " does not exist!");
+	   }   
+		   
+   }
    
 }

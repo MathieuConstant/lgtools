@@ -2,7 +2,7 @@
  * 
  */
 package fr.upem.lgtools.parser.arcstandard;
-
+        
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +24,7 @@ import fr.upem.lgtools.text.UnitFactory;
  */
 public class DefaultFeatureExtractor implements FeatureExtractor<DepTree> {
 	private final static Unit NULL_UNIT = UnitFactory.createNullUnit();
-	private final FeatureMapping fm;
+	final FeatureMapping fm;
 	
 	public DefaultFeatureExtractor(FeatureMapping featureMapping){
 		this.fm = featureMapping;
@@ -118,7 +118,7 @@ public class DefaultFeatureExtractor implements FeatureExtractor<DepTree> {
 		}*/
 	}
 	
-	private static Unit getSecondElementInStack(Deque<Unit> stack){
+	static Unit getSecondElementInStack(Deque<Unit> stack){
 		if(stack.size() < 2){
 			return NULL_UNIT;
 		}
@@ -140,14 +140,14 @@ public class DefaultFeatureExtractor implements FeatureExtractor<DepTree> {
 		return u3;
 	}
 	
-	private static Unit getFirstElementInBuffer(Buffer b){
+	 static Unit getFirstElementInBuffer(Buffer b){
 		if(b.size() ==0 ){
 			return NULL_UNIT;
 		}
 		return b.get(0);
 	}
 	
-	private static Unit getSecondElementInBuffer(Buffer b){
+	public static Unit getSecondElementInBuffer(Buffer b){
 		if(b.size() <= 1 ){
 			return NULL_UNIT;
 		}
@@ -327,11 +327,16 @@ public class DefaultFeatureExtractor implements FeatureExtractor<DepTree> {
     
 	
 	@Override
-	public FeatureVector perform(Configuration<DepTree> configuration) {
+	public FeatureVector perform(fr.upem.lgtools.parser.Configuration<DepTree> config) {
 		FeatureVector feats = new FeatureVector(fm);
+		extract(config, config.getFirstStack(),feats);
+		return feats;
+	};
+	
+	
+	FeatureVector extract(Configuration<DepTree> configuration,Deque<Unit> stack, FeatureVector feats) {
 		
 		
-		Deque<Unit> stack = configuration.getFirstStack();
 		Buffer buffer = configuration.getFirstBuffer();
 		//feats.add("BIAS");
 		//feats.add("EMPTY2");

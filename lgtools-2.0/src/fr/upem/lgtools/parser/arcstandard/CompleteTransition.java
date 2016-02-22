@@ -28,13 +28,16 @@ public class CompleteTransition extends AbstractTransition<DepTree> {
 		if(stack.size() < 2){
 			return false;
 		}
+		
+		///BUG: should not use gold...
+		/*
 		//unit on top of stack does not have gold lexical head
 		Unit u = stack.peek();
 		if(u.hasGoldLexicalHead()){
 			return false;
-		}
+		}*/
 		
-		return false;
+		return true;
 	}
 
 	@Override

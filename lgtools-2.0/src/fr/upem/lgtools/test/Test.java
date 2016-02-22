@@ -20,6 +20,7 @@ import fr.upem.lgtools.parser.arcstandard.SimpleMergeArcStandardTransitionBasedP
 import fr.upem.lgtools.parser.features.FeatureMapping;
 import fr.upem.lgtools.parser.features.HashFeatureMapping;
 import fr.upem.lgtools.parser.features.HashMapFeatureMapping;
+import fr.upem.lgtools.parser.model.TransitionBasedModel;
 import fr.upem.lgtools.text.BufferedDepTreebank;
 import fr.upem.lgtools.text.DepTreebank;
 import fr.upem.lgtools.text.DepTreebankFactory;
@@ -52,29 +53,30 @@ public class Test {
 		Utils.saveTreebankInXConll(tb, "merged.conll");
 		tb = DepTreebankFactory.binarizeMWE(tb, false);
 		Utils.saveTreebankInXConll(tb, "binarized.conll");
-		FeatureMapping fm = new  HashFeatureMapping(10000000);
+		FeatureMapping fm = new  HashFeatureMapping(2000000);
 		SimpleMergeArcStandardTransitionBasedParserModel tbm = new SimpleLabeledMergeArcStandardTransitionBasedParserModel(fm,tb);
 		TransitionBasedSystem<DepTree> parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
 		parser.staticOracleTrain(tb, model,iter);
 	}
 	
 	
-	private static void trainFullSystem(DepTreebank tb,String model, int iter) throws IOException{
+	private static TransitionBasedSystem<DepTree> trainFullSystem(DepTreebank tb,String model, int iter) throws IOException{
 		tb = DepTreebankFactory.mergeFixedMWEs(tb, MWE_LABEL);
 		tb = DepTreebankFactory.mergeRegularMWEs(tb, REG_MWE);
 		Utils.saveTreebankInXConll(tb, "merged.conll");
 		tb = DepTreebankFactory.binarizeMWE(tb, false);
 		Utils.saveTreebankInXConll(tb, "binarized.conll");
-		FeatureMapping fm = new  HashMapFeatureMapping(10000000);
+		FeatureMapping fm = new  HashMapFeatureMapping(4000000);
 		FullyMWEAwareArcStandardTransitionBasedModel tbm = new FullyMWEAwareArcStandardTransitionBasedModel(fm,tb);
 		TransitionBasedSystem<DepTree> parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
 		parser.staticOracleTrain(tb, model,iter);
+		return parser;
 	}
 	
 	
 	private static void train(DepTreebank tb,String model, int iter) throws IOException{
 		tb = DepTreebankFactory.removeRegularMWEs(tb, REG_MWE);
-		FeatureMapping fm = new  HashMapFeatureMapping(10000000);
+		FeatureMapping fm = new  HashFeatureMapping(2000000);
 		ArcStandardTransitionBasedParserModel tbm = new ArcStandardTransitionBasedParserModel(fm,tb);
 		TransitionBasedSystem<DepTree> parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
 		parser.staticOracleTrain(tb, model,iter);
@@ -101,6 +103,7 @@ public class Test {
 		SimpleMergeArcStandardTransitionBasedParserModel tbm = new SimpleLabeledMergeArcStandardTransitionBasedParserModel(model);
 		TransitionBasedSystem<DepTree> parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
 		ParsingResult res = parser.greedyParseTreebankAndEvaluate(tb);
+	
 		tb = DepTreebankFactory.unMergeMWE(res.getTreebank(), MWE_LABEL);
 		System.err.println(ParsingAccuracy.computeParsingAccuracy(tb));
 		Utils.saveTreebankInXConll(tb, output);
@@ -114,12 +117,17 @@ public class Test {
 	private static void parseWithFullSystem(DepTreebank tb,String model,String output) throws IOException{
 		FullyMWEAwareArcStandardTransitionBasedModel tbm = new FullyMWEAwareArcStandardTransitionBasedModel(model);
 		TransitionBasedSystem<DepTree> parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
+		//System.err.println(tbm.getTransitions());
 		ParsingResult res = parser.greedyParseTreebankAndEvaluate(tb);
+		//ParsingResult res = parser.oracleParseTreebankAndEvaluate(tb);
 		tb = DepTreebankFactory.unMergeMWE(res.getTreebank(), MWE_LABEL);
-		System.err.println(ParsingAccuracy.computeParsingAccuracy(tb));
+		
 		Utils.saveTreebankInXConll(tb, output);
-		tb = DepTreebankFactory.mergeFixedMWEs(tb, MWE_LABEL);
-		tb = DepTreebankFactory.mergeRegularMWEs(tb, REG_MWE);
+		//System.err.println(ParsingAccuracy.computeParsingAccuracy(tb));
+		
+		//tb = DepTreebankFactory.mergeFixedMWEs(tb, MWE_LABEL);
+		//tb = DepTreebankFactory.mergeRegularMWEs(tb, REG_MWE);
+		//tb = res.getTreebank();
 		System.err.println(SegmentationAccuracy.computeSegmentationAccuracy(tb));
 		for(Score s:SegmentationAccuracy.computeMergeParsingScore(tb)){
 			System.err.println(s);
@@ -134,29 +142,25 @@ public class Test {
 	 */
 	public static void main(String[] args) throws IOException {
 		
-		
-		
-		 DepTreebank tb = readTreebank("train.labeled.acl14.conll");
-		 trainWithMerge(tb, "lmodel", 6);
+		 /*DepTreebank tb = readTreebank("train.labeled.acl14.conll");
+		 trainWithMerge(tb, "lmodel",6);
 		 tb = readTreebank("dev.acl14.conll");
 		 parseWithMerge(tb, "lmodel.final", "res-merge.conll");
+		*/
+		
+		DepTreebank tb = readTreebank("train.acl14.joint.predmorph.lexcpd.conll");
+		trainFullSystem(tb, "fullmodel", 1);
+		tb = readTreebank("dev.acl14.joint.predmorph.lexcpd.conll");
+		parseWithFullSystem(tb, "fullmodel.final", "res-full.conll");
 		
 		
-		//DepTreebank tb = readTreebank("train.acl14.joint.predmorph.lexcpd.conll");
-		 //trainFullSystem(tb, "fullmodel", 5);
-		 //tb = readTreebank("dev.acl14.joint.predmorph.lexcpd.conll",10);
-		 //parseWithFullSystem(tb, "fullmodel.final", "res-full.conll");
-		
-		
-		//DepTreebank tb = readTreebank("train.acl14.joint.predmorph.lexcpd.conll");		
-		 //train(tb, "stdmodel", 6);
-		 /*DepTreebank tb = readTreebank("dev.acl14.joint.predmorph.lexcpd.conll");
-		 tb = DepTreebankFactory.mergeFixedMWEs(tb, MWE_LABEL);
-		 tb = DepTreebankFactory.mergeRegularMWEs(tb, REG_MWE);
-		 Utils.saveTreebankInXConll(tb, "merge.conll");
-		 */
-		 //parse(tb, "stdmodel.final", "res-std.conll");
+		/*DepTreebank tb = readTreebank("train.acl14.joint.predmorph.lexcpd.conll");		
+		train(tb, "stdmodel", 6);
+		 tb = readTreebank("dev.acl14.joint.predmorph.lexcpd.conll");
 		 
+		 
+		 parse(tb, "stdmodel.final", "res-std.conll");
+		 */
 		
 	}
 

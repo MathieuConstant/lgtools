@@ -90,11 +90,13 @@ public class PerceptronTransitionBasedSystem<T extends Analysis> extends Transit
    				//System.err.println("CONF="+c);
    				//System.err.println("COPY="+new Configuration<T>(c));
    				 if(pt.equals(ot)){ // true prediction
+   					 //System.err.println("true="+ot);
    					 c = pt.perform(c); 
    					 c.getHistory().add(pt.id());
    					 cnt++;
    				 }
    				 else{  //false prediction
+   					  //System.err.println("false="+ot);
    					 tbm.update(fv,ot,pt,averaged,step);
    					 stop = false;//early update if stop == true
    					 if(!stop){
@@ -110,7 +112,7 @@ public class PerceptronTransitionBasedSystem<T extends Analysis> extends Transit
    				 //System.err.println(tbm);
    				step++;
    			 }
-   			 
+   			 //System.err.println(c.getAnalyses());
    			 
    		 }
    		 if(dev != null){
@@ -125,9 +127,10 @@ public class PerceptronTransitionBasedSystem<T extends Analysis> extends Transit
    		 
    		 //TransitionBasedModel2.save(tbm, modelFilename+"."+(i+1));
    		 System.err.println("Accuracy on training transition sequence: "+((double)cnt)/total+ "  ("+cnt+"/"+total+")");
+   		 System.err.println("Ratio of activated features: "+tbm.getActivatedFeatureRatio());
 	       	 System.err.println("Number of sentences: "+sent);
    	 }
-   	tbm.setModel(tbm.getAveragedModel(averaged,step));
+   	 tbm.setModel(tbm.getAveragedModel(averaged,step));
    	 tbm.save(modelFilename+".final");
    	 System.err.println("Done.");
    	 

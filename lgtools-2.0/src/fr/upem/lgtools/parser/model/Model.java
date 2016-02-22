@@ -7,6 +7,7 @@ public class Model {
 	private final double[] weights;
 	private final int nFeatures;
 	private final int nLabels;
+	private final boolean[] activatedFeatures;
 	
 		 
 	
@@ -14,7 +15,8 @@ public class Model {
 	public Model(int nFeatures,int nLabels){
 		this.nLabels = nLabels;
 		weights = new double[nFeatures*nLabels];
-		this.nFeatures = nFeatures;				
+		this.nFeatures = nFeatures;
+		this.activatedFeatures = new boolean[nFeatures];
 		
 	}
 	
@@ -139,6 +141,7 @@ public class Model {
 	    	throw new IllegalArgumentException("Label "+ label + " does not exist!");
 	    }*/
 		weights[getId(label, feat)] = weight;
+		
 	}
 	
 	
@@ -240,7 +243,8 @@ public class Model {
 	public void updatePlus(FeatureVector feats, int label,double coef){
 	    for(Feature feat:feats){
 	    	int id = getId(label,feat.getFeat());
-		     weights[id] += coef*feat.getValue();	
+		     weights[id] += coef*feat.getValue();
+		     activatedFeatures[feat.getFeat()] = true;
 	    }	
 	}
 	
@@ -269,6 +273,18 @@ public class Model {
 		}
 		return sc;
 	}
+	
+	public int getActivatedFeatureCount(){
+	    int cnt = 0;
+		for( boolean a:activatedFeatures){
+			if(a){
+			  cnt++;
+			}
+		}
+		return cnt;
+	}
+	
+	
 	
 	
 	@Override

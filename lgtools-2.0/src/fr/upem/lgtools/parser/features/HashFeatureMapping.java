@@ -3,6 +3,9 @@
  */
 package fr.upem.lgtools.parser.features;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.Collection;
 
 /**
@@ -14,7 +17,7 @@ public class HashFeatureMapping extends FeatureMapping {
      
 	
 	public HashFeatureMapping(int max) {
-		super(max);
+		super(max == Integer.highestOneBit(max)?max: Integer.highestOneBit(max) << 1);
 	}
 
 
@@ -46,11 +49,27 @@ public class HashFeatureMapping extends FeatureMapping {
 		// hashcode must be comprised between 0 and max */
 		
 		int hashcode = feat.hashCode();
-		hashcode = hashcode%featureCapacity(); //hashcode must be lower than max
+		hashcode = hashcode%max; //hashcode must be lower than max
 		hashcode = hashcode<0?-hashcode:hashcode; //hashcode must be positive
 		
 		
 		return hashcode;
+	}
+
+
+
+	@Override
+	public void read(DataInputStream in) throws IOException {
+		
+		
+	}
+
+
+
+	@Override
+	public void write(DataOutputStream out) throws IOException {
+		out.writeInt(mappingType());
+		
 	}
 
 

@@ -135,6 +135,7 @@ public class FullyMWEAwareArcStandardTransitionBasedModel extends
 		Deque<Unit> stack = configuration.getSecondStack();
 		if(stack.size() > 1){
 			Unit u = stack.peek();
+			//System.err.println(u+"--"+u.getLheadId());
 			if(!u.hasGoldLexicalHead()){
 				return true;
 			}
@@ -157,6 +158,7 @@ public class FullyMWEAwareArcStandardTransitionBasedModel extends
 		
 		//MERGE
 		label = getMerge(configuration);
+		 //System.err.println(label);
 		if(label != null){
 			return transitions.getTransition(MERGE, label);
 		}
@@ -179,7 +181,7 @@ public class FullyMWEAwareArcStandardTransitionBasedModel extends
 	@Override
 	protected FeatureExtractor<DepTree> getFeatureExtractor(FeatureMapping fm) {
 		//TO MODIFY AT ONE MOMENT
-		return new DefaultFeatureExtractor(fm);
+		return new FullDefaultFeatureExtractor(fm);
 	}
 
 	
@@ -209,11 +211,11 @@ public class FullyMWEAwareArcStandardTransitionBasedModel extends
               String label = getMergeBothUnitLabel(unit,s);
               
               if(label != null){
- 
             	  return createTransition(MERGE_BOTH, label);
               }
               
               label = getMergeUnitLabel(unit, s);
+             
               if(label != null){
             	 
             	  return createTransition(MERGE,label);

@@ -7,9 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -20,7 +18,6 @@ import fr.upem.lgtools.parser.TransitionSet;
 import fr.upem.lgtools.parser.features.FeatureExtractor;
 import fr.upem.lgtools.parser.features.FeatureMapping;
 import fr.upem.lgtools.parser.features.FeatureVector;
-import fr.upem.lgtools.parser.features.HashMapFeatureMapping;
 import fr.upem.lgtools.parser.transitions.Transition;
 import fr.upem.lgtools.parser.transitions.Transitions;
 import fr.upem.lgtools.text.DepTreebank;
@@ -51,8 +48,12 @@ public abstract class TransitionBasedModel<T extends Analysis> {
 		createTransitions(tb);
 		extractor = getFeatureExtractor(fm);
 		features = fm;
+		//System.err.println(features.featureCapacity()+"---"+transitions.size());
 		model = new Model(features.featureCapacity(),transitions.size());		
 	}
+	
+	
+	
 	
 	// constructor used before parsing
 	public TransitionBasedModel(String filename) throws IOException{
@@ -60,20 +61,13 @@ public abstract class TransitionBasedModel<T extends Analysis> {
 		DataInputStream in = new DataInputStream(gin);
 		int nFeatCapacity = in.readInt();
 		int nLabels = in.readInt();
-		in.readInt(); // option
-		int nFeats = in.readInt();
+
 		//System.err.println(nFeatCapacity);
 		//System.err.println(nLabels);
 		//System.err.println(nFeats);
-		HashMap<String,Integer> feats = new HashMap<String,Integer>();
+		this.features = FeatureMapping.createFeatureMapping(in.readInt(),nFeatCapacity);
+		this.features.read(in);
 		
-		
-		for(int f = 0 ; f < nFeats ; f++){
-			String fval = in.readUTF();
-			int fid = in.readInt();
-			feats.put(fval, fid);
-		}
-		this.features =  new HashMapFeatureMapping(nFeatCapacity,feats);
 			
 		for(int l = 0 ; l < nLabels ; l++){
 			String id = in.readUTF();
@@ -98,6 +92,7 @@ public abstract class TransitionBasedModel<T extends Analysis> {
 			
 			
 			extractor = getFeatureExtractor(features);
+			//System.err.println(features.featureCapacity()+"---"+transitions.size());
 	}
 	
 
@@ -143,13 +138,8 @@ public abstract class TransitionBasedModel<T extends Analysis> {
 		
 		out.writeInt(model.getFeatureCount());
 		out.writeInt(model.getLabelCount());
-		out.writeInt(0); //Integer for putting some options
-		int nFeats = features.getFeatures().size();
-		out.writeInt(nFeats);
-		for(String k:features.getFeatures()){
-			out.writeUTF(k);
-			out.writeInt(features.getFeatureId(k));
-		}
+		features.write(out);
+		
 		
 		for(int l = 0 ; l < model.getLabelCount() ; l++){
 			out.writeUTF(transitions.getTransition(l).id());
@@ -180,6 +170,10 @@ public abstract class TransitionBasedModel<T extends Analysis> {
 	abstract protected Transition<T> createTransition(String type, String label);	
 	abstract protected Collection<Transition<T>> createLabelIndependentTransitions();	
 	
+	
+	public double getActivatedFeatureRatio(){
+		return model.getActivatedFeatureCount()/(double)model.getFeatureCount();
+	}
 	
 		
 	private void createTransitions(DepTreebank tb){	
@@ -256,9 +250,9 @@ public abstract class TransitionBasedModel<T extends Analysis> {
 		for(int l = 0 ; l < transitions.size(); l++){
 			Transition<T> t = transitions.getTransition(l);
 			if(possibleTransitions.contains(t)){ 
-				//System.out.println(authorizedTransitions);
+			  
 			  double sc = model.score(feats,l);
-			  //System.out.println(sc);
+			  //System.err.println(sc+"-->"+t);
 			  if(sc > bestSc){
 				bestSc = sc;
 				bestTransition = t;
@@ -266,6 +260,7 @@ public abstract class TransitionBasedModel<T extends Analysis> {
 			  //System.out.println(bestLabel);
 			}
 		}
+		//System.err.println("BEST:"+bestTransition);
 		return bestTransition;
 		
 		

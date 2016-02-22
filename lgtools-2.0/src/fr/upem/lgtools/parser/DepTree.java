@@ -164,7 +164,7 @@ public class DepTree implements Analysis{
 
 	@Override
 	public String toString() {		
-		return Arrays.toString(reverse);
+		return Arrays.toString(reverse)+"\n"+Arrays.toString(links);
 	}
 
 	@Override

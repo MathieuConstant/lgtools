@@ -46,15 +46,22 @@ public abstract class TransitionBasedSystem<T extends Analysis> {
      public T greedyParse(Sentence s){
     	initSentence(s);
  		Configuration<T> c = tbm.getInitialConfiguration(s);
- 		//System.err.println(s.getTokens()); 
- 		//System.err.println(s.getTokenSequence(false));
+ 		//System.err.println(s.getTokens());
+ 		//System.err.println(tbm.getModel());
+ 		//System.err.println();
+ 		//System.err.println(s.getTokenSequence(true));
  		while(!c.isTerminal()){
  			FeatureVector fv = tbm.extractFeatures(c);
+ 			//System.err.println(c);
 			Transition<T> t = tbm.getBestValidTransition(fv,c);
-			Transition<T> o = tbm.getBestCorrectTransition(fv,c);
-			//System.err.println("PRED: "+t);
+			//Transition<T> o = tbm.getBestCorrectTransition(fv,c);
+			//System.err.println(tbm.getTransitions());
+		    //System.err.println(tbm.getValidTransitions(c));
+		    
+		    //System.err.println("PRED: "+t);
+			
 			//System.err.println("G: "+o);
-			//System.err.println(c);
+			
 			//System.err.println(c.getAnalyses());
  			c = t.perform(c);
  			c.getHistory().add(t.id()); // do we keep it?
@@ -194,7 +201,9 @@ public abstract class TransitionBasedSystem<T extends Analysis> {
      public T oracleParse(Sentence s){
   		Configuration<T> c = tbm.getInitialConfiguration(s);
   		while(!c.isTerminal()){
+  			System.err.println(c);
   			Transition<T> t = tbm.staticOracle(c); 
+  			System.err.println(t);
   			c = t.perform(c);
   		}
   		return c.getAnalyses();
