@@ -122,7 +122,7 @@ public class Test {
 		//ParsingResult res = parser.oracleParseTreebankAndEvaluate(tb);
 		tb = DepTreebankFactory.unMergeMWE(res.getTreebank(), MWE_LABEL);
 		
-		Utils.saveTreebankInXConll(tb, output);
+		Utils.saveTreebankInXConll(res.getTreebank(), output);
 		//System.err.println(ParsingAccuracy.computeParsingAccuracy(tb));
 		
 		//tb = DepTreebankFactory.mergeFixedMWEs(tb, MWE_LABEL);
@@ -148,9 +148,9 @@ public class Test {
 		 parseWithMerge(tb, "lmodel.final", "res-merge.conll");
 		*/
 		
-		DepTreebank tb = readTreebank("train.acl14.joint.predmorph.lexcpd.conll");
-		trainFullSystem(tb, "fullmodel", 1);
-		tb = readTreebank("dev.acl14.joint.predmorph.lexcpd.conll");
+		/*DepTreebank tb = readTreebank("train.acl14.joint.predmorph.lexcpd.conll");
+		trainFullSystem(tb, "fullmodel", 1);*/
+		DepTreebank tb = readTreebank("dev.acl14.joint.predmorph.lexcpd.conll");
 		parseWithFullSystem(tb, "fullmodel.final", "res-full.conll");
 		
 		
