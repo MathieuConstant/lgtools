@@ -2,7 +2,6 @@ package fr.upem.lgtools.parser;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Deque;
 import java.util.List;
 
@@ -11,6 +10,7 @@ import fr.upem.lgtools.text.Unit;
 import fr.upem.lgtools.text.UnitFactory;
 
 public class Configuration<T extends Analysis> {
+	private final static String NONE = "";
 	private final Sentence sentence;
 	private final Buffer[] buffers;
     private final Deque<Unit>[] stacks;
@@ -103,6 +103,17 @@ public class Configuration<T extends Analysis> {
 		return buffers[0];
 	}
 
+	
+	public void addAction(String action){
+		this.history.add(action);
+	}
+	
+	public String getPreviousTransition(){
+		if(history.size() < 1){
+			return NONE;
+		}
+		return history.get(history.size() - 1);
+	}
 
 	public T getAnalyses() {
 		return analyses;
@@ -140,7 +151,11 @@ public class Configuration<T extends Analysis> {
 	
 	@Override
 	public String toString() {
-		return getFirstStack().toString()+""+getFirstBuffer().toString()+"\n"+getSecondStack()+"\n";//+analyses.toString();
+		String res = getFirstStack().toString()+""+getFirstBuffer().toString()+"\n";
+		if(stackCount() > 1){
+		    res += getSecondStack()+"\n";
+		}
+		return res;
 	}
 	
 	public List<Unit> getUnits(){

@@ -4,7 +4,6 @@
 package fr.upem.lgtools.evaluation;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -18,6 +17,7 @@ import fr.upem.lgtools.text.Unit;
  *
  */
 public class SegmentationAccuracy {
+	private final String eval;
 	private int predictedMWECount = 0;
 	private int goldMWECount = 0;
 	private int sentenceCount = 0;
@@ -28,6 +28,17 @@ public class SegmentationAccuracy {
 	private int exactSegmentationCount = 0;
 	
 	
+	
+	
+	
+	/**
+	 * @param eval
+	 */
+	public SegmentationAccuracy(String eval) {
+		
+		this.eval = eval;
+	}
+
 	public double getPrecision(){
 		return goodUnitCount/(double)predictedUnitCount;
 	}
@@ -49,6 +60,7 @@ public class SegmentationAccuracy {
 		return exactSegmentationCount/(double)sentenceCount;
 		
 	}
+	
 	
 	public double getFscore(){
 		double r = getRecall();
@@ -112,9 +124,9 @@ public class SegmentationAccuracy {
 		for(Unit u:sentence.getTokenSequence(true)){
 			uas.addGold();
 			las.addGold();
-			if(u.getGoldSheadId() == u.getSheadId()){
+			if(u.getGoldSheadId() == u.getPredictedSheadId()){
 				uas.addGood();
-				if(u.getGoldSlabel().equals(u.getSlabel())){
+				if(u.getGoldSlabel().equals(u.getPredictedSlabel())){
 					las.addGood();
 				}
 			}
@@ -126,26 +138,29 @@ public class SegmentationAccuracy {
 	}
 	
 	
-	private static void computeSegmentationAccuracy(Sentence s,SegmentationAccuracy acc){
-		Set<Unit> goldseg = new HashSet<Unit>(s.getTokenSequence(true));
+	private static void computeSegmentationAccuracy(Sentence s,SegmentationAccuracy acc, boolean onlyFixedMwe){
+		List<Unit> gold= onlyFixedMwe?s.getTokenSequence(true):s.getUnitSequence(true);
+		List<Unit> predicted = onlyFixedMwe?s.getTokenSequence(false):s.getUnitSequence(false);
+		//System.err.println(gold);
+		Set<Unit> goldseg = new HashSet<Unit>(gold);
 		Set<Unit> goldmwes = new HashSet<Unit>();
-		for(Unit u:s.getTokenSequence(true)){
+		for(Unit u:gold){
 			if(u.isMWE()){
 				goldmwes.add(u);
 				acc.addGoldMWE();
 			}
 			acc.addGoldUnit();
 		}
-		Set<Unit> predseg = new HashSet<Unit>(s.getTokenSequence(false));
+		Set<Unit> predseg = new HashSet<Unit>(predicted);
 		Set<Unit> predmwes = new HashSet<Unit>();
-		for(Unit u:s.getTokenSequence(false)){
+		for(Unit u:predicted){
 			if(u.isMWE()){
 				predmwes.add(u);
 				acc.addPredictedMWE();
 			}
 			acc.addPredictedUnit();
 		}
-		Set<Unit> goodseg = new HashSet<Unit>(s.getTokenSequence(false));
+		Set<Unit> goodseg = new HashSet<Unit>(predicted);
 		Set<Unit> goodmwes = new HashSet<Unit>();
 		for(Unit u:predseg){
 			if(goldseg.contains(u)){
@@ -165,11 +180,11 @@ public class SegmentationAccuracy {
 	}
 	
 	
-	public static SegmentationAccuracy computeSegmentationAccuracy(DepTreebank tb){
-		SegmentationAccuracy acc = new SegmentationAccuracy();
+	public static SegmentationAccuracy computeSegmentationAccuracy(DepTreebank tb, boolean onlyFixedMwe){
+		SegmentationAccuracy acc = new SegmentationAccuracy(onlyFixedMwe?"FixedMWEs":"All MWEs");
 		for(Sentence s:tb){
 			acc.addSentence();
-			computeSegmentationAccuracy(s,acc);
+			computeSegmentationAccuracy(s,acc,onlyFixedMwe);
 		}
 		return acc;
 		
@@ -177,7 +192,7 @@ public class SegmentationAccuracy {
 
 	@Override
 	public String toString() {
-		String res = "Segmentation: r="+getRecall()+", p="+getPrecision()+", f="+getFscore()+", exact="+getExact()+"\n";
+		String res = eval+":\nSegmentation: r="+getRecall()+", p="+getPrecision()+", f="+getFscore()+", exact="+getExact()+"\n";
 		res += "MWEs: r="+getMWERecall()+", p="+getMWEPrecision()+", f="+getMWEFscore()+"\n";
 		
 		return res;

@@ -2,6 +2,7 @@ package fr.upem.lgtools.parser;
 
 import java.util.AbstractSet;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -11,21 +12,21 @@ import java.util.Set;
 import fr.upem.lgtools.text.Unit;
 
 public class DepTree implements Analysis{
-	private int nodeCount;
 	private Set<DepArc>[] nodeChildren;
 	private DepArc[] reverse;
 	private DepArc[] leftMostDependencies;
 	private DepArc[] rightMostDependencies;
 	private int[] links;
+	private Set<Integer>[] reverseLinks;
 	
 	@SuppressWarnings("unchecked")
 	public DepTree(int size){
 		nodeChildren = (Set<DepArc>[])new Set<?>[size];
+		reverseLinks = (Set<Integer>[])new Set<?>[size];
 		reverse = new DepArc[size];
 		leftMostDependencies = new DepArc[size];	
 		rightMostDependencies = new DepArc[size];
 		links = new int[size];
-		this.nodeCount = size;
 		//System.err.println("INIT: " +nodeCount);
 	}
 	
@@ -61,19 +62,40 @@ public class DepTree implements Analysis{
 	}
 	
 	
-	public void addEdgeWithLinks(int i, int j){
-		
-		if(nodeCount >= nodeChildren.length){
+	public void addLinks(int node, int i, int j){
+		if(node >= nodeChildren.length){
 			nodeChildren = Arrays.copyOf(nodeChildren, nodeChildren.length *2);
+			reverseLinks = Arrays.copyOf(reverseLinks, reverseLinks.length *2);
 			reverse = Arrays.copyOf(reverse, reverse.length *2);
 			leftMostDependencies = Arrays.copyOf(leftMostDependencies, leftMostDependencies.length *2);
 			rightMostDependencies = Arrays.copyOf(rightMostDependencies, rightMostDependencies.length *2);
 			links = Arrays.copyOf(links, links.length * 2);
 		}
-		links[i] = nodeCount;
-		links[j] = nodeCount;
-		nodeCount++;
+		links[i] = node;
+		links[j] = node;
+		Set<Integer> rlinks = reverseLinks[node];
+		if(rlinks == null){
+			rlinks = new HashSet<Integer>();
+			reverseLinks[node] = rlinks;
+		}
+		rlinks.add(i);
+		rlinks.add(j);
 		
+	}
+	
+	public Collection<Integer> getReverseLinks(int node){
+		return reverseLinks[node] == null?Collections.<Integer>emptySet():reverseLinks[node];
+	}
+	
+	public int getFurtherLinkedNode(int node){
+		int h = node;
+		//System.err.println(h+"---"+links[h]);
+		while(links[h] > 0){
+			h = links[h];
+			
+		}
+		//System.err.println("xxx:"+h);
+		return h;
 	}
 	
 	public DepArc[] getArcs(){
@@ -100,6 +122,11 @@ public class DepTree implements Analysis{
 		return rightMostDependencies;
 	}
 
+	
+	public boolean hasIncomingArc(int node){
+		return reverse[node] != null;
+	}
+	
 	public int getHead(int node){
 		if(reverse[node] == null){
 			return -1;
@@ -117,6 +144,11 @@ public class DepTree implements Analysis{
 	public int getLexicalNodeId(int node){
 		return links[node];
 	}
+	
+	public boolean hasLexicalHead(int node){
+		return links[node] > 0;
+	}
+	
 	
 	public Set<Integer> getChildren(final int node){
 		if(node < 0 || node >= reverse.length){

@@ -30,7 +30,7 @@ public class Utils {
 	private static void writeUnit(BufferedWriter out, Unit u) throws IOException{
 		out.write(u.getId()+"\t"+u.getForm()+"\t"+u.getLemma()+"\t"+u.getCpos());
 		out.write("\t"+u.getPos()+"\t"+feats(u.getFeatures()));
-		out.write("\t"+u.getSheadId()+"\t"+u.getSlabel());
+		out.write("\t"+u.getPredictedSheadId()+"\t"+u.getPredictedSlabel());
 		out.write("\t"+u.getGoldSheadId()+"\t"+u.getGoldSlabel());
 		out.write("\n");
 		
@@ -39,7 +39,7 @@ public class Utils {
 	private static void writeUnitInXConll(BufferedWriter out, Unit u) throws IOException{
 		out.write(u.getId()+"\t"+Arrays.toString(u.getPositions())+"\t"+u.getForm()+"\t"+u.getLemma()+"\t"+u.getCpos());
 		out.write("\t"+u.getPos()+"\t"+feats(u.getFeatures()));
-		out.write("\t"+u.getSheadId()+"\t"+u.getSlabel());
+		out.write("\t"+u.getPredictedSheadId()+"\t"+u.getPredictedSlabel());
 		out.write("\t"+u.getGoldSheadId()+"\t"+u.getGoldSlabel());
 		out.write("\t"+u.getLheadId()+"\t"+u.getGoldLHead());
 		out.write("\n");
@@ -139,20 +139,20 @@ public class Utils {
 	
 	
 	
-	public static List<Unit> getTokenSequence(boolean goldAnnotation, int sizeMax, Sentence s, Iterable<Unit> initialTokenList){
+	public static List<Unit> getUnitSequence(boolean goldAnnotation, int sizeMax, Sentence s, Iterable<Unit> initialTokenList,boolean onlyFixedMwe){
 		List<Unit> tokens = new ArrayList<Unit>();
 		boolean[] handled = new boolean[sizeMax+1];
 		//System.err.println(getTokens());
 		for(Unit u:initialTokenList){
 			Unit r = u;
 			if(goldAnnotation){
-				if(!u.hasGoldSyntacticHead()){
+				if(!onlyFixedMwe || !u.hasGoldSyntacticHead()){
 				   r = u.findGoldLexicalRoot(s);
 				}
 				
 			}
 			else{
-				if(!u.hasSyntacticHead()){
+				if(!onlyFixedMwe || !u.hasPredictedSyntacticHead()){
 				   r = u.findPredictedLexicalRoot(s);
 				}
 				
@@ -171,62 +171,6 @@ public class Utils {
 	
 	
 	
-	//for now, it only deals with MWE component positions and not POS of the MWE 
 	
-		/**
-		 * 
-		 * 
-		 * 
-		 * @param mwePositions
-		 * @param s
-		 * @return the existing mwe unit, retun null if not found
-		 */
-		
-		public static Unit findExistingMweUnitByPosition(int[] mwePositions, List<Unit> units){
-			for(Unit u:units){
-				if(u != null && Arrays.equals(u.getPositions(), mwePositions)){
-					return u;
-				}
-			}
-			
-			return null;
-		}
-	
-	public static Unit mergeUnitsAndAdd(Unit u1, Unit u2,List<Unit> units){
-		String form = u1.getForm()+"_"+u2.getForm();
-		String lemma = u1.getLemma()+"_"+u2.getLemma();
-		String cat = u1.getPos()+"_"+u2.getPos();
-		int [] pos1 = u1.getPositions();
-		int [] pos2 = u2.getPositions();
-		int[] positions = new int[pos1.length+pos2.length];
-		
-		// fill positions
-		for(int i = 0 ; i < pos1.length ; i++){
-			positions[i] = pos1[i];
-		}
-		for(int i = 0 ; i < pos2.length ; i++){
-			positions[i+pos1.length] = pos2[i];
-		}
-		
-		
-		int id = units.size() + 1;
-		//System.err.println(form);
-		//System.err.println(Arrays.toString(positions));
-		//System.err.println(units);
-		
-		
-		Unit mwe = findExistingMweUnitByPosition(positions, units);
-		//System.err.println(mwe);
-		
-		
-		if(mwe == null){
-			mwe = new Unit(id,form, positions);
-		      units.add(mwe);
-		}
-		//mwe.setLemma(lemma);
-		
-		mwe.setPos(cat);
-		return mwe;
-	}
 	
 }

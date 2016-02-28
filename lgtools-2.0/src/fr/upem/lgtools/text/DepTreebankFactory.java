@@ -2,6 +2,7 @@ package fr.upem.lgtools.text;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -130,10 +131,7 @@ public class DepTreebankFactory {
 	private static Map<Integer,List<Unit>> getMWEs(Sentence s,String mweLabel,boolean goldMWEs, Map<Integer,String> poses){
 		Map<Integer,List<Unit>> mwes = new HashMap<Integer, List<Unit>>();
 	    for(Unit u:s.getTokens()){
-	    	String label = u.getGoldSlabel();
-	    	if(!goldMWEs){
-	    		label = u.getSlabel();
-	    	}
+	    	String label = u.getSLabel(goldMWEs);
 	    	
 	    	if(label.startsWith(mweLabel)){
 	    		String pos = "";
@@ -142,7 +140,7 @@ public class DepTreebankFactory {
 	    		}
 	    		int head = u.getGoldSheadId();
 	    		if(!goldMWEs){
-	    			head = u.getSheadId();
+	    			head = u.getPredictedSheadId();
 	    		}
 	    		List<Unit> mwe = mwes.get(head);
 	    		if(mwe == null){
@@ -204,7 +202,7 @@ public class DepTreebankFactory {
 			else{
 				if(fixedMwe){
 				  c.setShead(-1);
-				   c.setSlabel(null);
+				   c.setPredictedSlabel(null);
 				}
 			}
 			i++;
@@ -229,10 +227,10 @@ public class DepTreebankFactory {
 		else{
 		    mwe.setPos(pos);
 		    if(fixedMwe){
-			   mwe.setShead(head.getSheadId());
-		       mwe.setSlabel(head.getSlabel());
+			   mwe.setShead(head.getPredictedSheadId());
+		       mwe.setPredictedSlabel(head.getPredictedSlabel());
 		       head.setShead(-1);
-			   head.setSlabel(null);
+			   head.setPredictedSlabel(null);
 		    }
 		}
 		
@@ -243,8 +241,8 @@ public class DepTreebankFactory {
 			   head.setGoldLHead(mwe.getId());
 			}
 			else{
-				c.setLhead(mwe.getId());
-				head.setLhead(mwe.getId());
+				c.setPredictedLhead(mwe.getId());
+				head.setPredictedLhead(mwe.getId());
 			}	
 		}
 		//mwe.setLemma(concatenateLemmas(mwe, s));
@@ -275,7 +273,7 @@ public class DepTreebankFactory {
 				   }
 				}
 				else{
-					int h = v.getSheadId();
+					int h = v.getPredictedSheadId();
 					   if(mwe.contains(h)){
 						   v.setShead(u.getId());
 					   }
@@ -293,16 +291,17 @@ public class DepTreebankFactory {
 	
 	private static Sentence mergeFixedMWEs(Sentence s,String mweLabels){
 		Sentence res = new Sentence(s);
+		
 		Map<Integer,String> gmwePoses = new HashMap<Integer, String>();
 		Map<Integer,String> mwePoses = new HashMap<Integer, String>();
 		Map<Integer,List<Unit>> gmwes = getMWEs(res, mweLabels,true,gmwePoses);
+		
 		Map<Integer,List<Unit>> mwes = getMWEs(res, mweLabels,false,mwePoses);
-		//System.err.println(mwes);
-		//System.err.println(gmwes);
+		
+		
 		addMWEUnits(gmwes, res, true,gmwePoses);
 		addMWEUnits(mwes, res, false,mwePoses);
 		
-	    //System.err.println(s);
 	    //System.err.println(mwes);
 	   
 		return res;
@@ -315,6 +314,7 @@ public class DepTreebankFactory {
 			
 			@Override
 			public Sentence modify(Sentence s) {
+				
 				return mergeFixedMWEs(s,mweLabel);
 			}
 		});
@@ -335,13 +335,15 @@ public class DepTreebankFactory {
 	}
 	
 	private static Unit findMWESyntacticHead(Unit u,Sentence res,boolean goldAnnotation,String regmweLabel){
-		String label = goldAnnotation?u.getGoldSlabel():u.getSlabel();
+		String label = u.getSLabel(goldAnnotation);
 		Unit h = u;
 		
 		while(label.contains(regmweLabel)){
-			int hid = goldAnnotation?h.getGoldSheadId():h.getSheadId();
+			int hid = h.getSHead(goldAnnotation);
+			
 			h = res.get(hid);
-			label = goldAnnotation?h.getGoldSlabel():h.getSlabel();
+			//System.err.println(h+" "+label);
+			label = h.getSLabel(goldAnnotation);
 		}
 		if(h == u){
 			return null;
@@ -372,13 +374,15 @@ public class DepTreebankFactory {
 	private static Map<Unit,List<Unit>> getRegularMWEs(Sentence res, String regmweLabel,boolean goldAnnotation,Map<Unit,String> mwePoses){
 		HashMap<Unit,List<Unit>> mwes = new HashMap<Unit, List<Unit>>();
 		for(Unit u:res.getTokens()){
+			//System.err.println(u);
 			Unit r = findMWESyntacticHead(u,res,goldAnnotation,regmweLabel);
 			if(r != null){
 				List<Unit> c = mwes.get(r);
 				if(c == null){
 					c = new LinkedList<Unit>();
 					mwes.put(r, c);
-					String label = goldAnnotation?u.getGoldSlabel():u.getSlabel(); 
+					//System.err.println(u+"--");
+					String label = u.getSLabel(goldAnnotation); 
 					//System.err.println(u+"--"+label);
 					String pos = splitLabel(label, regmweLabel)[1];
 					mwePoses.put(r,pos);
@@ -397,10 +401,10 @@ public class DepTreebankFactory {
 		HashMap<Unit,String> mwePoses = new HashMap<Unit, String>();
 		HashMap<Unit,String> gmwePoses = new HashMap<Unit, String>();
 		
+	
 		//getMWEs
 		Map<Unit,List<Unit>> gmwes = getRegularMWEs(res,regmweLabel,true,gmwePoses);
 		Map<Unit,List<Unit>> mwes = getRegularMWEs(res,regmweLabel,false,mwePoses);
-		
 		
 		//remove mwe label from syntactic labels
 		for(Unit u:res.getTokens()){
@@ -409,11 +413,9 @@ public class DepTreebankFactory {
 			
 		}
 		
-		
 		//	add merged unit
 		addRegularMWEUnits(res,mwes,mwePoses,false);
 		addRegularMWEUnits(res,gmwes,gmwePoses,true);
-		
 		//addMWEUnit
 		return res;
 	}
@@ -424,6 +426,7 @@ public class DepTreebankFactory {
 			
 			@Override
 			public Sentence modify(Sentence s) {
+				
 				return mergeRegularMWEs(s,regmweLabel);
 			}
 		});
@@ -431,18 +434,12 @@ public class DepTreebankFactory {
 	
 	
 	private static void modifyLabel(Unit u, String regmweLabel, boolean goldAnnotation){
-		String label = goldAnnotation?u.getGoldSlabel():u.getSlabel();
+		String label = u.getSLabel(goldAnnotation);
 		//System.err.println(u.getSlabel()+"--"+u.getGoldSlabel());
 		String[] labels = splitLabel(label,regmweLabel);
 		if(labels != null){
-			if(goldAnnotation){
-				//System.err.println(labels[0]);
-				u.setGoldSlabel(labels[0]);
-			}
-			else{
-				//System.err.println(labels[0]);
-				u.setSlabel(labels[0]);								
-			}
+			u.setSlabel(labels[0], goldAnnotation);
+			
 
 		}
 	}
@@ -552,6 +549,92 @@ return modifyTreebank(tb,new SentenceModifier() {
 	}
 	
 	
+	private static Map<Unit,List<Unit>> constructChildren(Sentence s,boolean goldAnnotation){
+		Map<Unit,List<Unit>> children = new HashMap<Unit, List<Unit>>();
+		for(Unit u:s.getUnits()){
+			int h = u.getSHead(goldAnnotation);
+			if(h < 0){
+				continue;
+			}
+			Unit head = s.get(h);
+			//String label = goldAnnotation?u.getGoldSlabel():u.getSlabel();
+			List<Unit> ch = children.get(head);
+			if(ch == null){
+				ch = new LinkedList<Unit>();
+				children.put(head,ch);
+			}
+			ch.add(u);
+		}
+		return children;
+	}
+	
+	public static DepTreebank unmergeFixedMWE(DepTreebank tb, final String mweLabel){
+		return modifyTreebank(tb, new SentenceModifier() {
+			Map<Unit,List<Unit>> children;
+			
+			
+			private Unit decomposeFixedMWE(Unit u, Sentence s,boolean goldAnnotation, String mweLabel){
+				Unit u0 = s.get(u.getPositions()[0]);
+				u0.setLhead(0, goldAnnotation);
+				int u0id = u0.getId();
+				if(u.isFixedMWE(s,goldAnnotation)){
+					int[] positions = u.getPositions();
+					for(int i = 1; i < positions.length; i++){
+						Unit d = s.get(positions[i]);
+						d.setLhead(0, goldAnnotation);
+						if(goldAnnotation){
+							d.setGoldShead(u0id);
+							d.setGoldSlabel(mweLabel);
+						}
+						else{
+							d.setShead(u0id);
+							d.setPredictedSlabel(mweLabel);
+						}
+					}
+					
+				}
+				return u0;
+			}
+			
+			private void unmerge(Unit u, Unit parent,Sentence s,boolean goldAnnotation, String mweLabel){
+				Unit u0 = decomposeFixedMWE(u, s, goldAnnotation,mweLabel);
+				//System.err.println(parent+"-->"+u+"=="+u0);
+				List<Unit> ch = children.get(u);
+				if(parent != null && u0 != u){
+					if(goldAnnotation){
+						u0.setGoldShead(parent.getId());
+						u0.setGoldSlabel(u.getGoldSlabel());
+					}
+					else{
+						u0.setShead(parent.getId());
+						u0.setPredictedSlabel(u.getPredictedSlabel());
+					}
+				}
+				ch = ch == null?Collections.<Unit>emptyList():ch;
+				for(Unit c:ch){
+					unmerge(c,u0,s,goldAnnotation,mweLabel);
+				}
+			}
+			
+			
+			private void unmergeFixedMWE(Sentence s, String mweLabel,boolean goldAnnotation){
+				children = constructChildren(s,goldAnnotation); 
+				unmerge(s.get(0),null,s,goldAnnotation,mweLabel);
+			}
+			
+			
+			@Override
+			public Sentence modify(Sentence s) {
+				Sentence res = new Sentence(s);
+				unmergeFixedMWE(res,mweLabel,true);
+				unmergeFixedMWE(res,mweLabel,false);
+				return res;
+			}
+		});
+		
+		
+	}
+	
 	public static DepTreebank unMergeMWE(DepTreebank tb,final String mweLabel){
 		return modifyTreebank(tb, new SentenceModifier() {
 			
@@ -600,7 +683,7 @@ return modifyTreebank(tb,new SentenceModifier() {
 						else{
 							//u.setLhead(0);
 							u.setShead(root.getId());
-							u.setSlabel(mweLabel);
+							u.setPredictedSlabel(mweLabel);
 						}
 						
 					}
@@ -622,12 +705,9 @@ return modifyTreebank(tb,new SentenceModifier() {
 				for(Unit u:s.getTokenSequence(goldAnnotation)){
 					Unit dep = getRoot(u,mweHeads);					
 					
-					String label = u.getGoldSlabel();
-					int h = u.getGoldSheadId();
-					if(!goldAnnotation){
-						label = u.getSlabel();
-						h = u.getSheadId();
-					}					
+					String label = u.getSLabel(goldAnnotation);
+					int h = u.getSHead(goldAnnotation);
+										
 					
 					Unit head = getRoot(s.get(h),mweHeads);
 					//System.err.println(u+" "+mweHeads.get(u)+ " "+head );
@@ -637,7 +717,7 @@ return modifyTreebank(tb,new SentenceModifier() {
 					}
 					else{
 						dep.setShead(head.getId());
-						dep.setSlabel(label);
+						dep.setPredictedSlabel(label);
 					}
 				
 					
@@ -647,7 +727,7 @@ return modifyTreebank(tb,new SentenceModifier() {
 			
 			private void clearLexicalLinks(Sentence s){
 				for(Unit u:s.getTokens()){
-					u.setLhead(0);
+					u.setPredictedLhead(0);
 					u.setGoldLHead(0);
 				}
 			}
@@ -696,7 +776,7 @@ return modifyTreebank(tb,new SentenceModifier() {
 						for(int i:positions){ //for each component
 							Unit c = res.get(i);
 							//System.err.println(c);
-							c.setLhead(mwe.getId());
+							c.setPredictedLhead(mwe.getId());
 						}
 					}
 				}
@@ -725,10 +805,10 @@ return modifyTreebank(tb,new SentenceModifier() {
 					if(label != null && label.startsWith(mwelabel)){
 						u.setGoldSlabel(mwelabel);					
 					}
-					label = u.getSlabel();
+					label = u.getPredictedSlabel();
 					//System.err.println(label);
 					if(label != null && label.startsWith(mwelabel)){
-						u.setSlabel(mwelabel);
+						u.setPredictedSlabel(mwelabel);
 					}
 				}
 				return res;
@@ -736,6 +816,42 @@ return modifyTreebank(tb,new SentenceModifier() {
 			
 		});
 	}
+	
+	
+	
+	
+	public static DepTreebank removeMwePOSInLabels(DepTreebank tb, final String fixedMweLabel,final String regularMweLabel){
+		return modifyTreebank(tb, new SentenceModifier() {
+	
+			private void removeMwePosInLabels(Unit u, boolean goldAnnotation, Sentence s){
+				int h = u.getSHead(goldAnnotation);
+				if(h < 0){
+					return;
+				}
+				String l = u.getSLabel(goldAnnotation);
+				if(l.startsWith(fixedMweLabel)){
+					u.setSlabel(fixedMweLabel,goldAnnotation);
+				}
+				String[] tab = splitLabel(l, regularMweLabel);
+				if(tab != null){
+					u.setSlabel(tab[0],goldAnnotation);
+				}
+				
+			}
+			
+			@Override
+			public Sentence modify(Sentence s) {
+				Sentence res = new Sentence(s);
+				for(Unit u:res.getTokens()){
+					removeMwePosInLabels(u,true,res);
+					removeMwePosInLabels(u,false,res);
+					
+				}
+				return res;
+			}
+		});
+	}
+	
 	
 	
 	static interface SentenceModifier{

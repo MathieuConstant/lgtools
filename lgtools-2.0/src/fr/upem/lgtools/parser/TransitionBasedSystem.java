@@ -37,8 +37,8 @@ public abstract class TransitionBasedSystem<T extends Analysis> {
      private void initSentence(Sentence s){
     	 for(Unit u:s.getUnits()){
     		 u.setShead(-1);
-    		 u.setLhead(0);
-    		 u.setSlabel(null);
+    		 u.setPredictedLhead(0);
+    		 u.setPredictedSlabel(null);
     	 }
     	 
      }
@@ -52,19 +52,19 @@ public abstract class TransitionBasedSystem<T extends Analysis> {
  		//System.err.println(s.getTokenSequence(true));
  		while(!c.isTerminal()){
  			FeatureVector fv = tbm.extractFeatures(c);
- 			//System.err.println(c);
+ 			//System.err.println(c.getSentence().getUnits());
 			Transition<T> t = tbm.getBestValidTransition(fv,c);
 			//Transition<T> o = tbm.getBestCorrectTransition(fv,c);
 			//System.err.println(tbm.getTransitions());
 		    //System.err.println(tbm.getValidTransitions(c));
-		    
+		    //System.err.println(c);
 		    //System.err.println("PRED: "+t);
 			
 			//System.err.println("G: "+o);
 			
 			//System.err.println(c.getAnalyses());
- 			c = t.perform(c);
- 			c.getHistory().add(t.id()); // do we keep it?
+ 			c = t.performAll(c);
+ 			
  		}
  		
  		//System.err.println(s.getTokenSequence(true));
@@ -152,7 +152,7 @@ public abstract class TransitionBasedSystem<T extends Analysis> {
     				     Configuration<T> newConfig = new Configuration<T>(c); 
     				     //System.err.println("NEW="+newConfig);
     				     //System.err.println("OLD="+c);
-    				     newConfig = t.perform(newConfig);
+    				     newConfig = t.performAll(newConfig);
     				     newConfig.getHistory().add(t.id());
     				     boolean isGold = h.isGold();
     				     if(returnWhenFail && isGold){
@@ -201,10 +201,10 @@ public abstract class TransitionBasedSystem<T extends Analysis> {
      public T oracleParse(Sentence s){
   		Configuration<T> c = tbm.getInitialConfiguration(s);
   		while(!c.isTerminal()){
-  			System.err.println(c);
+  			//System.err.println(c);
   			Transition<T> t = tbm.staticOracle(c); 
-  			System.err.println(t);
-  			c = t.perform(c);
+  			//System.err.println(t);
+  			c = t.performAll(c);
   		}
   		return c.getAnalyses();
   	}

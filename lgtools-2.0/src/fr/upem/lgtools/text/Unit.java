@@ -88,24 +88,32 @@ public class Unit {
 		return positions.length > 1;
 	}
 	
-	public boolean isRegularMWE(Sentence s){
-		return isMWE() && !isFixedMWE(s);
+	public boolean isRegularMWE(Sentence s,boolean goldAnnotation){
+		return isMWE() && !isFixedMWE(s,goldAnnotation);
 	}
 	
 	
-	public boolean isFixedMWE(Sentence s){
+	public boolean isFixedMWE(Sentence s,boolean goldAnnotation){
 		if(!isMWE()){
 			return false;
 		}
 		for(int i:getPositions()){
       	    Unit c = s.get(i);
-      	    if(c.hasSyntacticHead()){
+      	    if(c.hasSyntacticHead(goldAnnotation)){
       	    	return false;
       	    }
         }
 		return true;
 	}
 	
+	
+	public boolean isGoldFixedMWE(Sentence s){
+		return isFixedMWE(s, true);
+	}
+	
+	public boolean isPredictedFixedMWE(Sentence s){
+		return isFixedMWE(s, false);
+	}
 	
 	
 	public String getPOSPattern(Sentence s){
@@ -123,8 +131,12 @@ public class Unit {
 		return getGoldSheadId() != -1;
 	}
 	
-	public boolean hasSyntacticHead(){
-		return getSheadId() != -1;
+	public boolean hasPredictedSyntacticHead(){
+		return getPredictedSheadId() != -1;
+	}
+	
+	public boolean hasSyntacticHead(boolean goldAnnotation){
+		return goldAnnotation?hasGoldSyntacticHead():hasPredictedSyntacticHead();
 	}
 	
 	public boolean hasGoldLexicalHead(){
@@ -249,8 +261,12 @@ public class Unit {
 		this.pos = pos;
 	}
 
-	public int getSheadId() {
+	public int getPredictedSheadId() {
 		return shead;
+	}
+	
+	public int getSHead(boolean goldAnnotation){
+		return goldAnnotation?getGoldSheadId():getPredictedSheadId();
 	}
 
 	
@@ -279,25 +295,49 @@ public class Unit {
 		this.shead = shead;
 	}
 
-	public String getSlabel() {
+	public String getPredictedSlabel() {
 		return slabel==null?DUMMY:slabel;
 	}
 	
+	public String getSLabel(boolean goldAnnotation){
+		return goldAnnotation?getGoldSlabel():getPredictedSlabel();
+	}
+	
 
-	public void setSlabel(String slabel) {
+	public void setPredictedSlabel(String slabel) {
 		this.slabel = slabel;
 	}
-
+   
+	public void setSlabel(String label, boolean goldAnnotation){
+		if(goldAnnotation){
+			setGoldSlabel(label);
+		}
+		else{
+			setPredictedSlabel(label);
+		}
+	}  
+	
+	
 	
 	public int getLheadId() {
 		return lhead;
 	}
 
 	
-	public void setLhead(int lhead) {
+	public void setPredictedLhead(int lhead) {
 		this.lhead = lhead;
 	}
 
+	
+	public void setLhead(int lhead,boolean goldAnnotation) {
+		if(goldAnnotation){
+			setGoldLHead(lhead);
+		}
+		else{
+			setPredictedLhead(lhead);
+		}
+	}
+	
 	
 	
 	

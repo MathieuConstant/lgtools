@@ -42,6 +42,7 @@ public class Sentence {
 	
 	
 	public Unit get(int id){
+		//System.err.println(map);
 		Unit u = map.get(id);
 		return u == null?ROOT:u; 
 	}
@@ -60,6 +61,7 @@ public class Sentence {
 	}
 	
 	public List<Unit> getUnits(){
+		//System.err.println(map);
 		return units;		
 	}
 	
@@ -74,7 +76,17 @@ public class Sentence {
 	 */
 	
 	public List<Unit> getTokenSequence(boolean goldAnnotation){
-		return Utils.getTokenSequence(goldAnnotation,getUnits().size(),this,getTokens());
+		return Utils.getUnitSequence(goldAnnotation,getUnits().size(),this,getTokens(),true);
+		
+	}
+	
+	/**
+	 * 
+	 * @return the sequence of units after merging of all MWEs
+	 */
+	
+	public List<Unit> getUnitSequence(boolean goldAnnotation){
+		return Utils.getUnitSequence(goldAnnotation,getUnits().size(),this,getTokens(),false);
 		
 	}
 	

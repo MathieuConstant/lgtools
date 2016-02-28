@@ -18,7 +18,7 @@ public abstract class FeatureMapping {
    final protected int max;  
 	
    FeatureMapping(int max){
-	   this.max = max;
+	   this.max = (max == Integer.highestOneBit(max))?max: Integer.highestOneBit(max) << 1;
    }
 	
    public int getFeatureId(String feat){

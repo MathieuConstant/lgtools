@@ -1,14 +1,13 @@
 /**
  * 
  */
-package fr.upem.lgtools.parser.arcstandard;
+package fr.upem.lgtools.parser.transitions;
 
 import java.util.Deque;
 
 import fr.upem.lgtools.parser.Analysis;
 import fr.upem.lgtools.parser.Buffer;
 import fr.upem.lgtools.parser.Configuration;
-import fr.upem.lgtools.parser.transitions.AbstractTransition;
 import fr.upem.lgtools.text.Unit;
 
 /**

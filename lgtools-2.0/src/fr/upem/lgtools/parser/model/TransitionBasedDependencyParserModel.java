@@ -43,9 +43,9 @@ public abstract class TransitionBasedDependencyParserModel extends
 		for(Unit u:s.getUnits()){
 			//System.err.println(u);
 			u.setShead(analysis.getHead(u.getId()));			
-			u.setSlabel(analysis.getlabel(u.getId()));
+			u.setPredictedSlabel(analysis.getlabel(u.getId()));
 			int lh = analysis.getLexicalNodeId(u.getId());
-			u.setLhead(lh);	
+			u.setPredictedLhead(lh);	
 		}
 		
 	}

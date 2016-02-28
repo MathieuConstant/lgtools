@@ -1,35 +1,28 @@
 package fr.upem.lgtools.parser.arcstandard;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Deque;
 
 import fr.upem.lgtools.parser.Configuration;
 import fr.upem.lgtools.parser.DepTree;
 import fr.upem.lgtools.parser.transitions.LabeledTransition;
+import fr.upem.lgtools.parser.transitions.TransitionUtils;
 import fr.upem.lgtools.text.Unit;
-import fr.upem.lgtools.text.Utils;
 
 public class MergeBothTransition extends LabeledTransition<DepTree> {
-
+    boolean withConstrainedMerge = false;
+	
 	public MergeBothTransition(String type,String label) {
 		super(type,label);
 	}
-
-	public static Configuration<DepTree> performMerge(Configuration<DepTree> configuration, String label, Unit u1, Unit u0, Collection<Deque<Unit>> stacks){
-				
-		Unit u = Utils.mergeUnitsAndAdd(u1,u0,configuration.getUnits());
-		if(label != null && !label.equals("")){
-			u.setPos(label);
-		}
-		DepTree tree = configuration.getAnalyses();
-		tree.addEdgeWithLinks(u1.getId(),u0.getId());
-		for(Deque<Unit> stack:stacks){
-			stack.push(u);
-		}
-
-		return configuration;
+	
+	public MergeBothTransition(String type,String label, boolean withConstrainedMerge) {
+		super(type,label);
+		this.withConstrainedMerge = withConstrainedMerge;
 	}
+	
+
+	
 	
 	
 	@Override
@@ -52,12 +45,15 @@ public class MergeBothTransition extends LabeledTransition<DepTree> {
 		}
 		
 		//System.err.println(stacks.size());
-		return performMerge(configuration,label,u1,u0,stacks);
+		return TransitionUtils.performMerge(configuration,label,u1,u0,stacks);
 	}
 
 	
 	@Override
 	public boolean isValid(Configuration<DepTree> configuration) {
+		if(!ParserUtils.passContrainedMergeCondition(withConstrainedMerge,configuration)){
+			return false;
+		}
 		Deque<Unit> stack = configuration.getFirstStack();
 		DepTree tree = configuration.getAnalyses();
 		if(stack.size() <= 2){
@@ -87,6 +83,7 @@ public class MergeBothTransition extends LabeledTransition<DepTree> {
 			}
 			
 		}
+		
 		/*if(res){
 			System.err.println("ICI");
 		}*/

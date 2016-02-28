@@ -1,7 +1,7 @@
 /**
  * 
  */
-package fr.upem.lgtools.parser.arcstandard;
+package fr.upem.lgtools.parser.mwereco;
 
 import java.util.ArrayList;
 import java.util.Deque;
@@ -13,25 +13,28 @@ import fr.upem.lgtools.parser.transitions.TransitionUtils;
 import fr.upem.lgtools.text.Unit;
 
 /**
- * @author Matthieu Constant
+ * @author Mathieu
  *
  */
 public class MergeTransition extends LabeledTransition<DepTree> {
-    boolean withConstrainedMerge = false;
-	
+
 	public MergeTransition(String type, String label) {
-		super(type, label);
+		super(type, label);		
 	}
 
-	public MergeTransition(String type, String label, boolean withConstrainedMerge) {
-		super(type, label);
-		this.withConstrainedMerge = withConstrainedMerge;
-	}
-	
 	
 	@Override
+	public boolean isValid(Configuration<DepTree> configuration) {
+		Deque<Unit> stack = configuration.getFirstStack();
+		if(stack.size() < 3){
+			return false;
+		}
+		return true;
+	}                           
+
+	@Override
 	public Configuration<DepTree> perform(Configuration<DepTree> configuration) {
-		Deque<Unit> stack = configuration.getSecondStack();
+		Deque<Unit> stack = configuration.getFirstStack();
 		ArrayList<Deque<Unit>> stacks = new ArrayList<Deque<Unit>>();
 		Unit u0 = stack.pop();
 		Unit u1 = stack.pop();
@@ -39,20 +42,4 @@ public class MergeTransition extends LabeledTransition<DepTree> {
 		return TransitionUtils.performMerge(configuration,label,u1,u0,stacks);
 	}
 
-	@Override
-	public boolean isValid(Configuration<DepTree> configuration) {
-		if(!ParserUtils.passContrainedMergeCondition(withConstrainedMerge, configuration)){
-			return false;
-		}
-		Deque<Unit> stack = configuration.getSecondStack();
-		if(stack.size() < 3){
-			return false;
-		}
-		
-		
-		return true;
-	}
-
-	
-	
 }

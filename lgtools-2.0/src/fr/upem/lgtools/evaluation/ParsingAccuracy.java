@@ -18,10 +18,10 @@ public class ParsingAccuracy {
 		for(Unit u:sentence.getTokens()){
 			//System.err.println(u);
 			acc.addUnit();
-			if(u.getGoldSheadId() == u.getSheadId()){
+			if(u.getGoldSheadId() == u.getPredictedSheadId()){
 				acc.addUnlabeledMatch();
 				
-				if(u.getGoldSlabel().equals(u.getSlabel())){
+				if(u.getGoldSlabel().equals(u.getPredictedSlabel())){
 					acc.addLabeledMatch();
 				}
 				else{

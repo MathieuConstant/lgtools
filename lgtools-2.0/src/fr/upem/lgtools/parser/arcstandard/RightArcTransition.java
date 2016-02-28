@@ -35,6 +35,7 @@ public class RightArcTransition extends LabeledTransition<DepTree> {
 		Unit s1 = stack.peek();
 		DepTree t = configuration.getAnalyses();		
 		t.addArc(new DepArc(s1.getId(),label,s0.getId()));
+		
 		//configuration.getHistory().add();		
 		return configuration;
 	}

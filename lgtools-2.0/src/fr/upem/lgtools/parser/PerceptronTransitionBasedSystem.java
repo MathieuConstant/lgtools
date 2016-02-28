@@ -82,27 +82,31 @@ public class PerceptronTransitionBasedSystem<T extends Analysis> extends Transit
    				 FeatureVector fv = tbm.extractFeatures(c);
    				 Transition<T> pt = tbm.getBestValidTransition(fv,c);
    				 Transition<T> ot = tbm.getBestCorrectTransition(fv,c);
-   				 //System.err.println("valid: "+tbm.getValidTransitions(c));
-   				
    				//System.err.println("CONF="+c);
+   				 //System.err.println("valid: "+tbm.getValidTransitions(c));
+   				//System.err.println(c.getHistory());
+   				  
+   				//System.err.println(c.getAnalyses());
+   				//System.err.println("gold="+ot+"--predicted="+pt);
    				//System.err.println("PT "+pt);
    				//System.err.println("OT "+ot);
+   				//System.err.println(c.getSentence().getUnits());
+   				
    				//System.err.println("CONF="+c);
    				//System.err.println("COPY="+new Configuration<T>(c));
    				 if(pt.equals(ot)){ // true prediction
    					 //System.err.println("true="+ot);
-   					 c = pt.perform(c); 
-   					 c.getHistory().add(pt.id());
+   					 c = pt.performAll(c); 
    					 cnt++;
    				 }
    				 else{  //false prediction
-   					  //System.err.println("false="+ot);
+   					 //System.err.println("true="+ot+"--false="+pt);
+   				     //System.err.println("valid: "+tbm.getValidTransitions(c));
    					 tbm.update(fv,ot,pt,averaged,step);
    					 stop = false;//early update if stop == true
    					 if(!stop){
-   					    c = ot.perform(c);
+   					    c = ot.performAll(c);
    					    
-   					    c.getHistory().add(ot.id());
    					 }
    				 }
    				

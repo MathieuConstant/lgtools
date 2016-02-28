@@ -13,11 +13,12 @@ import java.util.Collection;
  *
  */
 public class HashFeatureMapping extends FeatureMapping {
-     
+     final int modulo;
      
 	
 	public HashFeatureMapping(int max) {
-		super(max == Integer.highestOneBit(max)?max: Integer.highestOneBit(max) << 1);
+		super(max);
+		modulo = this.max - 1;
 	}
 
 
@@ -49,7 +50,7 @@ public class HashFeatureMapping extends FeatureMapping {
 		// hashcode must be comprised between 0 and max */
 		
 		int hashcode = feat.hashCode();
-		hashcode = hashcode%max; //hashcode must be lower than max
+		hashcode = hashcode&modulo; //hashcode must be lower than max
 		hashcode = hashcode<0?-hashcode:hashcode; //hashcode must be positive
 		
 		

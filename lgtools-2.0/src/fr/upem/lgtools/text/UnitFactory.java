@@ -59,7 +59,7 @@ public class UnitFactory {
 		//predicted arcs
 		int sh = tab[CONLL_HEAD].equals(DUMMY)?-1:Integer.parseInt(tab[CONLL_HEAD]); 
 		u.setShead(sh);
-		u.setSlabel(tab[CONLL_LABEL]);
+		u.setPredictedSlabel(tab[CONLL_LABEL]);
 		// gold arcs
 		sh = tab[CONLL_GOLD_HEAD].equals(DUMMY)?-1:Integer.parseInt(tab[CONLL_GOLD_HEAD]); 
 		u.setGoldShead(sh);

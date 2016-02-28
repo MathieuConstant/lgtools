@@ -4,6 +4,7 @@
 package fr.upem.lgtools.parser.transitions;
 
 import fr.upem.lgtools.parser.Analysis;
+import fr.upem.lgtools.parser.Configuration;
 
 /**
  * @author Matthieu Constant
@@ -56,7 +57,14 @@ public abstract class AbstractTransition<T extends Analysis> implements Transiti
 		return true;
 	}
 	
+	public abstract Configuration<T> perform(Configuration<T> configuration);
 	
+	@Override
+	public Configuration<T> performAll(Configuration<T> configuration) {
+		Configuration<T> c = perform(configuration);
+		c.addAction(this.id());
+		return c;
+	}
 	
 	
 }

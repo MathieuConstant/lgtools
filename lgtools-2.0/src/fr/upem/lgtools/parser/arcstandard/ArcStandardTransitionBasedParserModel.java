@@ -13,6 +13,7 @@ import fr.upem.lgtools.parser.Configuration;
 import fr.upem.lgtools.parser.DepTree;
 import fr.upem.lgtools.parser.features.FeatureMapping;
 import fr.upem.lgtools.parser.model.ProjectiveTransitionBasedDependencyParserModel;
+import fr.upem.lgtools.parser.transitions.ShiftTransition;
 import fr.upem.lgtools.parser.transitions.Transition;
 import fr.upem.lgtools.text.DepTreebank;
 import fr.upem.lgtools.text.Sentence;
@@ -64,7 +65,7 @@ public class ArcStandardTransitionBasedParserModel extends
 	public static boolean rightDependentHasAllItsDependents(Unit d,Configuration<DepTree> c){
 		int id = d.getId();
 		Sentence s = c.getSentence();
-		List<Unit> buffer = Utils.getTokenSequence(true,s.getUnits().size(),s,c.getFirstBuffer());
+		List<Unit> buffer = Utils.getUnitSequence(true,s.getUnits().size(),s,c.getFirstBuffer(),true); //only irregular MWEs
 		for(Unit u:buffer){
 			//System.err.println("RA:"+u);
 			Unit r = u;
