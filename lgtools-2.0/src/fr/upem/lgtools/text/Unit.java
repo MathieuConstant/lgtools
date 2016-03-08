@@ -25,6 +25,7 @@ public class Unit {
      private final int[] positions;
      private String lemma;
      private String cpos;
+     private String goldCpos;
      private String pos;
      private String goldPos;
      private final HashMap<String,String> feats = new HashMap<String, String>();
@@ -116,16 +117,31 @@ public class Unit {
 	}
 	
 	
-	public String getPOSPattern(Sentence s){
+	public boolean isDiscontiguous(Sentence s){
+		return isMWE() && (positions[0] + positions.length - 1 != positions[positions.length -1]);
+	}
+	
+	
+	public String getGoldPOSPattern(Sentence s){
 		StringBuilder sb = new StringBuilder();
 		for(int i:getPositions()){
 			sb.append("_");
-			sb.append(s.get(i));
+			sb.append(s.get(i).goldPos);
 		}
 		return sb.substring(1);
 		
 	}
 	
+	
+	public String getPOSPattern(Sentence s){
+		StringBuilder sb = new StringBuilder();
+		for(int i:getPositions()){
+			sb.append("_");
+			sb.append(s.get(i).pos);
+		}
+		return sb.substring(1);
+		
+	}
 	
 	public boolean hasGoldSyntacticHead(){
 		return getGoldSheadId() != -1;
@@ -243,6 +259,15 @@ public class Unit {
 
 	public void setCpos(String cpos) {
 		this.cpos = cpos;
+	}
+	
+	
+	public String getGoldCpos() {
+		return goldCpos;
+	}
+
+	public void setGoldCpos(String cpos) {
+		this.goldCpos = cpos;
 	}
 
 	public String getPos() {

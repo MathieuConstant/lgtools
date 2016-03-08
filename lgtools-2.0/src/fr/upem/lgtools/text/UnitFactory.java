@@ -52,9 +52,9 @@ public class UnitFactory {
 	public static Unit createUnitFromConllString(String line){
 		String[] tab = line.split(CONLL_DELIM);
 		Unit u = new Unit(Integer.parseInt(tab[CONLL_ID]), tab[CONLL_FORM], Integer.parseInt(tab[CONLL_ID]));
-		u.setLemma(tab[CONLL_LEMMA]);
-		u.setCpos(tab[CONLL_CPOS]);
-		u.setPos(tab[CONLL_POS]);
+		u.setLemma(tab[CONLL_LEMMA].equals(DUMMY)?null:tab[CONLL_LEMMA]);
+		u.setCpos(tab[CONLL_CPOS].equals(DUMMY)?null:tab[CONLL_CPOS]);
+		u.setPos(tab[CONLL_POS]);  //compulsary non-dummy field
 		parseFeats(u,tab[CONLL_FEATS]);
 		//predicted arcs
 		int sh = tab[CONLL_HEAD].equals(DUMMY)?-1:Integer.parseInt(tab[CONLL_HEAD]); 

@@ -11,6 +11,7 @@ import fr.upem.lgtools.parser.model.TransitionBasedModel;
 import fr.upem.lgtools.parser.transitions.Transition;
 import fr.upem.lgtools.text.DepTreebank;
 import fr.upem.lgtools.text.Sentence;
+import fr.upem.lgtools.text.Utils;
 
 /**
  * @author Mathieu
@@ -72,22 +73,32 @@ public class PerceptronTransitionBasedSystem<T extends Analysis> extends Transit
    		 boolean stop = false;
    		 for(Sentence gold:tb.shuffle()){
    			 sent++;
-   			 if(sent % 1000 == 0){System.err.println("Processed "+ sent+ " sentences");}
+   			 if(sent % 500 == 0){System.err.println("Processed "+ sent+ " sentences");}
    			 Configuration<T> c = tbm.getInitialConfiguration(gold);
    			 stop = false;
    			 //System.err.println("#############################");
-   			 //System.err.println(gold.getTokenSequence(true));
+   			//System.err.println(gold.getTokenSequence(true));
+   			/* if(!Utils.isProjectiveSentence(c.getSentence())){
+   			     System.err.println("NON PROJECTIVE");
+   			 //System.err.println(c.getProjectiveOrderPosition());
+   			 }*/
    			 
    			 while(!c.isTerminal() && !stop){
    				 FeatureVector fv = tbm.extractFeatures(c);
    				 Transition<T> pt = tbm.getBestValidTransition(fv,c);
    				 Transition<T> ot = tbm.getBestCorrectTransition(fv,c);
+   				 if(ot == null){
+   					 System.err.println("Unkown transition due to SWAP in non-projective sentence?");
+   					 break;
+   				 }
    				//System.err.println("CONF="+c);
    				 //System.err.println("valid: "+tbm.getValidTransitions(c));
    				//System.err.println(c.getHistory());
    				  
    				//System.err.println(c.getAnalyses());
-   				//System.err.println("gold="+ot+"--predicted="+pt);
+   				 
+   				 //System.err.println("gold="+ot+"--predicted="+pt);
+   				 
    				//System.err.println("PT "+pt);
    				//System.err.println("OT "+ot);
    				//System.err.println(c.getSentence().getUnits());
@@ -119,7 +130,10 @@ public class PerceptronTransitionBasedSystem<T extends Analysis> extends Transit
    			 //System.err.println(c.getAnalyses());
    			 
    		 }
-   		 if(dev != null){
+   		/* 
+   		 * TODO: add this but be clever!
+   		 * 
+   		 * if(dev != null){
    			 Model old = tbm.getModel();
    			Model a = tbm.getAveragedModel(averaged,step);
    			tbm.setModel(a);
@@ -127,7 +141,7 @@ public class PerceptronTransitionBasedSystem<T extends Analysis> extends Transit
    			a = null;
    			tbm.setModel(old);
    			
-   		 }
+   		 }*/
    		 
    		 //TransitionBasedModel2.save(tbm, modelFilename+"."+(i+1));
    		 System.err.println("Accuracy on training transition sequence: "+((double)cnt)/total+ "  ("+cnt+"/"+total+")");

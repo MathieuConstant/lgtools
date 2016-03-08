@@ -175,19 +175,21 @@ public abstract class TransitionBasedModel<T extends Analysis> {
 		return model.getActivatedFeatureCount()/(double)model.getFeatureCount();
 	}
 	
+	
+	
 		
 	private void createTransitions(DepTreebank tb){	
 		for(Transition<T> t:createLabelIndependentTransitions()){
 			addTransition(t);
 		}
 		for(Sentence s:tb){
-			for(Unit u:s.getUnits()){
+		for(Unit u:s.getUnits()){
 				  Transition<T> t = createLabelDependentTransition(u,s);
 				  if(t != null){
 				     addTransition(t);
 				  }
 			}
-		}		
+		}
 	}
 	
 	

@@ -62,6 +62,11 @@ public class DepTree implements Analysis{
 	}
 	
 	
+	public void addLinks(int node, int i){
+		addLinks(node,i,-1);
+	}
+	
+	
 	public void addLinks(int node, int i, int j){
 		if(node >= nodeChildren.length){
 			nodeChildren = Arrays.copyOf(nodeChildren, nodeChildren.length *2);
@@ -72,14 +77,18 @@ public class DepTree implements Analysis{
 			links = Arrays.copyOf(links, links.length * 2);
 		}
 		links[i] = node;
-		links[j] = node;
+		if(j!=-1){
+		    links[j] = node;
+		}
 		Set<Integer> rlinks = reverseLinks[node];
 		if(rlinks == null){
 			rlinks = new HashSet<Integer>();
 			reverseLinks[node] = rlinks;
 		}
 		rlinks.add(i);
-		rlinks.add(j);
+		if(j != -1){
+		   rlinks.add(j);
+		}
 		
 	}
 	

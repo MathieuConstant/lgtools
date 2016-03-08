@@ -9,6 +9,7 @@ import java.util.Deque;
 import java.util.List;
 
 import fr.upem.lgtools.parser.Configuration;
+import fr.upem.lgtools.parser.Constants;
 import fr.upem.lgtools.parser.DepTree;
 import fr.upem.lgtools.text.Sentence;
 import fr.upem.lgtools.text.Unit;
@@ -44,7 +45,9 @@ public class TransitionUtils {
 		
 		public static Unit mergeUnitsAndAdd(Unit u1, Unit u2,Sentence sentence){
 			String form = u1.getForm()+"_"+u2.getForm();
-			//String lemma = u1.getLemma()+"_"+u2.getLemma();
+			//String form = u1.getForm();
+			String lemma = u1.getLemma()+"_"+u2.getLemma();
+			//String lemma = u1.getLemma();
 			String cat = u1.getPos()+"_"+u2.getPos();
 			int [] pos1 = u1.getPositions();
 			int [] pos2 = u2.getPositions();
@@ -75,7 +78,7 @@ public class TransitionUtils {
 			    //System.err.println(mwe);
 			    
 			}
-			//mwe.setLemma(lemma);
+			mwe.setLemma(lemma); //lemma
 			
 			mwe.setPos(cat);
 			return mwe;
@@ -86,7 +89,15 @@ public class TransitionUtils {
 		Unit u = mergeUnitsAndAdd(u1,u0,configuration.getSentence());
 		if(label != null && !label.equals("")){
 			u.setPos(label);
+			u.setCpos(Constants.MWE_LABEL);  //use a global constant
 		}
+		else{
+			u.setPos(Constants.MWE_LABEL);
+			u.setCpos(Constants.MWE_LABEL);  //use a global constant
+		}
+		//System.err.println(u+" "+u.getLemma()+" "+u.getCpos());
+		//u.setPos("MWE"); //NO -> less accurate
+		//u.setPos(u.getPOSPattern(configuration.getSentence())); //NO-> memory explosion
 		DepTree tree = configuration.getAnalyses();
 		tree.addLinks(u.getId(),u1.getId(),u0.getId());
 		for(Deque<Unit> stack:stacks){

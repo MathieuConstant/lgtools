@@ -22,51 +22,91 @@ import fr.upem.lgtools.text.UnitFactory;
 public class FeatureUtils {
 	public final static Unit NULL_UNIT = UnitFactory.createNullUnit();
 	
-	public static void addUnitFeatures(String fid,Unit u,FeatureVector feats,Configuration<DepTree> configuration){
+	public static void addSpecificMweFeatures(String prefix,Configuration<DepTree> configuration, FeatureVector feats, Unit... selectedUnits) {
+		int i = 0;
+		Sentence s = configuration.getSentence();
+		for(Unit u:selectedUnits){
 
-		feats.add(fid+"_f="+u.getForm());
-		feats.add(fid+"_l="+u.getLemma());
-		feats.add(fid+"_t="+u.getPos());
-		feats.add(fid+"_ft="+u.getForm()+"/"+u.getPos());
-		feats.add(fid+"_lt="+u.getLemma()+"/"+u.getPos());
+			if(u.isMWE()){ //ADDED FOR MWE ONLY 
+				//feats.add(prefix+"s"+i+"u_mwe="+u.isMWE());
+				feats.add(prefix+"s"+i+"u_mwepattern="+u.getPOSPattern(s));
+				//addUnitFeatures(prefix+"s"+i+"u_mwefirst", s.get(u.getPositions()[0]), feats, configuration);
+			}
+			i++;
+		}
+		Unit s0u = selectedUnits[0];
+		Unit s1u = selectedUnits[1];
+		if(s0u.isMWE() || s1u.isMWE()){
+		     //addUnitPairFeatures(prefix+"s0u_s1u_mwefirst", s1u, s0u, feats, configuration);
+		     feats.add(prefix+"pair_mwepattern="+s1u.getPOSPattern(s)+"_"+s0u.getPOSPattern(s));
+		     //System.err.println(prefix+"pair_mwepattern="+s1u.getPOSPattern(s)+"_"+s0u.getPOSPattern(s));
+		}
+	}
+	
+	
+	public static void addUnitFeatures(String fid,Unit u,FeatureVector feats,Configuration<DepTree> configuration){
+		String f = u.getForm();  
+		String l = u.getLemma();
+		String t = u.getPos();
+		String c = u.getCpos();
+		
+		
+		feats.add(fid+"_f="+f);
+		feats.add(fid+"_t="+t);
+		feats.add(fid+"_c="+c);
+		feats.add(fid+"_ft="+f+"/"+t);
+		feats.add(fid+"_fc="+f+"/"+c);
+		
+		
+		if(l != null){
+			feats.add(fid+"_l="+l);
+			feats.add(fid+"_lt="+l+"/"+t);
+			feats.add(fid+"_lc="+l+"/"+c);
+		}
 		
 		//feats.add(fid+"_mwe="+u.isMWE());
 		//feats.add(fid+"_length="+u.getPositions().length);
-		//feats.add(fid+"_pattern="+u.getPOSPattern(configuration.getSentence()));
 		
 
 		for(Map.Entry<String,String> e:u.getFeatures().entrySet()){
 			String att = e.getKey();
-			String val = e.getValue();
+			String val = e.getValue(); 
+			//TO TUNE
 			feats.add(fid+"_feat="+att+":"+val);
-			feats.add(fid+"_featt="+att+":"+val+"/"+u.getPos());
+			feats.add(fid+"_featt="+att+":"+val+"/"+t);
+			feats.add(fid+"_featc="+att+":"+val+"/"+c);
 		}	
 	}
 	
 
 	
-	static void addUnitFeaturesTmp(String fid,Unit u,FeatureVector feats){
-		
-		feats.add(fid+"_f="+u.getForm());
-		//feats.add(fid+"_l="+u.getLemma());
-		feats.add(fid+"_t="+u.getPos());
-		feats.add(fid+"_ft="+u.getForm()+"/"+u.getPos());
-		//feats.add(fid+"_lt="+u.getLemma()+"/"+u.getPos());	
-	}
-
 		
 
 	
 	public static void addUnitPairFeatures(String fid,Unit u1,Unit u2,FeatureVector feats, Configuration<DepTree> configuration){
+		String f1 = u1.getForm();  
+		String t1 = u1.getPos();
+		String c1 = u1.getCpos();
+		String f2 = u2.getForm();  
+		String t2 = u2.getPos();
+		String c2 = u2.getCpos();
 		
 		
-		feats.add(fid+"_t_t="+u1.getPos()+"#"+u2.getPos());
-		feats.add(fid+"_f_t="+u1.getForm()+"#"+u2.getPos());
-		feats.add(fid+"_ft_t="+u1.getForm()+"/"+u1.getPos()+"#"+u2.getPos());
+		feats.add(fid+"_t_t="+t1+"#"+t2);
+		feats.add(fid+"_f_t="+f1+"#"+t2);
+		feats.add(fid+"_ft_t="+f1+"/"+t1+"#"+t2);
 		
 		
-		feats.add(fid+"_t_f="+u1.getPos()+"#"+u2.getForm());
-		feats.add(fid+"_t_ft="+u1.getPos()+"#"+u2.getForm()+"/"+u2.getPos());
+		feats.add(fid+"_t_f="+t1+"#"+f2);
+		feats.add(fid+"_t_ft="+t1+"#"+f2+"/"+t2);
+		
+		feats.add(fid+"_c_c="+c1+"#"+c2);
+		feats.add(fid+"_f_c="+f1+"#"+c2);
+		feats.add(fid+"_fc_c="+f1+"/"+c1+"#"+c2);
+		
+		
+		feats.add(fid+"_c_f="+c1+"#"+f2);
+		feats.add(fid+"_c_fc="+c1+"#"+f2+"/"+c2);
 		
 		/*
 		if(u1.isMWE() || u2.isMWE()){
@@ -85,6 +125,11 @@ public class FeatureUtils {
 		feats.add(fid+"_f_t_t="+u1.getForm()+"#"+u2.getPos()+"#"+u3.getPos());
 		feats.add(fid+"_t_f_t="+u1.getPos()+"#"+u2.getForm()+"#"+u3.getPos());
 		feats.add(fid+"_t_t_f="+u1.getPos()+"#"+u2.getPos()+"#"+u3.getForm());
+		
+		feats.add(fid+"_c_c_c="+u1.getCpos()+"#"+u2.getCpos()+"#"+u3.getCpos());		
+		feats.add(fid+"_f_c_c="+u1.getForm()+"#"+u2.getCpos()+"#"+u3.getCpos());
+		feats.add(fid+"_c_f_c="+u1.getCpos()+"#"+u2.getForm()+"#"+u3.getCpos());
+		feats.add(fid+"_c_c_f="+u1.getCpos()+"#"+u2.getCpos()+"#"+u3.getForm());
 		/*
 		if(u1.isMWE() || u2.isMWE() || u3.isMWE()){
 			Unit u10 = configuration.getUnit(u1.getUnitFirstTokenPosition());

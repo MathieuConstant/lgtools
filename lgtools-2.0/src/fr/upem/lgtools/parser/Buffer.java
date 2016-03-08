@@ -32,4 +32,12 @@ public interface Buffer extends Iterable<Unit>{
 	 */
 	public int size();
 	
+	/**
+	 * push a unit on buffer
+	 * 
+	 * @param u unit to be pushed
+	 */
+	
+	public void push(Unit u);
+	
 }

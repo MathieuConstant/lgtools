@@ -40,6 +40,11 @@ public class SimpleBuffer implements Buffer {
 	}
 
 	@Override
+	public void push(Unit u) {
+		throw new IllegalStateException("Not implemented!");
+	}
+	
+	@Override
 	public Unit next() {
 		if(size() == 0){
 			throw new IllegalStateException("Cannot get the next unit as the buffer is empty");

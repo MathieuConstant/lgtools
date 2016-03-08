@@ -82,8 +82,11 @@ public class DefaultFeatureExtractor implements FeatureExtractor<DepTree> {
 		FeatureUtils.addUnitFeatures(prefix+"b0u", b0u,feats,configuration);
 		FeatureUtils.addUnitFeatures(prefix+"b1u", b1u,feats,configuration);
 		FeatureUtils.addUnitFeatures(prefix+"b2u", b2u,feats,configuration);
+		
+		//FeatureUtils.addSubTreeFeatures(prefix+"dep_b0u",b0u,configuration,feats);
 		FeatureUtils.addSubTreeFeatures(prefix+"dep_s0u",s0u,configuration,feats);				
 		FeatureUtils.addSubTreeFeatures(prefix+"dep_s1u",s1u,configuration,feats);
+		//FeatureUtils.addSubTreeFeatures(prefix+"dep_s2u",s2u,configuration,feats);
 		//addUnitFeatures("lmdb1u", lmdb1u,feats);
 		//addUnitFeatures("rmdb0u", rmdb0u,feats);
 		//addUnitFeatures("rmdb1u", rmdb1u,feats);
@@ -107,6 +110,9 @@ public class DefaultFeatureExtractor implements FeatureExtractor<DepTree> {
 		FeatureUtils.addUnitTripletFeatures(prefix+"s0u_b0u_b1u",s0u,b0u,b1u,feats,configuration);
 		FeatureUtils.addHistoryFeatures(configuration,feats);
 	
+		
+		//FeatureUtils.addSpecificMweFeatures(prefix, configuration, feats, s0u,s1u);
+		
 		//addHistoryFeatures(configuration, feats);
 		//addLeftMostDependencyFeatures("lmd_s0u", configuration, s0u, feats);
 		//addLeftMostDependencyFeatures("lmd_s1u", configuration, s1u, feats);

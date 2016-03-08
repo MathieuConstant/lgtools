@@ -26,9 +26,9 @@ public abstract class SimpleMergeArcStandardTransitionBasedParserModel extends A
 	
 	
 	public SimpleMergeArcStandardTransitionBasedParserModel(FeatureMapping fm,
-			DepTreebank tb) {
+			DepTreebank tb,boolean isProjective) {
 		//this.withLabeledMerge = withLabeledMerge;
-		super(fm, tb);
+		super(fm, tb,isProjective);
 		
 	
 	}
@@ -56,6 +56,7 @@ public abstract class SimpleMergeArcStandardTransitionBasedParserModel extends A
 			if(l1 <= 0 || l2 <= 0){
 				return null;
 			}
+			
 			if(l1 == l2){
 				if(!isWithLabeledMerge()){
 				   return "";
@@ -74,13 +75,15 @@ public abstract class SimpleMergeArcStandardTransitionBasedParserModel extends A
 	@Override
 	public Transition<DepTree> staticOracle(Configuration<DepTree> configuration) {
 		String label;
-		
+		//
 		//if ME is possible, then ME
 		
 		if((label = getMerge(configuration)) != null){
+			//System.err.println("LLL");	
 			return transitions.getTransition(MERGE,label);
 		}
-		
+		return super.staticOracle(configuration);
+		/*
 		// if LA is possible, then LA
 		if((label = getLeftArcLabel(configuration)) != null){
 			//System.err.println("Oracle: LA+"+label);
@@ -95,6 +98,7 @@ public abstract class SimpleMergeArcStandardTransitionBasedParserModel extends A
 		//System.err.println("Oracle: SH");
 		//default: SH				
 		return transitions.getTransition(SHIFT, null);
+		*/
 	}
 
 	
@@ -120,7 +124,7 @@ public abstract class SimpleMergeArcStandardTransitionBasedParserModel extends A
 	protected Collection<Transition<DepTree>> createLabelIndependentTransitions() {
 		//System.err.println(withLabeledMerge);
 		Collection<Transition<DepTree>> transitions = new LinkedList<Transition<DepTree>>();
-		transitions.add(createTransition(SHIFT,null));
+		transitions.addAll(super.createLabelIndependentTransitions());
 		if(!isWithLabeledMerge()){
 		    transitions.add(createTransition(MERGE,""));
 		}

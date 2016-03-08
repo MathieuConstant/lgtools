@@ -30,7 +30,7 @@ ArcStandardTransitionBasedParserModel{
 
 	public FullyMWEAwareArcStandardTransitionBasedModel(FeatureMapping fm,
 			DepTreebank tb) {
-		super(fm, tb);
+		super(fm, tb,false);
 	}
 
 
@@ -43,7 +43,7 @@ ArcStandardTransitionBasedParserModel{
 
 	@Override
 	public Configuration<DepTree> getInitialConfiguration(Sentence s) {		
-		return new Configuration<DepTree>(s, new DepTree(s.getUnits().size() + 1), 1, 2);
+		return new Configuration<DepTree>(s, new DepTree(s.getUnits().size() + 1),ParserUtils.createGoldTree(s), 1, 2);
 	}
 
 

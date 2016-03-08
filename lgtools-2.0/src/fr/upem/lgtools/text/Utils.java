@@ -1,14 +1,24 @@
 package fr.upem.lgtools.text;
 
 import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
+
+import com.sun.org.apache.bcel.internal.util.SyntheticRepository;
 
 public class Utils {
 	
@@ -47,6 +57,19 @@ public class Utils {
 	}
 	
 	
+	public static void writeSentenceInXConll(BufferedWriter out,Sentence s) throws IOException{
+		for(Unit u:s.getUnits()){
+			writeUnitInXConll(out,u);
+		}
+		out.write("\n");
+	}
+	
+	
+	public static BufferedWriter openBufferedWriter(String filename) throws UnsupportedEncodingException, FileNotFoundException{
+		return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename), "UTF-8"));
+	}
+	
+	
 	public static void saveTreebankInConll(DepTreebank tb,String filename) throws IOException{
 		BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename), "UTF-8"));
 		for(Sentence s:tb){
@@ -61,10 +84,7 @@ public class Utils {
 	public static void saveTreebankInXConll(DepTreebank tb,String filename) throws IOException{
 		BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename), "UTF-8"));
 		for(Sentence s:tb){
-			for(Unit u:s.getUnits()){
-				writeUnitInXConll(out,u);
-			}
-			out.write("\n");
+			writeSentenceInXConll(out, s);
 		}
 		out.close();			
 	}
@@ -87,6 +107,34 @@ public class Utils {
 	
 	
 	
+	public static boolean hasOverlappingMWE(Sentence sentence){
+		
+		//very costly
+		for(Unit u:sentence.getTokenSequence(true)){
+			 for(Unit v:sentence.getTokenSequence(true)){
+				 if(u == v){
+					 continue;
+				 }
+				 if(u.isGoldFixedMWE(sentence) && v.isGoldFixedMWE(sentence)){
+					Unit w = u.getUnitFirstTokenPosition() < v.getUnitFirstTokenPosition()?u:v;
+					Unit z = u == w?v:u;
+					if(w.getUnitLastTokenPosition() >= z.getUnitFirstTokenPosition()){
+						//System.err.println(Arrays.toString(w.getPositions()));
+						//System.err.println(Arrays.toString(z.getPositions()));
+						System.err.println(sentence.getTokenSequence(true));
+						System.err.println("Sentence has overlapping fixed MWEs!!");
+						return true;
+					}
+					 
+					 
+					 
+				 }
+			 }
+		}
+		return false;
+	}
+	
+	
 	
 	public static boolean isProjectiveSentence(Sentence sentence){
 		//Necessary condition: fixed MWEs must be contiguous
@@ -99,6 +147,7 @@ public class Utils {
 				int pos1 = positions[i];
 				if(pos1 != pos0 + 1){
 					System.err.println("Sentence with non-contiguous fixed expressions");
+					System.err.println(u+"---"+Arrays.toString(positions));
 					return false;
 				}
 				pos0 = pos1;
@@ -123,7 +172,7 @@ public class Utils {
 						//System.err.println(u1.getGoldSheadId());
 						  //System.err.println(u1+"--"+i1+" "+j1);
 						  //System.err.println(u2+"--"+i2+" "+j2);
-						  //System.err.println(sentence);
+						 //System.err.println(sentence);
 						System.err.println("Non projective sentence (class Utils)");
 								return false;
 					}
@@ -136,6 +185,116 @@ public class Utils {
 		return true;
 	}
 
+	
+	final static private Comparator<Unit> COMP = new Comparator<Unit>() {
+
+		@Override
+		public int compare(Unit o1, Unit o2) {
+			return new Integer(o1.getUnitFirstTokenPosition()).compareTo(o2.getUnitFirstTokenPosition());
+		}
+	};
+	
+	
+	public static Map<Integer,Collection<Unit>> getGoldChildren(Sentence s){
+		HashMap<Integer,Collection<Unit>> children = new HashMap<Integer, Collection<Unit>>();
+
+		
+		for(Unit u:s.getUnits()){
+			//System.err.println(u+"=="+u.getGoldSheadId());
+			if(u.hasGoldSyntacticHead()){
+				int h = u.getGoldSheadId();
+				//Unit head = s.get(h);
+				Collection<Unit> ch = children.get(h);
+				if(ch == null){
+					ch = new TreeSet<Unit>(COMP);
+					//ch = new LinkedList<Unit>();
+					children.put(h, ch);
+				}
+				ch.add(u);
+			}
+		}
+		
+		
+		return children;
+	}
+	
+	
+	private static List<Unit> getLeftChildren(Collection<Unit> l,Unit node){
+		LinkedList<Unit> res = new LinkedList<Unit>();
+		if(l == null){
+			return Collections.emptyList();
+		}
+		int n = node.getUnitFirstTokenPosition();
+		//System.err.println("###"+node+"="+n);
+		for(Unit u:l){
+			
+			int c = u.getUnitFirstTokenPosition();
+			//System.err.println(u+">>>"+c);
+			if(c < n){
+				res.add(u);	
+			}
+			
+		}
+		//System.err.println(res);
+		return res;
+	}
+	
+	private static List<Unit> getRightChildren(Collection<Unit> l,Unit node){
+		LinkedList<Unit> res = new LinkedList<Unit>();
+		if(l == null){
+			return Collections.emptyList();
+		}
+		int n = node.getUnitFirstTokenPosition();
+		//System.err.println("==>"+node+"="+n);
+		for(Unit u:l){
+			//System.err.println(u);
+			int c = u.getUnitFirstTokenPosition();
+			if(c > n){
+				res.add(u);	
+			}
+		}
+		//System.err.println(res);
+		return res;
+	}
+	
+	
+	
+	
+	private static LinkedList<Unit> traverse(int node,  Map<Integer,Collection<Unit>> children, Sentence s){
+		LinkedList<Unit> ordered = new LinkedList<Unit>();
+		Unit n = s.get(node);
+		Collection<Unit> ch = children.get(node);
+		//System.err.println(node+"="+ch);
+		
+		
+		
+		for(Unit u:getLeftChildren(ch, n)){
+			ordered.addAll(traverse(u.getId(),children,s));
+		}
+		ordered.add(n);
+		
+		for(Unit u:getRightChildren(ch, n)){
+			ordered.addAll(traverse(u.getId(),children,s));
+		}
+		
+		return ordered;
+	}
+	
+	public static Map<Unit,Integer> getProjectiveOrderPositions(Sentence s){
+		 Map<Integer,Collection<Unit>> children = getGoldChildren(s);
+		 
+		LinkedList<Unit> ordered = traverse(0,children,s); 
+		Map<Unit,Integer> positions = new HashMap<Unit, Integer>();
+		//System.err.println(ordered);
+		//System.err.println(children);
+		int cnt = 0;
+		for(Unit u:ordered){
+			positions.put(u, cnt);
+			cnt++;
+		}
+		 return positions;
+		 
+	}
 	
 	
 	

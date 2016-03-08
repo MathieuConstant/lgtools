@@ -11,8 +11,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import fr.upem.lgtools.evaluation.ParsingAccuracy;
-import fr.upem.lgtools.evaluation.ParsingResult;
 import fr.upem.lgtools.parser.features.FeatureVector;
 import fr.upem.lgtools.parser.model.TransitionBasedModel;
 import fr.upem.lgtools.parser.transitions.Transition;
@@ -33,6 +31,11 @@ public abstract class TransitionBasedSystem<T extends Analysis> {
     	 this.tbm = tbm;
      }
 	
+     
+     public TransitionBasedModel<T> getModel(){
+    	 return tbm;
+     }
+     
      
      private void initSentence(Sentence s){
     	 for(Unit u:s.getUnits()){
@@ -216,13 +219,48 @@ public abstract class TransitionBasedSystem<T extends Analysis> {
      
      
  	
- 	public DepTreebank parseTreebank(DepTreebank tb, ParsingMethod<T> pm) throws FileNotFoundException{
- 		
+ 	public DepTreebank parseTreebank(final DepTreebank tb, final ParsingMethod<T> pm) throws FileNotFoundException{
+ 		return new DepTreebank() {
+
+			@Override
+			public Iterator<Sentence> iterator() {
+				return new Iterator<Sentence>() {
+					Iterator<Sentence> it = tb.iterator();
+                    int cnt = 0;
+					@Override
+					public boolean hasNext() {
+						return it.hasNext();
+					}
+
+					@Override
+					public Sentence next() {
+						Sentence s = it.next();
+						T analysis = pm.parse(s);
+			 			//System.err.println(analysis);
+			 			tbm.updateSentenceAfterAnalysis(s,analysis); 
+			 			//System.err.println(s.getTokenSequence(false));
+			 			cnt++;
+			 			if(cnt%300 == 0){
+			 				System.err.println(cnt+" sentences parsed.");
+			 			}
+						return s;
+					}
+
+					@Override
+					public void remove() {
+						throw new IllegalStateException();
+
+					}
+				};
+			}
+		};
+ 		/*
  		int cnt = 0;
  		for(Sentence s:tb){
  			T analysis = pm.parse(s);
  			//System.err.println(analysis);
- 			tbm.updateSentenceAfterAnalysis(s,analysis); 			
+ 			tbm.updateSentenceAfterAnalysis(s,analysis); 
+ 			//System.err.println(s.getTokenSequence(false));
  			cnt++;
  			if(cnt%300 == 0){
  				System.err.println(cnt+" sentences parsed.");
@@ -230,20 +268,21 @@ public abstract class TransitionBasedSystem<T extends Analysis> {
  		} 
  		
  		return tb;
- 		
+ 		*/
  	}
     
- 	
-public ParsingResult parseTreebankAndEvaluate(DepTreebank tb, ParsingMethod<T> pm) throws FileNotFoundException{
+/* 	
+public ParsingResult parseTreebankAndEvaluate(DepTreebank tb, ParsingMethod<T> pm, String mweLabel) throws IOException{
  	   tb = parseTreebank(tb,pm); 
- 	   ParsingAccuracy eval = ParsingAccuracy.computeParsingAccuracy(tb);
+ 	  //Utils.saveTreebankInXConll(tb, "tmp.conll");
+ 	   ParsingAccuracy eval = SimpleParsingAccuracy.computeParsingAccuracy(tb,mweLabel);
 	   //System.err.println(eval);
  		return new ParsingResult(tb,eval);
  		
  	}
+	
  	
- 	
-public ParsingResult oracleParseTreebankAndEvaluate(DepTreebank tb) throws FileNotFoundException{
+public ParsingResult oracleParseTreebankAndEvaluate(DepTreebank tb, String mweLabel) throws IOException{
 	  return parseTreebankAndEvaluate(tb, new ParsingMethod<T>() {
 
 		@Override
@@ -251,13 +290,13 @@ public ParsingResult oracleParseTreebankAndEvaluate(DepTreebank tb) throws FileN
 			return oracleParse(s);
 		}
 		  
-	});
+	},mweLabel);
 	}
 
-    
+ */    
  	
-	
-public ParsingResult greedyParseTreebankAndEvaluate(DepTreebank tb) throws FileNotFoundException{
+/*	
+public ParsingResult greedyParseTreebankAndEvaluate(DepTreebank tb, String mweLabel) throws IOException{
   return parseTreebankAndEvaluate(tb, new ParsingMethod<T>() {
 
 	@Override
@@ -265,12 +304,12 @@ public ParsingResult greedyParseTreebankAndEvaluate(DepTreebank tb) throws FileN
 		return greedyParse(s);
 	}
 	  
-});
+}, mweLabel);
 }
+*/
 
-
-
-public ParsingResult beamSearchParseTreebankAndEvaluate(DepTreebank tb,final int k) throws FileNotFoundException{
+/*
+public ParsingResult beamSearchParseTreebankAndEvaluate(DepTreebank tb,final int k, String mweLabel) throws IOException{
 	  return parseTreebankAndEvaluate(tb, new ParsingMethod<T>() {
 
 		@Override
@@ -278,23 +317,24 @@ public ParsingResult beamSearchParseTreebankAndEvaluate(DepTreebank tb,final int
 			return beamSearchParse(s, k,false).getConfiguration().getAnalyses();
 		}
 		  
-	});
+	}, mweLabel);
 	}
 
 
-   abstract void inexactSearchTrain(DepTreebank tb, DepTreebank dev, String modelFilename, int iterations, int beamSize) throws IOException;
+  
 
    public void inexactSearchTrain(DepTreebank tb, String modelFilename, int iterations,int beamSize) throws IOException{
 	   inexactSearchTrain(tb, null, modelFilename, iterations,beamSize);
    }
    
 
-     abstract public void staticOracleTrain(DepTreebank tb, DepTreebank dev, String modelFilename, int iterations) throws IOException;
+    
      
      public void staticOracleTrain(DepTreebank tb, String modelFilename, int iterations) throws IOException{
     	 staticOracleTrain(tb, null, modelFilename, iterations);
      }
      
-     
-	
+  */   
+ 	 abstract public void staticOracleTrain(DepTreebank tb, DepTreebank dev, String modelFilename, int iterations) throws IOException;
+ 	 abstract void inexactSearchTrain(DepTreebank tb, DepTreebank dev, String modelFilename, int iterations, int beamSize) throws IOException;
 }

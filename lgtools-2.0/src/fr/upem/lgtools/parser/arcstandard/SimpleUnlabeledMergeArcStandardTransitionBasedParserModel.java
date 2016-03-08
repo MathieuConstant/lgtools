@@ -15,8 +15,8 @@ import fr.upem.lgtools.text.DepTreebank;
 public class SimpleUnlabeledMergeArcStandardTransitionBasedParserModel
 		extends SimpleMergeArcStandardTransitionBasedParserModel {
 
-	public SimpleUnlabeledMergeArcStandardTransitionBasedParserModel(FeatureMapping fm, DepTreebank tb) {
-		super(fm, tb);
+	public SimpleUnlabeledMergeArcStandardTransitionBasedParserModel(FeatureMapping fm, DepTreebank tb,boolean isProjective) {
+		super(fm, tb,isProjective);
 	}
 
 	

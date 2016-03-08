@@ -41,6 +41,7 @@ public class TransitionSet<T extends Analysis> implements Iterable<Transition<T>
 	}
 	
 	public  Transition<T> getTransition(String type, String label){
+		//System.err.println(getTransitionId(type,label));
 		return getTransition(getTransitionId(type,label));
 	}
 	

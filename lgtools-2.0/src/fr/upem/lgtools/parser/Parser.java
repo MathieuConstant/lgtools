@@ -1,197 +1,404 @@
 package fr.upem.lgtools.parser;
 
-import com.martiansoftware.jsap.FlaggedOption;
-import com.martiansoftware.jsap.JSAP;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 import com.martiansoftware.jsap.JSAPException;
-import com.martiansoftware.jsap.JSAPResult;
-import com.martiansoftware.jsap.Switch;
+
+import fr.upem.lgtools.evaluation.Evaluation;
+import fr.upem.lgtools.evaluation.MultipleEvaluation;
+import fr.upem.lgtools.evaluation.SimpleEvaluation;
+import fr.upem.lgtools.parser.arcstandard.ArcStandardTransitionBasedParserModel;
+import fr.upem.lgtools.parser.arcstandard.SimpleUnlabeledMergeArcStandardTransitionBasedParserModel;
+import fr.upem.lgtools.parser.features.FeatureMapping;
+import fr.upem.lgtools.parser.features.HashFeatureMapping;
+import fr.upem.lgtools.process.SentenceProcessComposition;
+import fr.upem.lgtools.process.TreebankEvaluations;
+import fr.upem.lgtools.process.TreebankIO;
+import fr.upem.lgtools.process.TreebankProcesses;
+import fr.upem.lgtools.text.BufferedDepTreebank;
+import fr.upem.lgtools.text.DepTreebank;
+import fr.upem.lgtools.text.DepTreebankFactory;
+import fr.upem.lgtools.text.StreamDepTreebank;
 
 public class Parser {
-	private static final String MODEL_OPT = "model";
-	private static final String TRAIN_OPT = "train";
-	private static final String INPUT_OPT = "input";
-	private static final String OUTPUT_OPT = "output";
-	private static final String ITER_OPT = "iters";
-	private static final String MODEL_SIZE_OPT = "msize";
-	private static final String REPEAT_OPT = "repeat";
-	private static final String RIGHT_MERGE_STRATEGY = "right";
-	private static final String IMPLICIT_COMPLETE_STRATEGY = "implicit";
-	private static final String CONSTRAINED_MERGE_STRATEGY = "constrained";
-	private static final String FIXED_MWE_ONLY = "fixed_only";
-	private static final String NO_SYNTACTIC_ANALYSIS = "nosyntax";
-	private static final String BASELINE = "baseline";
 	
 	
-	private static JSAP createJSAP() throws JSAPException{
-		JSAP jsap = new JSAP();
+	private final static int N_EXP = 4;
 
-		FlaggedOption opt;
-		Switch sw;
-		
-		sw = new Switch(RIGHT_MERGE_STRATEGY)
-		.setLongFlag(RIGHT_MERGE_STRATEGY)
-		.setShortFlag('R');
-		sw.setHelp("set right merge strategy (default: left merge strategy)");
-		jsap.registerParameter(sw);
-		
-		sw = new Switch(IMPLICIT_COMPLETE_STRATEGY)
-		.setLongFlag(IMPLICIT_COMPLETE_STRATEGY)
-		.setShortFlag('I');
-		sw.setHelp("set implicit complete strategy (default: explicit complete)");
-		jsap.registerParameter(sw);
-		
-		sw = new Switch(CONSTRAINED_MERGE_STRATEGY)
-		.setLongFlag(CONSTRAINED_MERGE_STRATEGY)
-		.setShortFlag('C');
-		sw.setHelp("set constrained merge strategy which implies right merge strategy (default: non constraint on merge)");
-		jsap.registerParameter(sw);
-		
-		sw = new Switch(BASELINE)
-		.setLongFlag(BASELINE)
-		.setShortFlag('B');
-		sw.setHelp("apply baseline with arc labels specific to MWEs  (default: apply new system with merge transitions)");
-		jsap.registerParameter(sw);
-		
-		sw = new Switch(FIXED_MWE_ONLY)
-		.setLongFlag(FIXED_MWE_ONLY)
-		.setShortFlag('F');
-		sw.setHelp("identify fixed MWE only (default: identify all MWEs)");
-		jsap.registerParameter(sw);
-		
-		sw = new Switch(NO_SYNTACTIC_ANALYSIS)
-		.setLongFlag(NO_SYNTACTIC_ANALYSIS)
-		.setShortFlag(JSAP.NO_SHORTFLAG);
-		sw.setHelp("No syntactic analysis is performed (default: syntactic analysis is performed)");
-		jsap.registerParameter(sw);
-		
-		
-		opt = new FlaggedOption(MODEL_OPT)
-		.setStringParser(JSAP.STRING_PARSER)
-		.setRequired(true)
-		.setShortFlag('m')
-		.setLongFlag(MODEL_OPT);
-		opt.setHelp("Path of the model (without extension)");
-		jsap.registerParameter(opt);
 
-		opt = new FlaggedOption(TRAIN_OPT)
-		.setStringParser(JSAP.STRING_PARSER)
-		.setRequired(false)
-		.setShortFlag('t')
-		.setLongFlag(TRAIN_OPT);
-		opt.setHelp("Path of training treebank (conll format)");
-		jsap.registerParameter(opt);
+
+
+	public static DepTreebank readTreebank(String filename) throws FileNotFoundException{
+		return readTreebank(filename,-1);
+	}
+
+	 public static DepTreebank readTreebank(String filename,int size) throws FileNotFoundException{
+		BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(filename)));
+		DepTreebank gold = new BufferedDepTreebank(new StreamDepTreebank(reader));
+		if(size >= 0){
+			gold = DepTreebankFactory.limitSize(gold, size);
+		}
+		return gold;
+	}
+
+
+
+/*
+
+	public static TransitionBasedSystem<DepTree> trainMweSystem(String filename,String model, int iter, int limit, boolean withFixedMweOnly) throws IOException{
+		DepTreebank tb = readTreebank(filename,limit);
+		tb = DepTreebankFactory.mergeFixedMWEs(tb);
+		if(!withFixedMweOnly){
+			tb = DepTreebankFactory.mergeRegularMWEs(tb, Constants.REG_MWE);
+		}
+
+		Utils.saveTreebankInXConll(tb, "merged.conll");
+		tb = DepTreebankFactory.binarizeMWE(tb, false);
+		Utils.saveTreebankInXConll(tb, "binarized.conll");
+
+		FeatureMapping fm = new  HashFeatureMapping(1000000);
+		MweRecognizerModel tbm = new MweRecognizerModel(fm,tb);
+		TransitionBasedSystem<DepTree> parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
+		parser.staticOracleTrain(tb, model,iter);
+		return parser;
+	}
+
+	public static Evaluation parseWithMweSystem(String filename,String model,String output, int limit, boolean withFixedMweOnly) throws IOException{
+		DepTreebank tb = readTreebank(filename,limit);
+		MweRecognizerModel tbm = new MweRecognizerModel(model);
+		TransitionBasedSystem<DepTree> parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
+
+		ParsingResult res = parser.greedyParseTreebankAndEvaluate(tb,Constants.MWE_LABEL);
+		//ParsingResult res = parser.oracleParseTreebankAndEvaluate(tb);
+		tb = DepTreebankFactory.unbinarizeMWE(res.getTreebank(), false);
+		tb = DepTreebankFactory.mergeFixedMWEs(tb);
+		if(!withFixedMweOnly){
+			tb = DepTreebankFactory.mergeRegularMWEs(tb, Constants.REG_MWE);
+		}
+		Utils.saveTreebankInXConll(tb, output);
+		//System.err.println("\nFixed MWEs only:\n"+SegmentationAccuracy.computeSegmentationAccuracy(tb,true));
+		SegmentationAccuracy mwes = SimpleSegmentationAccuracy.computeSegmentationAccuracy(tb,false);
+		System.err.println(mwes);
+
+		return new SimpleEvaluation(null, withFixedMweOnly?null:mwes, withFixedMweOnly?mwes:null, null, null);
+	}
+
+
+	public static TransitionBasedSystem<DepTree> trainFullSystem(String filename,String model, int iter, int limit, boolean baseline) throws IOException{
+		DepTreebank tb = readTreebank(filename,limit);
+		tb = DepTreebankFactory.mergeFixedMWEs(tb);
+		tb = DepTreebankFactory.mergeRegularMWEs(tb, Constants.REG_MWE);
+
+		Utils.saveTreebankInXConll(tb, "merged.conll");
+		tb = DepTreebankFactory.binarizeMWE(tb, false);
+		Utils.saveTreebankInXConll(tb, "binarized.conll");
+
+			
+			FeatureMapping fm = new  HashFeatureMapping(4000000);
+			FullyMWEAwareArcStandardTransitionBasedModel tbm = baseline?new BaselineFullyMWEAwareArcStandardTransitionBasedModel(fm,tb):new ImplicitCmpFullyMWEAwareArcStandardTransitionBasedModel(fm,tb);
+			TransitionBasedSystem<DepTree> parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
+			parser.staticOracleTrain(tb, model,iter);
+			fm = null;
+			tbm = null;
+			parser = null;
+			
+		return null;
+	}
+
+
+
+	public static Evaluation parseWithFullSystem(String filename,String model,String output, int limit, boolean baseline) throws IOException{
 		
-		opt = new FlaggedOption(INPUT_OPT)
-		.setStringParser(JSAP.STRING_PARSER)
-		.setRequired(false)
-		.setShortFlag('i')
-		.setLongFlag(INPUT_OPT);
-		opt.setHelp("Path of input text (conll format)");
-		jsap.registerParameter(opt);
+		DepTreebank tb = readTreebank(filename,limit);
 		
-		opt = new FlaggedOption(OUTPUT_OPT)
-		.setStringParser(JSAP.STRING_PARSER)
-		.setRequired(false)
-		.setShortFlag('o')
-		.setLongFlag(OUTPUT_OPT);
-		opt.setHelp("Path of output text (xconll format)");
-		jsap.registerParameter(opt);
+		FullyMWEAwareArcStandardTransitionBasedModel tbm = baseline?new BaselineFullyMWEAwareArcStandardTransitionBasedModel(model):new ImplicitCmpFullyMWEAwareArcStandardTransitionBasedModel(model);
+		TransitionBasedSystem<DepTree> parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
+		//System.err.println(tbm.getTransitions());
+		ParsingResult res = parser.greedyParseTreebankAndEvaluate(tb,Constants.MWE_LABEL);
+		//ParsingResult res = parser.oracleParseTreebankAndEvaluate(tb);
+		tb = DepTreebankFactory.unbinarizeMWE(res.getTreebank(), false);
+		tb = DepTreebankFactory.mergeFixedMWEs(tb);
+		tb = DepTreebankFactory.mergeRegularMWEs(tb, Constants.REG_MWE);
+		Utils.saveTreebankInXConll(tb, output);
+		SegmentationAccuracy fixedMwes = SimpleSegmentationAccuracy.computeSegmentationAccuracy(tb,true);
+		System.err.println("\nFixed MWEs only:\n"+fixedMwes);
+		SegmentationAccuracy mwes = SimpleSegmentationAccuracy.computeSegmentationAccuracy(tb,false);
+		System.err.println("\nAll MWEs:\n"+mwes);
+		List<SimpleScore> scores = SimpleSegmentationAccuracy.computeMergeParsingScore(tb);
+		System.err.println(scores.get(0));
+		System.err.println(scores.get(1));
 		
-		opt = new FlaggedOption(ITER_OPT)
-		.setStringParser(JSAP.INTEGER_PARSER)
-		.setRequired(false)
-		.setShortFlag(JSAP.NO_SHORTFLAG)
-		.setLongFlag(ITER_OPT);
-		opt.setDefault("6");
-		opt.setHelp("number of training iterations (default: 6)");
-		jsap.registerParameter(opt);
+
+		tb = DepTreebankFactory.unmergeFixedMWE(tb, Constants.MWE_LABEL);
+		tb = DepTreebankFactory.removeMwePOSInLabels(tb, Constants.MWE_LABEL);
+		ParsingAccuracy acc = SimpleParsingAccuracy.computeParsingAccuracy(tb,Constants.MWE_LABEL);
+		System.err.println(acc);
+		return new SimpleEvaluation(acc, mwes, fixedMwes, scores.get(0), scores.get(1));
+
+
+	}
+
+
+
+
+	public static void train(String filename,String model, int iter, int limit, boolean withFixedMweOnly) throws IOException{
+		DepTreebank tb = readTreebank(filename,limit);
+		if(withFixedMweOnly){
+			tb = DepTreebankFactory.removeRegularMWEs(tb);
+		}
+
+		System.err.println("Model for baseline system");
+		FeatureMapping fm = new  HashFeatureMapping(2000000);
+		ArcStandardTransitionBasedParserModel tbm = new ArcStandardTransitionBasedParserModel(fm,tb);
+		TransitionBasedSystem<DepTree> parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
+		parser.staticOracleTrain(tb, model,iter);
+		parser = null;
+		tbm = null;
+		fm = null;
+
+	}
+
+
+	public static Evaluation parse(String filename,String model,String output, int limit, boolean withFixedMweOnly) throws IOException{
+		DepTreebank tb = readTreebank(filename,limit);
+		ArcStandardTransitionBasedParserModel tbm = new ArcStandardTransitionBasedParserModel(model);
+		TransitionBasedSystem<DepTree> parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
+		ParsingResult res = parser.greedyParseTreebankAndEvaluate(tb,Constants.MWE_LABEL);		
+		tb = DepTreebankFactory.mergeFixedMWEs(res.getTreebank());
+		if(!withFixedMweOnly){
+			tb = DepTreebankFactory.mergeRegularMWEs(tb, Constants.REG_MWE);
+		}
 		
-		opt = new FlaggedOption(MODEL_SIZE_OPT)
-		.setStringParser(JSAP.INTEGER_PARSER)
-		.setRequired(false)
-		.setShortFlag(JSAP.NO_SHORTFLAG)
-		.setLongFlag(MODEL_SIZE_OPT);
-		opt.setDefault("1000000");
-		opt.setHelp("size of model: max. number of feature identifiers (default: 1000000)");
-		jsap.registerParameter(opt);
+		tb = DepTreebankFactory.removeMwePOSInLabels(tb, Constants.MWE_LABEL);
+
 		
-		opt = new FlaggedOption(REPEAT_OPT)
-		.setStringParser(JSAP.INTEGER_PARSER)
-		.setRequired(false)
-		.setShortFlag(JSAP.NO_SHORTFLAG)
-		.setLongFlag(REPEAT_OPT);
-		opt.setDefault("1");
-		opt.setHelp("Number of times experiment is repeated (default: 1)");
-		jsap.registerParameter(opt);
-		return jsap;
+		SegmentationAccuracy fixedMwes = SimpleSegmentationAccuracy.computeSegmentationAccuracy(tb,true);
+		System.err.println(fixedMwes);
+		SegmentationAccuracy mwes = null;
+		if(!withFixedMweOnly){
+			mwes = SimpleSegmentationAccuracy.computeSegmentationAccuracy(tb,false);
+			System.err.println(mwes);
+		}
+		
+		List<SimpleScore> scores = SimpleSegmentationAccuracy.computeMergeParsingScore(tb);
+		System.err.println(scores.get(0));
+		System.err.println(scores.get(1));
+		
+
+
+		DepTreebank tmp = DepTreebankFactory.removeMwePOSInLabels(res.getTreebank(), Constants.MWE_LABEL);
+		if(withFixedMweOnly){
+			tmp = DepTreebankFactory.removeRegularMWEs(tmp);
+		}
+		
+		ParsingAccuracy acc = SimpleParsingAccuracy.computeParsingAccuracy(tmp,Constants.MWE_LABEL);
+		Utils.saveTreebankInXConll(tmp, output);
+		System.err.println(acc);
+		return new SimpleEvaluation(acc, mwes, fixedMwes, scores.get(0), scores.get(1));
+
+	}
+
+
+	public static void trainWithMerge(String filename,String model, int iter, int limit) throws IOException{
+		DepTreebank tb = readTreebank(filename,limit);
+		tb = DepTreebankFactory.removeRegularMWEs(tb);
+		tb = DepTreebankFactory.mergeFixedMWEs(tb);
+		Utils.saveTreebankInXConll(tb, "merged.conll");
+		tb = DepTreebankFactory.binarizeMWE(tb, false);
+		Utils.saveTreebankInXConll(tb, "binarized.conll");
+
+		FeatureMapping fm = new  HashFeatureMapping(2000000);
+		SimpleMergeArcStandardTransitionBasedParserModel tbm = new SimpleLabeledMergeArcStandardTransitionBasedParserModel(fm,tb);
+		TransitionBasedSystem<DepTree> parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
+		parser.staticOracleTrain(tb, model,iter);
+		parser = null;
+		fm = null;
+		tbm = null;
 	}
 	
-	private static void exit(JSAP jsap){
-		System.err.print("Usage: ");
-		System.err.print("java "+Parser.class.getCanonicalName()+" ");
-		System.err.println(jsap.getUsage());
-		System.err.print(jsap.getHelp());
-		System.exit(1);
+	 public static Evaluation parseWithMerge(String filename,String model,String output,int limit) throws IOException{
+		DepTreebank tb = readTreebank(filename,limit);
+		SimpleMergeArcStandardTransitionBasedParserModel tbm = new SimpleLabeledMergeArcStandardTransitionBasedParserModel(model);
+		TransitionBasedSystem<DepTree> parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
+		ParsingResult res = parser.greedyParseTreebankAndEvaluate(tb,Constants.MWE_LABEL);
+
+		tb = DepTreebankFactory.removeRegularMWEs(res.getTreebank());
+		tb = DepTreebankFactory.unMergeMWE(tb, Constants.MWE_LABEL);
+		tb = DepTreebankFactory.removeMwePOSInLabels(tb, Constants.MWE_LABEL);
+		
+		ParsingAccuracy acc = SimpleParsingAccuracy.computeParsingAccuracy(tb,Constants.MWE_LABEL);
+		System.err.println(acc);
+		Utils.saveTreebankInXConll(tb, output);
+		tb = DepTreebankFactory.mergeFixedMWEs(tb);
+		SegmentationAccuracy fixedMwes = SimpleSegmentationAccuracy.computeSegmentationAccuracy(tb,true);
+		System.err.println(fixedMwes);
+		
+		List<SimpleScore> scores = SimpleSegmentationAccuracy.computeMergeParsingScore(tb);
+		System.err.println(scores.get(0));
+		System.err.println(scores.get(1));
+		
+		return new SimpleEvaluation(acc, null, fixedMwes, scores.get(0), scores.get(1));
+	}
+	*/
+	
+	
+	
+	
+	
+	
+	
+	
+	private static void train(Parameters parameters) throws IOException{
+		System.err.println("--------- New model  -----");
+		ArcStandardTransitionBasedParserModel tbm = null;
+		
+		DepTreebank tb = readTreebank(parameters.train,parameters.trainSize); //treebank in conll format; MWEs with specific arc labels (MWE_LABEL for fixed MWEs; REG_MWE for regular MWEs) 
+		SentenceProcessComposition spc = new SentenceProcessComposition();
+		
+		if(!parameters.fixedMweOnly){
+			//trainFullSystem(parameters.train, parameters.model, parameters.iters, -1, true);
+		}
+		else{
+			spc.add(TreebankProcesses.removeRegularMWEs());//in case treebank contains regular MWEs
+			spc.add(TreebankProcesses.removeMwePosInLabels());  //put an option in case one wants to keep mwe pos label
+			
+			
+			if(parameters.baseline){
+				spc.add(TreebankIO.saveInXConll("tmp.conll"));
+				
+				
+			}
+			else{
+				spc.add(TreebankProcesses.mergeFixedMWEs());
+				spc.add(TreebankProcesses.binarizeMWE(false));
+				spc.add(TreebankIO.saveInXConll("tmp.conll"));
+				
+				
+				
+				
+			//trainWithMerge(parameters.train, parameters.model, parameters.iters, -1);	
+			}
+		}
+		
+
+		
+		TreebankProcesses.staticOracleTrain(tb, spc, parameters);
 	}
 	
 	
-	
-	static class Parameters{
-		int iters;
-		int modelSize;
-		int repeats;
-		String output;
-		String input;
-		String model;
-		String train;
-		boolean rightMerge;
-		boolean implicitComplete;
-		boolean constrainedMerge;
-		boolean fixedMweOnly;
-		boolean noSyntax;
-		boolean baseline;
-		
-		public Parameters(String[] args) throws JSAPException {
-			JSAP jsap = createJSAP();
-			JSAPResult config = jsap.parse(args);
-			if(!config.success()){
-				exit(jsap);
+	private static ArcStandardTransitionBasedParserModel getModel(Parameters parameters,String model) throws IOException{
+		if(parameters.fixedMweOnly){
+			if(parameters.baseline){
+		         return new ArcStandardTransitionBasedParserModel(model);		
 			}
-			
-			input = config.getString(INPUT_OPT);
-			output = config.getString(OUTPUT_OPT);
-			model = config.getString(MODEL_OPT);
-			train = config.getString(TRAIN_OPT);
-			iters = config.getInt(ITER_OPT);
-			modelSize = config.getInt(MODEL_SIZE_OPT);
-			repeats = config.getInt(REPEAT_OPT);
-			rightMerge = config.getBoolean(RIGHT_MERGE_STRATEGY);
-			implicitComplete = config.getBoolean(IMPLICIT_COMPLETE_STRATEGY);
-			constrainedMerge = config.getBoolean(CONSTRAINED_MERGE_STRATEGY);
-			fixedMweOnly = config.getBoolean(FIXED_MWE_ONLY);
-			noSyntax = config.getBoolean(NO_SYNTACTIC_ANALYSIS);
-			baseline = config.getBoolean(BASELINE);
-			
-			if(!rightMerge && constrainedMerge){
-				throw new IllegalStateException("The constrained merge strategy can only be applied with a right merge strategy!!");
-			}
-			if(iters <= 0){
-				throw new IllegalStateException("number of training iterations should be positive");
-			}
-			if(modelSize <= 0){
-				throw new IllegalStateException("number of feature identifiers should be positive");
-			}
-			
-			if(repeats <= 0){
-				throw new IllegalStateException("number of repeats should be positive");
+			else{
+				return new SimpleUnlabeledMergeArcStandardTransitionBasedParserModel(model);
 			}
 			
 		}
+		return null;
+		
+		
+	}
+	
+	private static Evaluation simpleParse(Parameters parameters, String model) throws IOException{
+		DepTreebank tb = readTreebank(parameters.input);
+		ArcStandardTransitionBasedParserModel tbm = getModel(parameters,model);
+		TransitionBasedSystem<DepTree> parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
+		SimpleEvaluation eval =new SimpleEvaluation();
+		SentenceProcessComposition spc = new SentenceProcessComposition();
+		
+		//tb = DepTreebankFactory.unbinarizeMWE(tb, false);
+		if(parameters.fixedMweOnly){
+			spc.add(TreebankProcesses.removeRegularMWEs());//in case treebank contains regular MWEs
+			
+	    }
+		spc.add(TreebankProcesses.greedyParse(parser));
+		spc.add(TreebankProcesses.unlabelMWEArcs());
+		
+		
+		if(parameters.fixedMweOnly && !parameters.baseline){
+			spc.add(TreebankProcesses.unmergeFixedMWE());
+		    
+		}
+		
+		
+		
+		
+		spc.add(TreebankEvaluations.computeParsingAccuracy());
+		
+		
+		spc.add(TreebankProcesses.mergeFixedMWEs());
+		
+		if(parameters.output != null){
+			spc.add(TreebankIO.saveInXConll(parameters.output));
+		}
+		
+		//spc.add(TreebankEvaluations.computeSegmentationAccuracy(false));
+		spc.add(TreebankEvaluations.computeSegmentationAccuracy(true));
+		spc.add(TreebankEvaluations.computeSegmentationParsingScore());
+		
+	    TreebankProcesses.processTreebank(tb, spc, eval);
+	   
+	   
+	    
+		//ParsingResult res = parser.greedyParseTreebankAndEvaluate(tb,Constants.MWE_LABEL);
+		
+		
+			
+		
+		return eval;
 	}
 	
 	
-	public static void main(String[] args) throws JSAPException {
+	private static void parse(Parameters parameters) throws IOException{
+		if(parameters.repeats > 1){
+			MultipleEvaluation meval = new MultipleEvaluation();
+		   
+			   for(int i = 0 ; i < parameters.repeats ; i++){
+				   System.err.println("Parsing model "+i);
+				   Evaluation eval = simpleParse(parameters, parameters.model+"-"+i+".final");
+				   meval.add(eval);
+				    
+			   }
+		   System.err.println("Global evaluation ");
+		   System.err.println(meval);
+		}
+		else{
+			System.err.println(simpleParse(parameters, parameters.model+".final"));
+		}
+		
+	}
+	
+	
+	public static void main(String[] args) throws JSAPException, IOException {
 		Parameters parameters = new Parameters(args);
+		
+		
+		
+		System.err.println("Model: "+parameters.model);
+		System.err.println("Train dataset: "+parameters.train);
+		System.err.println("Input: "+parameters.input);
+		System.err.println("Output: "+parameters.output);
+		System.err.println("Model size: "+parameters.modelSize);
+		System.err.println("Iterations: "+parameters.iters);
+		System.err.println("Repeat:"+parameters.repeats);
+		System.err.println("Size: "+parameters.trainSize);
+		
+		if(parameters.train != null){
+			train(parameters);    
+		}
+		
+		if(parameters.input != null){
+			parse(parameters);
+		}
+		
+		
+		
 		
 		//full system
 		    //baseline

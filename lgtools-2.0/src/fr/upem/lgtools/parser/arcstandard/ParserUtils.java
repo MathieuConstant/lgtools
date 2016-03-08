@@ -4,6 +4,7 @@
 package fr.upem.lgtools.parser.arcstandard;
 
 import fr.upem.lgtools.parser.Configuration;
+import fr.upem.lgtools.parser.DepArc;
 import fr.upem.lgtools.parser.DepTree;
 import fr.upem.lgtools.text.Sentence;
 import fr.upem.lgtools.text.Unit;
@@ -48,6 +49,21 @@ public class ParserUtils {
 			return false;
 		}
 		return true;
+	}
+	
+	
+	public static DepTree createGoldTree(Sentence s){
+		DepTree tree = new DepTree(s.getUnits().size() + 1);
+		for(Unit u:s.getUnits()){
+			if(u.hasGoldSyntacticHead()){
+			    tree.addArc(new DepArc(u.getGoldSheadId(), u.getGoldSlabel(), u.getId()));
+			}
+			if(u.hasGoldLexicalHead()){
+				
+				tree.addLinks(u.getGoldLHead(),u.getId());
+			}
+		}
+		return tree;
 	}
 	
 }

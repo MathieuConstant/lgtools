@@ -1,93 +1,28 @@
 package fr.upem.lgtools.evaluation;
 
-import fr.upem.lgtools.text.DepTreebank;
-import fr.upem.lgtools.text.Sentence;
-import fr.upem.lgtools.text.Unit;
+import java.util.Collection;
 
-public class ParsingAccuracy {
-	private int sentenceCount = 0;
-	private int unitCount = 0;
-	private int lasCount = 0;
-	private int uasCount = 0;
-	private int exactMatchCount = 0;
-	
-	
-	public static void computeParsingAccuracy(Sentence sentence, ParsingAccuracy acc){
-		
-		boolean exact = true;
-		for(Unit u:sentence.getTokens()){
-			//System.err.println(u);
-			acc.addUnit();
-			if(u.getGoldSheadId() == u.getPredictedSheadId()){
-				acc.addUnlabeledMatch();
-				
-				if(u.getGoldSlabel().equals(u.getPredictedSlabel())){
-					acc.addLabeledMatch();
-				}
-				else{
-					exact = false;
-				}
-				
-			}
-			else{
-				exact = false;
-			}
-			
-		}
-		if(exact){
-			acc.addExactMatch();
-		}
-	}
-	
-	
-    public static ParsingAccuracy computeParsingAccuracy(DepTreebank tb){
-		ParsingAccuracy acc = new ParsingAccuracy();
-		for(Sentence s:tb){
-			acc.addSentence();
-			computeParsingAccuracy(s,acc);
-		}
-		return acc;
-	}
+public abstract class ParsingAccuracy {
 	
 	
 	
-	public void addUnit(){
-		unitCount++;
-	}
-	
-	public void addLabeledMatch(){
-		lasCount++;
-	}
-	
-	public void addUnlabeledMatch(){
-		uasCount++;
-	}
-	
-	public void addExactMatch(){
-		exactMatchCount++;
-	}
-	
-	public void addSentence(){
-		sentenceCount++;
-	}
+	abstract public double getUAS();
+	abstract public double getLAS();
+	abstract public double getExactMatch();
+	abstract public Collection<? extends Score> getLabelScores();
+	abstract public Score getNonMweScore();
 	
 	
-	public double getLAS(){
-		return lasCount/(double)unitCount;		
-	}
 	
-	public double getUAS(){
-		return uasCount/(double)unitCount;		
-	}
-	
-	public double getExactMacth(){
-		return exactMatchCount/(double)sentenceCount;
-	}
 
 		
 	@Override
 	public String toString(){
-		String res = "UAS="+getUAS()+", LAS="+getLAS() + ", ExactMatch="+getExactMacth();
+		String res = "UAS="+getUAS()+", LAS="+getLAS() + ", ExactMatch="+getExactMatch()+"\n";
+		/*for(Score sc:getLabelScores()){
+			res += sc.toString()+"\n";
+		}
+		res += getNonMweScore().toString(); */
 		return res;
 	}
 	

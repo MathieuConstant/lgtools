@@ -4,23 +4,28 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
+import java.util.Map;
 
 import fr.upem.lgtools.text.Sentence;
 import fr.upem.lgtools.text.Unit;
 import fr.upem.lgtools.text.UnitFactory;
+import fr.upem.lgtools.text.Utils;
 
 public class Configuration<T extends Analysis> {
 	private final static String NONE = "";
 	private final Sentence sentence;
+	private final Map<Unit,Integer> projectiveOrderPositions;
 	private final Buffer[] buffers;
     private final Deque<Unit>[] stacks;
     private final T analyses;
+    private final T goldAnalyses;
+    
     private final List<String> history = new ArrayList<String>();
     
     
     //units is a list of non-root units
     @SuppressWarnings("unchecked")
-	public Configuration(Sentence s,T analyses, int nBuffers, int nStacks){
+	public Configuration(Sentence s,T analyses, T goldAnalysis, int nBuffers, int nStacks){
     	/*if(units == null){
     		throw new IllegalArgumentException("List of units cannot be null");
     	}
@@ -35,9 +40,9 @@ public class Configuration<T extends Analysis> {
     	}
     	
     	Unit root = UnitFactory.createRootUnit();
-    	buffers = (SimpleBuffer[])new SimpleBuffer[nBuffers];
+    	buffers = (ListBuffer[])new ListBuffer[nBuffers];
     	for(int i = 0 ; i < nBuffers ; i++){
-    		buffers[i] = new SimpleBuffer(s);    		
+    		buffers[i] = new ListBuffer(s);    		
     	}
     	stacks =  (Deque<Unit>[])new Deque<?>[nStacks];
     	for(int i = 0 ; i < nStacks ; i++){
@@ -46,16 +51,18 @@ public class Configuration<T extends Analysis> {
     		  
     	}
     	this.sentence = s;
-    	
+    	//this.projectiveOrderPositions = null;
+    	this.projectiveOrderPositions = Utils.getProjectiveOrderPositions(s);
     	this.analyses = analyses;
+    	this.goldAnalyses = goldAnalysis;
     }
     
    @SuppressWarnings("unchecked")
    public Configuration(Configuration<T> configuration){
 
-	   buffers = (SimpleBuffer[])new SimpleBuffer[configuration.buffers.length];
+	   buffers = (ListBuffer[])new ListBuffer[configuration.buffers.length];
 	   for(int i = 0 ; i < configuration.buffers.length ; i++){
-		   buffers[i] = new SimpleBuffer((SimpleBuffer)configuration.buffers[i]);    		
+		   buffers[i] = new ListBuffer((ListBuffer)configuration.buffers[i]);    		
 	   }
 	   stacks =  (Deque<Unit>[])new Deque<?>[configuration.stacks.length];
 	   for(int i = 0 ; i < configuration.stacks.length ; i++){
@@ -63,11 +70,16 @@ public class Configuration<T extends Analysis> {
 
 	   }
 	   this.sentence = configuration.sentence;
-	   
+	   this.projectiveOrderPositions = Utils.getProjectiveOrderPositions(this.sentence);
 	   this.analyses = (T)configuration.analyses.copy();
+	   this.goldAnalyses = configuration.goldAnalyses;
 
    }
 
+   
+   public int getProjectiveOrderPosition(Unit u){
+	   return projectiveOrderPositions.get(u);
+   }
     
    public Sentence getSentence(){
 	   return sentence;
@@ -119,6 +131,9 @@ public class Configuration<T extends Analysis> {
 		return analyses;
 	}
 
+	public T getGoldAnalyses() {
+		return goldAnalyses;
+	}
 
 	public List<String> getHistory() {
 		return history;
