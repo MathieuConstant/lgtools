@@ -10,12 +10,18 @@ import java.util.NoSuchElementException;
 public class StreamDepTreebank extends DepTreebank {
 
    private BufferedReader reader;
+   private final boolean isXConll;
 	
 	public StreamDepTreebank(BufferedReader reader) {
 		this.reader = reader;
+		this.isXConll = false;
 	}
-
-
+	
+	public StreamDepTreebank(BufferedReader reader,boolean isXConll) {
+		this.reader = reader;
+		this.isXConll = isXConll;
+	}
+	
 
 	@Override
 	public Iterator<Sentence> iterator() {
@@ -33,7 +39,12 @@ public class StreamDepTreebank extends DepTreebank {
 				}				
 				while(((line = reader.readLine())!=null) && (!line.isEmpty())){
 					//System.err.println("##"+line);
-					units.add(UnitFactory.createUnitFromConllString(line));
+					if(!isXConll){
+					    units.add(UnitFactory.createUnitFromConllString(line));
+					}
+					else{
+						units.add(UnitFactory.createUnitFromConllString(line));
+					}
 					//System.err.println(line);
 				}
 

@@ -12,6 +12,7 @@ import fr.upem.lgtools.evaluation.Evaluation;
 import fr.upem.lgtools.evaluation.MultipleEvaluation;
 import fr.upem.lgtools.evaluation.SimpleEvaluation;
 import fr.upem.lgtools.parser.arcstandard.ArcStandardTransitionBasedParserModel;
+import fr.upem.lgtools.parser.arcstandard.BaselineFullyMWEAwareArcStandardTransitionBasedModel;
 import fr.upem.lgtools.parser.arcstandard.SimpleUnlabeledMergeArcStandardTransitionBasedParserModel;
 import fr.upem.lgtools.parser.features.FeatureMapping;
 import fr.upem.lgtools.parser.features.HashFeatureMapping;
@@ -46,6 +47,15 @@ public class Parser {
 	}
 
 
+	 public static DepTreebank readXConllTreebank(String filename,int size) throws FileNotFoundException{
+			BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(filename)));
+			DepTreebank gold = new BufferedDepTreebank(new StreamDepTreebank(reader,true));
+			if(size >= 0){
+				gold = DepTreebankFactory.limitSize(gold, size);
+			}
+			return gold;
+		}
+	 
 
 /*
 
@@ -261,6 +271,16 @@ public class Parser {
 		
 		if(!parameters.fixedMweOnly){
 			//trainFullSystem(parameters.train, parameters.model, parameters.iters, -1, true);
+			if(parameters.baseline){
+				
+			}
+			else{
+				spc.add(TreebankProcesses.mergeFixedMWEs());
+				spc.add(TreebankProcesses.mergeRegularMWEs());
+				spc.add(TreebankProcesses.binarizeMWE(false));
+				spc.add(TreebankIO.saveInXConll("tmp.conll"));
+			}
+			
 		}
 		else{
 			spc.add(TreebankProcesses.removeRegularMWEs());//in case treebank contains regular MWEs
@@ -291,16 +311,17 @@ public class Parser {
 	
 	
 	private static ArcStandardTransitionBasedParserModel getModel(Parameters parameters,String model) throws IOException{
-		if(parameters.fixedMweOnly){
-			if(parameters.baseline){
-		         return new ArcStandardTransitionBasedParserModel(model);		
-			}
-			else{
-				return new SimpleUnlabeledMergeArcStandardTransitionBasedParserModel(model);
-			}
-			
+		if(parameters.baseline){
+	         return new ArcStandardTransitionBasedParserModel(model);		
 		}
-		return null;
+		else{
+		     if(parameters.fixedMweOnly){
+				return new SimpleUnlabeledMergeArcStandardTransitionBasedParserModel(model);
+		     }
+		     else{
+		    	 return new BaselineFullyMWEAwareArcStandardTransitionBasedModel(model);
+		     }
+		}
 		
 		
 	}
@@ -311,45 +332,60 @@ public class Parser {
 		TransitionBasedSystem<DepTree> parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
 		SimpleEvaluation eval =new SimpleEvaluation();
 		SentenceProcessComposition spc = new SentenceProcessComposition();
+
 		
-		//tb = DepTreebankFactory.unbinarizeMWE(tb, false);
+		spc.add(TreebankProcesses.greedyParse(parser));
+		
+		
+		
 		if(parameters.fixedMweOnly){
 			spc.add(TreebankProcesses.removeRegularMWEs());//in case treebank contains regular MWEs
 			
 	    }
-		spc.add(TreebankProcesses.greedyParse(parser));
 		spc.add(TreebankProcesses.unlabelMWEArcs());
+		
+		spc.add(TreebankProcesses.mergeFixedMWEs());
+		spc.add(TreebankProcesses.mergeRegularMWEs());
+		
+		spc.add(TreebankEvaluations.computeSegmentationAccuracy(false));
+		spc.add(TreebankEvaluations.computeSegmentationAccuracy(true));
+		spc.add(TreebankEvaluations.computeSegmentationParsingScore());
+		
+		spc.add(TreebankIO.saveInXConll("tmp.conll"));
+		
+		spc.add(TreebankProcesses.unmergeFixedMWE());
+		spc.add(TreebankIO.saveInXConll("unmerge.conll"));
+		/*
+		
 		
 		
 		if(parameters.fixedMweOnly && !parameters.baseline){
-			spc.add(TreebankProcesses.unmergeFixedMWE());
-		    
+			
 		}
 		
 		
 		
 		
-		spc.add(TreebankEvaluations.computeParsingAccuracy());
 		
 		
-		spc.add(TreebankProcesses.mergeFixedMWEs());
+		
+		
+		*/
+		
 		
 		if(parameters.output != null){
 			spc.add(TreebankIO.saveInXConll(parameters.output));
 		}
 		
-		//spc.add(TreebankEvaluations.computeSegmentationAccuracy(false));
-		spc.add(TreebankEvaluations.computeSegmentationAccuracy(true));
-		spc.add(TreebankEvaluations.computeSegmentationParsingScore());
-		
-	    TreebankProcesses.processTreebank(tb, spc, eval);
 	   
 	   
 	    
-		//ParsingResult res = parser.greedyParseTreebankAndEvaluate(tb,Constants.MWE_LABEL);
+	   
+	    spc.add(TreebankEvaluations.computeParsingAccuracy());
+	    
+	    
 		
-		
-			
+		TreebankProcesses.processTreebank(tb, spc, eval);
 		
 		return eval;
 	}
@@ -365,11 +401,13 @@ public class Parser {
 				   meval.add(eval);
 				    
 			   }
-		   System.err.println("Global evaluation ");
-		   System.err.println(meval);
+		   //System.out.println("Global evaluation ");
+		   System.out.println(parameters.model);
+			   System.out.println(meval);
 		}
 		else{
-			System.err.println(simpleParse(parameters, parameters.model+".final"));
+			System.out.println(parameters.model);
+			System.out.println(simpleParse(parameters, parameters.model+".final"));
 		}
 		
 	}

@@ -29,8 +29,8 @@ ArcStandardTransitionBasedParserModel{
 	final static String MERGE = "ME";
 
 	public FullyMWEAwareArcStandardTransitionBasedModel(FeatureMapping fm,
-			DepTreebank tb) {
-		super(fm, tb,false);
+			DepTreebank tb,boolean projective) {
+		super(fm, tb,projective);
 	}
 
 
@@ -230,6 +230,7 @@ ArcStandardTransitionBasedParserModel{
 	
 	@Override
 	protected Transition<DepTree> createTransition(String type, String label) {
+		//System.err.println(type+"=="+label);
 		if(MERGE_BOTH.equals(type)){
 			return new MergeBothTransition(MERGE_BOTH,label); 
 		}

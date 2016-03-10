@@ -20,8 +20,8 @@ public class BaselineFullyMWEAwareArcStandardTransitionBasedModel extends FullyM
 	 * @param fm
 	 * @param tb
 	 */
-	public BaselineFullyMWEAwareArcStandardTransitionBasedModel(FeatureMapping fm, DepTreebank tb) {
-		super(fm, tb);
+	public BaselineFullyMWEAwareArcStandardTransitionBasedModel(FeatureMapping fm, DepTreebank tb, boolean projective) {
+		super(fm, tb,projective);
 		
 	}
 

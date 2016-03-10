@@ -63,7 +63,7 @@ public class PerceptronTransitionBasedSystem<T extends Analysis> extends Transit
 	public void staticOracleTrain(DepTreebank tb, DepTreebank dev, String modelFilename, int iterations) throws IOException{
    	 tb = tbm.filter(tb);
    	 Model averaged = new Model(tbm.getFeatureCount(),tbm.getLabelCount());
-   	 //System.err.println(tbm.getTransitions());
+   	 System.err.println(tbm.getTransitions());
    	 int step = 1;
    	 for(int i = 0 ; i < iterations ; i++){
    		 System.err.println("Iteration "+ (i+1));
@@ -87,10 +87,10 @@ public class PerceptronTransitionBasedSystem<T extends Analysis> extends Transit
    				 FeatureVector fv = tbm.extractFeatures(c);
    				 Transition<T> pt = tbm.getBestValidTransition(fv,c);
    				 Transition<T> ot = tbm.getBestCorrectTransition(fv,c);
-   				 if(ot == null){
+   				 /*if(ot == null){
    					 System.err.println("Unkown transition due to SWAP in non-projective sentence?");
    					 break;
-   				 }
+   				 }*/
    				//System.err.println("CONF="+c);
    				 //System.err.println("valid: "+tbm.getValidTransitions(c));
    				//System.err.println(c.getHistory());

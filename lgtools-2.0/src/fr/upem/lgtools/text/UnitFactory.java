@@ -18,6 +18,9 @@ public class UnitFactory {
 	private final static int CONLL_LABEL = 7;
 	private final static int CONLL_GOLD_HEAD = 8;
 	private final static int CONLL_GOLD_LABEL = 9;
+	private final static int XCONLL_GOLD_LEXICAL_ID = 11;
+	private final static int XCONLL_LEXICAL_ID = 10;
+	private final static int XCONLL_POSITIONS = 12;
 	private final static String DUMMY = "_";
 	
 	public static Unit createNullUnit(){
@@ -67,4 +70,47 @@ public class UnitFactory {
 		
 		return u;
 	}
+	
+	public static Unit createUnitFromXConllString(String line){
+		String[] tab = line.split(CONLL_DELIM);
+		
+		//unit positions
+		String positions = tab[XCONLL_POSITIONS];
+		if(positions.equals(DUMMY)){
+			positions = tab[CONLL_ID];
+		}
+		String[] p = positions.split(",");
+		int ids[] = new int[p.length];
+		int i = 0;
+		for(String id:p){
+			ids[i] = Integer.parseInt(id);
+			i++;
+		}
+		
+		Unit u = new Unit(Integer.parseInt(tab[CONLL_ID]), tab[CONLL_FORM], ids);
+		u.setLemma(tab[CONLL_LEMMA].equals(DUMMY)?null:tab[CONLL_LEMMA]);
+		u.setCpos(tab[CONLL_CPOS].equals(DUMMY)?null:tab[CONLL_CPOS]);
+		u.setPos(tab[CONLL_POS]);  //compulsary non-dummy field
+		parseFeats(u,tab[CONLL_FEATS]);
+		//predicted arcs
+		int sh = tab[CONLL_HEAD].equals(DUMMY)?-1:Integer.parseInt(tab[CONLL_HEAD]); 
+		u.setShead(sh);
+		u.setPredictedSlabel(tab[CONLL_LABEL]);
+		// gold arcs
+		sh = tab[CONLL_GOLD_HEAD].equals(DUMMY)?-1:Integer.parseInt(tab[CONLL_GOLD_HEAD]); 
+		u.setGoldShead(sh);
+		u.setGoldSlabel(tab[CONLL_GOLD_LABEL]);
+		
+		//predicted lexical links
+		int lh = tab[XCONLL_LEXICAL_ID].equals(DUMMY)?0:Integer.parseInt(tab[XCONLL_LEXICAL_ID]); 
+		u.setPredictedLhead(lh);
+		lh = tab[XCONLL_GOLD_LEXICAL_ID].equals(DUMMY)?0:Integer.parseInt(tab[XCONLL_GOLD_LEXICAL_ID]); 
+		u.setGoldLHead(lh);
+		
+		
+		
+		return u;
+	}
+	
+	
 }

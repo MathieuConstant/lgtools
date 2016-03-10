@@ -23,6 +23,7 @@ import fr.upem.lgtools.parser.Parameters;
 import fr.upem.lgtools.parser.PerceptronTransitionBasedSystem;
 import fr.upem.lgtools.parser.TransitionBasedSystem;
 import fr.upem.lgtools.parser.arcstandard.ArcStandardTransitionBasedParserModel;
+import fr.upem.lgtools.parser.arcstandard.BaselineFullyMWEAwareArcStandardTransitionBasedModel;
 import fr.upem.lgtools.parser.arcstandard.SimpleUnlabeledMergeArcStandardTransitionBasedParserModel;
 import fr.upem.lgtools.parser.features.FeatureMapping;
 import fr.upem.lgtools.parser.features.HashFeatureMapping;
@@ -884,26 +885,17 @@ public class TreebankProcesses {
 		DepTreebank res = TreebankProcesses.prepareTreebank(tb, mod,null);
 		ArcStandardTransitionBasedParserModel tbm = null;
 		FeatureMapping fm = new  HashFeatureMapping(param.modelSize);
-		if(param.fixedMweOnly){
-			if(param.baseline){
-				tbm = new ArcStandardTransitionBasedParserModel(fm,res,param.projective);
-			}
-			else{
-				tbm = new SimpleUnlabeledMergeArcStandardTransitionBasedParserModel(fm,res,param.projective);  //need for parameter to distinguish both cases or automatic?
-				//tbm = new SimpleLabeledMergeArcStandardTransitionBasedParserModel(fm,tb);
-			}
+		if(param.baseline){
+			tbm = new ArcStandardTransitionBasedParserModel(fm,res,param.projective);
 		}
 		else{
-			if(param.baseline){
-				
-				
-			}
-			else{
-				
-			}
+			 if(param.fixedMweOnly){
+				 tbm = new SimpleUnlabeledMergeArcStandardTransitionBasedParserModel(fm,res,param.projective);  //need for parameter to distinguish both cases or automatic?
+		     }
+			 else{
+				 tbm = new BaselineFullyMWEAwareArcStandardTransitionBasedModel(fm,res,param.projective); 
+			 }		
 		}
-		
-		
 		TransitionBasedSystem<DepTree> parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
 		parser.staticOracleTrain(res,null, param.model,param.iters);	
 		mod.endProcess();

@@ -18,8 +18,8 @@ public class ImplicitCmpFullyMWEAwareArcStandardTransitionBasedModel
 		extends FullyMWEAwareArcStandardTransitionBasedModel {
     boolean withConstrainedMerge = false;
 	
-	public ImplicitCmpFullyMWEAwareArcStandardTransitionBasedModel(FeatureMapping fm, DepTreebank tb, boolean withConstrainedMerge) {
-		super(fm, tb);  //withConstrainedMerge = true does not work because of super
+	public ImplicitCmpFullyMWEAwareArcStandardTransitionBasedModel(FeatureMapping fm, DepTreebank tb, boolean withConstrainedMerge,boolean projective) {
+		super(fm, tb,projective);  //withConstrainedMerge = true does not work because of super
 	   	this.withConstrainedMerge = withConstrainedMerge;
 	   	//System.err.println(this.withConstrainedMerge);
 	}
@@ -29,7 +29,7 @@ public class ImplicitCmpFullyMWEAwareArcStandardTransitionBasedModel
 	 * @param tb
 	 */
 	public ImplicitCmpFullyMWEAwareArcStandardTransitionBasedModel(FeatureMapping fm, DepTreebank tb) {
-		super(fm, tb);
+		super(fm, tb,true);
 		
 	}
 
