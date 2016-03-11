@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import fr.upem.lgtools.parser.Parser;
 import fr.upem.lgtools.parser.arcstandard.ParserUtils;
+import fr.upem.lgtools.process.SentenceProcessComposition;
+import fr.upem.lgtools.process.TreebankIO;
 
 public class Test {
    
@@ -17,7 +19,10 @@ public class Test {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		Parser.readXConllTreebank("tmp.xconll", -1);
+		Parser.readXConllTreebank("en.ewt-test.xconll", -1);
+		SentenceProcessComposition spc = new SentenceProcessComposition();
+		//spc.add(TreebankIO.saveInXConll(parameters.output));
+		
 		//MultipleEvaluation me = new MultipleEvaluation();
 		//Parser.trainWithMerge("data/clean/fa-ud-train.conllu", "tmp", 15,-1);
 		//Parser.parseWithMerge("data/clean/fa-ud-dev.conllu", "tmp.final","tmp.conll",-1);
