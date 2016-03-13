@@ -13,9 +13,8 @@ import fr.upem.lgtools.evaluation.MultipleEvaluation;
 import fr.upem.lgtools.evaluation.SimpleEvaluation;
 import fr.upem.lgtools.parser.arcstandard.ArcStandardTransitionBasedParserModel;
 import fr.upem.lgtools.parser.arcstandard.BaselineFullyMWEAwareArcStandardTransitionBasedModel;
+import fr.upem.lgtools.parser.arcstandard.ImplicitCmpFullyMWEAwareArcStandardTransitionBasedModel;
 import fr.upem.lgtools.parser.arcstandard.SimpleUnlabeledMergeArcStandardTransitionBasedParserModel;
-import fr.upem.lgtools.parser.features.FeatureMapping;
-import fr.upem.lgtools.parser.features.HashFeatureMapping;
 import fr.upem.lgtools.process.SentenceProcessComposition;
 import fr.upem.lgtools.process.TreebankEvaluations;
 import fr.upem.lgtools.process.TreebankIO;
@@ -264,27 +263,38 @@ public class Parser {
 	
 	private static void train(Parameters parameters) throws IOException{
 		System.err.println("--------- New model  -----");
-		ArcStandardTransitionBasedParserModel tbm = null;
+		//ArcStandardTransitionBasedParserModel tbm = null;
 		
-		DepTreebank tb = readTreebank(parameters.train,parameters.trainSize); //treebank in conll format; MWEs with specific arc labels (MWE_LABEL for fixed MWEs; REG_MWE for regular MWEs) 
-		SentenceProcessComposition spc = new SentenceProcessComposition();
-		
+		DepTreebank tb; 
+		if(parameters.xconll){
+		  tb = readXConllTreebank(parameters.train,parameters.trainSize); //treebank in conll format; MWEs with specific arc labels (MWE_LABEL for fixed MWEs; REG_MWE for regular MWEs) 
+		}
+		else{
+			tb = readTreebank(parameters.train,parameters.trainSize);
+		}
+		  SentenceProcessComposition spc = new SentenceProcessComposition();
+		  spc.add(TreebankIO.saveInXConll("tmpx.conll"));
 		if(!parameters.fixedMweOnly){
 			//trainFullSystem(parameters.train, parameters.model, parameters.iters, -1, true);
 			if(parameters.baseline){
-				
+				if(parameters.xconll){
+				   spc.add(TreebankProcesses.unmergeRegularMWE());
+				}
+				spc.add(TreebankIO.saveInXConll("tmp.conll"));
 			}
 			else{
+				//spc.add(TreebankIO.saveInXConll("tmp.conll"));
 				spc.add(TreebankProcesses.mergeFixedMWEs());
 				spc.add(TreebankProcesses.mergeRegularMWEs());
 				spc.add(TreebankProcesses.binarizeMWE(false));
 				spc.add(TreebankIO.saveInXConll("tmp.conll"));
+				
 			}
 			
 		}
 		else{
 			spc.add(TreebankProcesses.removeRegularMWEs());//in case treebank contains regular MWEs
-			spc.add(TreebankProcesses.removeMwePosInLabels());  //put an option in case one wants to keep mwe pos label
+			//spc.add(TreebankProcesses.removeMwePosInLabels());  //put an option in case one wants to keep mwe pos label
 			
 			
 			if(parameters.baseline){
@@ -319,7 +329,14 @@ public class Parser {
 				return new SimpleUnlabeledMergeArcStandardTransitionBasedParserModel(model);
 		     }
 		     else{
-		    	 return new BaselineFullyMWEAwareArcStandardTransitionBasedModel(model);
+		    	 if(parameters.implicitComplete){
+		    		 return new ImplicitCmpFullyMWEAwareArcStandardTransitionBasedModel(model);	 
+		    	 }
+		    	 else{
+		    		 return new BaselineFullyMWEAwareArcStandardTransitionBasedModel(model);	 
+		    	 }
+		    	 
+		    	 
 		     }
 		}
 		
@@ -327,7 +344,14 @@ public class Parser {
 	}
 	
 	private static Evaluation simpleParse(Parameters parameters, String model) throws IOException{
-		DepTreebank tb = readTreebank(parameters.input);
+		
+		DepTreebank tb;
+		if(parameters.xconll){
+			tb = readXConllTreebank(parameters.input,-1);
+		}
+		else{
+		   tb = readTreebank(parameters.input);
+		}
 		ArcStandardTransitionBasedParserModel tbm = getModel(parameters,model);
 		TransitionBasedSystem<DepTree> parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
 		SimpleEvaluation eval =new SimpleEvaluation();

@@ -43,7 +43,7 @@ public class StreamDepTreebank extends DepTreebank {
 					    units.add(UnitFactory.createUnitFromConllString(line));
 					}
 					else{
-						units.add(UnitFactory.createUnitFromConllString(line));
+						units.add(UnitFactory.createUnitFromXConllString(line));
 					}
 					//System.err.println(line);
 				}

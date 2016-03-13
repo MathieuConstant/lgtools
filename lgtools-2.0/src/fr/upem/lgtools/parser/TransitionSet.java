@@ -28,6 +28,7 @@ public class TransitionSet<T extends Analysis> implements Iterable<Transition<T>
 	
 	
 	private String getTransitionId(String type, String label){
+		//System.err.println(type+"=="+label);
 		return Transitions.constructTransitionId(type, label);
 	}
 	
@@ -47,7 +48,7 @@ public class TransitionSet<T extends Analysis> implements Iterable<Transition<T>
 	}
 	
 	public int getTransitionIndex(Transition<T> transition){
-		
+		//System.err.println(transition);
 		return transitionIds.get(transition.id());
 	}
 	

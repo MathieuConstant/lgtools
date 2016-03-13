@@ -33,16 +33,30 @@ public class FullDefaultFeatureExtractor extends DefaultFeatureExtractor {
 		//feats.add("EMPTY2");
 		Unit s0u = stack.peek();
 		Unit s1u = FeatureUtils.getSecondElementInStack(stack);
+		//Unit s2u = FeatureUtils.getThirdElementInStack(stack);
 		Unit b0u = FeatureUtils.getFirstElementInBuffer(buffer);
-		//Unit b1u = getSecondElementInBuffer(buffer);
+		Unit b1u = FeatureUtils.getSecondElementInBuffer(buffer);
+		//Unit b2u = FeatureUtils.getThirdElementInBuffer(buffer);
 		
 		FeatureUtils.addUnitFeatures("lex:s0u", s0u,feats,configuration);
 		FeatureUtils.addUnitFeatures("lex:s1u", s1u,feats,configuration);
 		
+		
+		
+		//FeatureUtils.addUnitFeatures("lex:s2u", s2u,feats,configuration);
+		FeatureUtils.addUnitFeatures("lex:b0u", b0u,feats,configuration);
+		//FeatureUtils.addUnitFeatures("lex:b1u", b1u,feats,configuration);
+		//FeatureUtils.addUnitFeatures("lex:b2u", b2u,feats,configuration);
+		
+		
 		FeatureUtils.addUnitPairFeatures("lex:s0u_s1u",s0u,s1u,feats,configuration);	
 		FeatureUtils.addUnitPairFeatures("lex:s0u_b0u",s0u,b0u,feats,configuration);
 		
+		//FeatureUtils.addUnitTripletFeatures("lex:s2u_s1u_s0u",s2u,s1u,s0u,feats,configuration);
 		FeatureUtils.addUnitTripletFeatures("lex:s1u_s0u_b0u",s1u,s0u,b0u,feats,configuration);
+		FeatureUtils.addUnitTripletFeatures("lex:s0u_b0u_b1u",s0u,b0u,b1u,feats,configuration);
+		
+		//FeatureUtils.addDistanceFeature("lex:dist_s0u_s1u",s1u,s0u,feats);
 		
 	}
 	
@@ -178,7 +192,7 @@ public class FullDefaultFeatureExtractor extends DefaultFeatureExtractor {
 		//System.err.println("ICI");
 		extract("syn",configuration, configuration.getFirstStack(),feats);
 		extractLexicalFeatures(configuration, feats); // first option
-		extractCombinedLexicalAndSyntacticFeatures(configuration, feats); //second option
+		//extractCombinedLexicalAndSyntacticFeatures(configuration, feats); //second option
 		
 		//extract("stack2",configuration, configuration.getSecondStack(),feats);
 		return feats;

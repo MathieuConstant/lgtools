@@ -22,7 +22,18 @@ public class Sentence {
 		for(Unit u:units){
 			map.put(u.getId(), u);
 		}
-		this.size = this.units.size();		
+		this.size = tokenCount();		
+	}
+	
+	private int tokenCount(){
+		int cnt = 0;
+		for(Unit u:units){
+			if(u.isMWE()){
+				return cnt;
+			}
+			cnt++;
+		}
+		return units.size();
 	}
 	
 	
@@ -76,6 +87,7 @@ public class Sentence {
 	 */
 	
 	public List<Unit> getTokenSequence(boolean goldAnnotation){
+		
 		return Utils.getUnitSequence(goldAnnotation,getUnits().size(),this,getTokens(),true);
 		
 	}

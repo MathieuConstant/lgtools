@@ -6,6 +6,8 @@ import fr.upem.lgtools.parser.Parser;
 import fr.upem.lgtools.parser.arcstandard.ParserUtils;
 import fr.upem.lgtools.process.SentenceProcessComposition;
 import fr.upem.lgtools.process.TreebankIO;
+import fr.upem.lgtools.process.TreebankProcesses;
+import fr.upem.lgtools.text.DepTreebank;
 
 public class Test {
    
@@ -19,9 +21,10 @@ public class Test {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		Parser.readXConllTreebank("en.ewt-test.xconll", -1);
+		DepTreebank tb = Parser.readXConllTreebank("en.ewt-test.xconll", -1);
 		SentenceProcessComposition spc = new SentenceProcessComposition();
-		//spc.add(TreebankIO.saveInXConll(parameters.output));
+		spc.add(TreebankIO.saveInXConll("tt.conll"));
+		TreebankProcesses.processTreebank(tb, spc, null);
 		
 		//MultipleEvaluation me = new MultipleEvaluation();
 		//Parser.trainWithMerge("data/clean/fa-ud-train.conllu", "tmp", 15,-1);

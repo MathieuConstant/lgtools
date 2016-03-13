@@ -159,17 +159,22 @@ public class Unit {
 		return getGoldLHead() > 0;
 	}
 	
-	public boolean hasLexicalHead(){
-		return getLheadId() > 0;
+	
+	public boolean hasPredictedLexicalHead(){
+		return getPredictedLheadId() > 0;
 	}
 	
+	
+	public boolean hasLexicalHead(boolean goldAnnotation){
+		return goldAnnotation?hasGoldLexicalHead():hasPredictedLexicalHead();
+	}
 	
 	
 	public Unit findPredictedLexicalRoot(Sentence s){
 		Unit root = this;
 		//System.err.println(root);
 		int lh;
-		while((lh = root.getLheadId()) > 0){
+		while((lh = root.getPredictedLheadId()) > 0){
 			root = s.get(lh);
 		}
 		return root;
@@ -342,9 +347,13 @@ public class Unit {
 		}
 	}  
 	
+
+	public int getLheadId(boolean goldAnnotation){
+		return goldAnnotation?getGoldLHead():getPredictedLheadId();
+	}
 	
 	
-	public int getLheadId() {
+	public int getPredictedLheadId() {
 		return lhead;
 	}
 
@@ -422,7 +431,7 @@ public class Unit {
 	}
 	
 	public boolean isPredictedLexicalRoot(){
-		return getLheadId() <= 0;
+		return getPredictedLheadId() <= 0;
 	}
 	
 	
@@ -475,7 +484,7 @@ public class Unit {
 		/*sb.append(id).append(":").append(form).append(":").append(shead)
 		   .append(":").append(slabel);*/
 		//return sb.toString();
-		return form+"("+id+","+pos+")";
+		return form+"("+id+","+pos+":"+positions.length+")";
 	}
      
      

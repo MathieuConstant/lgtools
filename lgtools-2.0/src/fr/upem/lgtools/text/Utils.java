@@ -48,13 +48,14 @@ public class Utils {
 		out.write("\t"+u.getPos()+"\t"+feats(u.getFeatures()));
 		out.write("\t"+u.getPredictedSheadId()+"\t"+u.getPredictedSlabel());
 		out.write("\t"+u.getGoldSheadId()+"\t"+u.getGoldSlabel());
-		out.write("\t"+u.getLheadId()+"\t"+u.getGoldLHead());
+		out.write("\t"+u.getPredictedLheadId()+"\t"+u.getGoldLHead());
 		out.write("\n");
 		
 	}
 	
 	
 	public static void writeSentenceInXConll(BufferedWriter out,Sentence s) throws IOException{
+		
 		for(Unit u:s.getUnits()){
 			writeUnitInXConll(out,u);
 		}
@@ -196,7 +197,7 @@ public class Utils {
 		HashMap<Integer,Collection<Unit>> children = new HashMap<Integer, Collection<Unit>>();
 
 		
-		for(Unit u:s.getUnits()){
+		for(Unit u:s.getTokenSequence(true)){
 			//System.err.println(u+"=="+u.getGoldSheadId());
 			if(u.hasGoldSyntacticHead()){
 				int h = u.getGoldSheadId();
@@ -279,11 +280,11 @@ public class Utils {
 	
 	public static Map<Unit,Integer> getProjectiveOrderPositions(Sentence s){
 		 Map<Integer,Collection<Unit>> children = getGoldChildren(s);
-		 
+		 //System.err.println("ICI");
 		LinkedList<Unit> ordered = traverse(0,children,s); 
 		Map<Unit,Integer> positions = new HashMap<Unit, Integer>();
-		//System.err.println(ordered);
-		//System.err.println(children);
+		//System.err.println("="+ordered);
+		//System.err.println("="+children);
 		int cnt = 0;
 		for(Unit u:ordered){
 			positions.put(u, cnt);
@@ -298,7 +299,7 @@ public class Utils {
 	public static List<Unit> getUnitSequence(boolean goldAnnotation, int sizeMax, Sentence s, Iterable<Unit> initialTokenList,boolean onlyFixedMwe){
 		List<Unit> tokens = new ArrayList<Unit>();
 		boolean[] handled = new boolean[sizeMax+1];
-		//System.err.println(getTokens());
+	    //System.err.println(initialTokenList);
 		for(Unit u:initialTokenList){
 			Unit r = u;
 			if(goldAnnotation){

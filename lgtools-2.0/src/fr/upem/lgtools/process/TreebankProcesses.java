@@ -24,9 +24,11 @@ import fr.upem.lgtools.parser.PerceptronTransitionBasedSystem;
 import fr.upem.lgtools.parser.TransitionBasedSystem;
 import fr.upem.lgtools.parser.arcstandard.ArcStandardTransitionBasedParserModel;
 import fr.upem.lgtools.parser.arcstandard.BaselineFullyMWEAwareArcStandardTransitionBasedModel;
-import fr.upem.lgtools.parser.arcstandard.SimpleUnlabeledMergeArcStandardTransitionBasedParserModel;
+import fr.upem.lgtools.parser.arcstandard.ImplicitCmpFullyMWEAwareArcStandardTransitionBasedModel;
+import fr.upem.lgtools.parser.arcstandard.SimpleLabeledMergeArcStandardTransitionBasedParserModel;
 import fr.upem.lgtools.parser.features.FeatureMapping;
 import fr.upem.lgtools.parser.features.HashFeatureMapping;
+import fr.upem.lgtools.parser.mwereco.MweRecognizerModel;
 import fr.upem.lgtools.text.DepTreebank;
 import fr.upem.lgtools.text.Sentence;
 import fr.upem.lgtools.text.Unit;
@@ -581,9 +583,64 @@ public class TreebankProcesses {
 			}
 		};
 
-
 	}
+	
+	public static String generateLabel(String oldLabel,String mwePos){
+		return oldLabel+"_"+Constants.REG_MWE+"_"+mwePos;
+	}
+	
+ 
+	
+	
+	public static SentenceProcess unmergeRegularMWE(){
+		return new AbstractSentenceProcess() {
 
+			
+			private boolean contains(int[] x,int val){
+				for(int v:x){
+					if(v == val){
+						return true;
+					}
+				}
+				return false;
+			}
+			
+			private void unmergeRegularMWE(Unit mwe,Sentence s,boolean goldAnnotation){
+				for(int c:mwe.getPositions()){
+					Unit mc = s.get(c);
+					if(mc.hasSyntacticHead(goldAnnotation)){
+						//System.err.println(mc+"--"+Arrays.toString(mwe.getPositions())+"=="+mc.getSHead(goldAnnotation));
+						if(contains(mwe.getPositions(),mc.getSHead(goldAnnotation))){
+							//System.err.println("H");
+							mc.setLhead(0, goldAnnotation);
+							String label = generateLabel(mc.getSLabel(goldAnnotation),mwe.getPos());
+							mc.setSlabel(label, goldAnnotation);
+						}
+					}
+				}
+				
+			}
+			
+			@Override
+			public Sentence apply(Sentence s, SimpleEvaluation eval) {
+				Sentence res = new Sentence(s); 
+				for(Unit mwe :res.getMWUnits()){
+					if(!mwe.isFixedMWE(res, false)){
+						unmergeRegularMWE(mwe, res, false);
+					}
+					if(!mwe.isFixedMWE(res, true)){
+						unmergeRegularMWE(mwe, res, true);
+					}
+					
+				}
+				return res;
+			}
+		};
+		
+	}
+	
+	
+	
 	public static SentenceProcess unMergeMWE(DepTreebank tb,final String mweLabel){
 		return new AbstractSentenceProcess() {
 
@@ -883,18 +940,35 @@ public class TreebankProcesses {
 		
 		mod.initProcess();
 		DepTreebank res = TreebankProcesses.prepareTreebank(tb, mod,null);
+		
 		ArcStandardTransitionBasedParserModel tbm = null;
 		FeatureMapping fm = new  HashFeatureMapping(param.modelSize);
-		if(param.baseline){
-			tbm = new ArcStandardTransitionBasedParserModel(fm,res,param.projective);
+	
+		
+		if(param.noSyntax){
+			
+			
 		}
 		else{
-			 if(param.fixedMweOnly){
-				 tbm = new SimpleUnlabeledMergeArcStandardTransitionBasedParserModel(fm,res,param.projective);  //need for parameter to distinguish both cases or automatic?
-		     }
-			 else{
-				 tbm = new BaselineFullyMWEAwareArcStandardTransitionBasedModel(fm,res,param.projective); 
-			 }		
+			if(param.baseline){
+				tbm = new ArcStandardTransitionBasedParserModel(fm,res,param.projective);
+			}
+			else{
+				if(param.fixedMweOnly){
+					tbm = new SimpleLabeledMergeArcStandardTransitionBasedParserModel(fm,res,param.projective);  //need for parameter to distinguish both cases or automatic?
+				}
+				else{
+					if(param.implicitComplete){
+						tbm = new ImplicitCmpFullyMWEAwareArcStandardTransitionBasedModel(fm,res,false,param.projective); 
+
+					}
+					else{
+						tbm = new BaselineFullyMWEAwareArcStandardTransitionBasedModel(fm,res,param.projective); 
+					}
+
+
+				}		
+			}
 		}
 		TransitionBasedSystem<DepTree> parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
 		parser.staticOracleTrain(res,null, param.model,param.iters);	

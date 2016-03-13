@@ -29,6 +29,7 @@ public class Parameters {
 	private static final String FIXED_MWE_ONLY = "fixed_only";
 	private static final String NO_SYNTACTIC_ANALYSIS = "nosyntax";
 	private static final String BASELINE = "baseline";
+	private static final String XCONLL_INPUT = "xconll";
 	
 	public int iters;
 	public int modelSize;
@@ -45,6 +46,7 @@ public class Parameters {
 	public boolean noSyntax;
 	public boolean baseline;
 	public boolean projective;
+	public boolean xconll;
 	
 	
 	
@@ -71,6 +73,7 @@ public class Parameters {
 		noSyntax = config.getBoolean(NO_SYNTACTIC_ANALYSIS);
 		baseline = config.getBoolean(BASELINE);
 		projective = config.getBoolean(PROJECTIVE_OPT);
+		xconll = config.getBoolean(XCONLL_INPUT);
 		
 		if(!rightMerge && constrainedMerge){
 			throw new IllegalStateException("The constrained merge strategy can only be applied with a right merge strategy!!");
@@ -129,6 +132,12 @@ public class Parameters {
 		.setShortFlag(JSAP.NO_SHORTFLAG);
 		sw.setHelp("No syntactic analysis is performed (default: syntactic analysis is performed)");
 		jsap.registerParameter(sw);
+		
+		sw = new Switch(XCONLL_INPUT)
+				.setLongFlag(XCONLL_INPUT)
+				.setShortFlag('X');
+				sw.setHelp("input text in xconll format");
+				jsap.registerParameter(sw);
 		
 		sw = new Switch(PROJECTIVE_OPT)
 				.setLongFlag(PROJECTIVE_OPT)

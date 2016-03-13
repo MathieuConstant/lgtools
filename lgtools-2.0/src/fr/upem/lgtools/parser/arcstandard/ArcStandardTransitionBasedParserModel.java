@@ -172,7 +172,7 @@ public class ArcStandardTransitionBasedParserModel extends
 		 //System.err.println(s1);
 		 int s0p = configuration.getProjectiveOrderPosition(s0);
 		 int s1p = configuration.getProjectiveOrderPosition(s1);
-		 //System.err.println(s0+"="+s1+"="+s0p+","+s1p);
+		 //System.err.println(s0+"="+s1+"="+s0p+","+s1p+"--->"+(s0p < s1p));
 		return s0p < s1p;
 	}
 	

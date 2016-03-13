@@ -4,6 +4,7 @@
 package fr.upem.lgtools.parser.arcstandard;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.LinkedList;
@@ -170,6 +171,8 @@ ArcStandardTransitionBasedParserModel{
 
 
 	private String getMergeUnitLabel(Unit u, Sentence s){
+		//System.err.println(u+"=="+u.isMWE()+"=="+u.isGoldFixedMWE(s));
+		//System.err.println(Arrays.toString(u.getPositions()));
 		if(!u.isMWE()){
 			return null;
 		}
