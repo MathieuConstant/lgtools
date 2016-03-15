@@ -20,7 +20,8 @@ public abstract class Score {
 	
 	@Override
 	public String toString() {
-		return evalName + ": p="+getPrecision()+ ", r="+getRecall()+", f="+getFscore();
+		//return evalName + ": p="+getPrecision()+ ", r="+getRecall()+", f="+getFscore();
+		return "\t"+getFscore();
 	}
 	
 

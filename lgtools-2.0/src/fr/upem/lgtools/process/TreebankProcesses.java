@@ -936,6 +936,18 @@ public class TreebankProcesses {
 		mod.endProcess();
 	}
 
+	
+	public static <T extends Analysis> void staticOracleMweTrain(DepTreebank tb, SentenceProcessComposition mod, String model,int iter) throws IOException{
+		mod.initProcess();
+		DepTreebank res = TreebankProcesses.prepareTreebank(tb, mod,null);
+		FeatureMapping fm = new  HashFeatureMapping(1000000);
+		MweRecognizerModel tbm = new MweRecognizerModel(fm, res);
+		TransitionBasedSystem<DepTree> parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
+		parser.staticOracleTrain(res,null, model,iter);	
+		mod.endProcess();
+		
+	}
+	
 	public static <T extends Analysis> void staticOracleTrain(DepTreebank tb, SentenceProcessComposition mod, Parameters param) throws IOException{
 		
 		mod.initProcess();

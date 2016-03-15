@@ -58,43 +58,7 @@ public class Parser {
 
 /*
 
-	public static TransitionBasedSystem<DepTree> trainMweSystem(String filename,String model, int iter, int limit, boolean withFixedMweOnly) throws IOException{
-		DepTreebank tb = readTreebank(filename,limit);
-		tb = DepTreebankFactory.mergeFixedMWEs(tb);
-		if(!withFixedMweOnly){
-			tb = DepTreebankFactory.mergeRegularMWEs(tb, Constants.REG_MWE);
-		}
-
-		Utils.saveTreebankInXConll(tb, "merged.conll");
-		tb = DepTreebankFactory.binarizeMWE(tb, false);
-		Utils.saveTreebankInXConll(tb, "binarized.conll");
-
-		FeatureMapping fm = new  HashFeatureMapping(1000000);
-		MweRecognizerModel tbm = new MweRecognizerModel(fm,tb);
-		TransitionBasedSystem<DepTree> parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
-		parser.staticOracleTrain(tb, model,iter);
-		return parser;
-	}
-
-	public static Evaluation parseWithMweSystem(String filename,String model,String output, int limit, boolean withFixedMweOnly) throws IOException{
-		DepTreebank tb = readTreebank(filename,limit);
-		MweRecognizerModel tbm = new MweRecognizerModel(model);
-		TransitionBasedSystem<DepTree> parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
-
-		ParsingResult res = parser.greedyParseTreebankAndEvaluate(tb,Constants.MWE_LABEL);
-		//ParsingResult res = parser.oracleParseTreebankAndEvaluate(tb);
-		tb = DepTreebankFactory.unbinarizeMWE(res.getTreebank(), false);
-		tb = DepTreebankFactory.mergeFixedMWEs(tb);
-		if(!withFixedMweOnly){
-			tb = DepTreebankFactory.mergeRegularMWEs(tb, Constants.REG_MWE);
-		}
-		Utils.saveTreebankInXConll(tb, output);
-		//System.err.println("\nFixed MWEs only:\n"+SegmentationAccuracy.computeSegmentationAccuracy(tb,true));
-		SegmentationAccuracy mwes = SimpleSegmentationAccuracy.computeSegmentationAccuracy(tb,false);
-		System.err.println(mwes);
-
-		return new SimpleEvaluation(null, withFixedMweOnly?null:mwes, withFixedMweOnly?mwes:null, null, null);
-	}
+	
 
 
 	public static TransitionBasedSystem<DepTree> trainFullSystem(String filename,String model, int iter, int limit, boolean baseline) throws IOException{
@@ -360,7 +324,7 @@ public class Parser {
 		
 		spc.add(TreebankProcesses.greedyParse(parser));
 		
-		
+		spc.add(TreebankIO.saveInXConll("tmp.conll"));
 		
 		if(parameters.fixedMweOnly){
 			spc.add(TreebankProcesses.removeRegularMWEs());//in case treebank contains regular MWEs
@@ -375,24 +339,16 @@ public class Parser {
 		spc.add(TreebankEvaluations.computeSegmentationAccuracy(true));
 		spc.add(TreebankEvaluations.computeSegmentationParsingScore());
 		
-		spc.add(TreebankIO.saveInXConll("tmp.conll"));
+		
 		
 		spc.add(TreebankProcesses.unmergeFixedMWE());
 		spc.add(TreebankIO.saveInXConll("unmerge.conll"));
-		/*
 		
-		
+		/*	
 		
 		if(parameters.fixedMweOnly && !parameters.baseline){
 			
 		}
-		
-		
-		
-		
-		
-		
-		
 		
 		*/
 		
@@ -430,7 +386,7 @@ public class Parser {
 			   System.out.println(meval);
 		}
 		else{
-			System.out.println(parameters.model);
+			System.err.println(parameters.model);
 			System.out.println(simpleParse(parameters, parameters.model+".final"));
 		}
 		

@@ -18,7 +18,8 @@ public abstract class ParsingAccuracy {
 		
 	@Override
 	public String toString(){
-		String res = "UAS="+getUAS()+", LAS="+getLAS() + ", ExactMatch="+getExactMatch()+"\n";
+		//String res = "UAS="+getUAS()+", LAS="+getLAS() + ", ExactMatch="+getExactMatch()+"\n";
+		String res = "\t"+getUAS()+"\t"+getLAS();
 		/*for(Score sc:getLabelScores()){
 			res += sc.toString()+"\n";
 		}

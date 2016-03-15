@@ -51,6 +51,7 @@ public class SimpleScore extends Score {
 	
 	@Override
 	public String toString() {
-		return super.toString()+ "  ("+good+"/s="+predicted+"/g="+gold+")";
+		//return super.toString()+ "  ("+good+"/s="+predicted+"/g="+gold+")";
+		return super.toString();
 	}
 }
