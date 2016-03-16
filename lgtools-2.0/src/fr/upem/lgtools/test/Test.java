@@ -19,21 +19,22 @@ public class Test {
    
 	
 	public static TransitionBasedSystem<DepTree> trainMweSystem(String filename,String model, int iter, int limit, boolean withFixedMweOnly) throws IOException{
-		DepTreebank tb = Parser.readXConllTreebank(filename,limit);
+		DepTreebank tb = Parser.readTreebank(filename,limit);
 		SentenceProcessComposition spc = new SentenceProcessComposition();
-		/*spc.add(TreebankProcesses.mergeFixedMWEs());
+		spc.add(TreebankProcesses.mergeFixedMWEs());
 		if(!withFixedMweOnly){
 		   spc.add(TreebankProcesses.mergeRegularMWEs());
 		}
+		
 		spc.add(TreebankProcesses.binarizeMWE(false));
-		spc.add(TreebankIO.saveInXConll("tmp.conll"));*/
+		spc.add(TreebankIO.saveInXConll("tmp.conll"));
 		TreebankProcesses.staticOracleMweTrain(tb, spc, model,iter);
 		return null;
 	}
 
 	
 	public static Evaluation parseWithMweSystem(String filename,String model,String output, int limit, boolean withFixedMweOnly) throws IOException{
-		DepTreebank tb = Parser.readXConllTreebank(filename,limit);
+		DepTreebank tb = Parser.readTreebank(filename,limit);
 		MweRecognizerModel tbm = new MweRecognizerModel(model);
 		TransitionBasedSystem<DepTree> parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
 		SimpleEvaluation eval =new SimpleEvaluation();
@@ -71,8 +72,9 @@ public class Test {
 		TreebankProcesses.processTreebank(tb, spc, null);
 		*/
 		
-		trainMweSystem("data/acl2016/en.ewt-train.xconll", "mwemodel", 5,-1,false);
-		System.err.println(parseWithMweSystem("data/acl2016/en.ewt-dev.xconll", "mwemodel.final", "res-mwe.conll",-1,false));
+		trainMweSystem("data/acl2016/fr-acl14-train.conllu", "mwemodel", 5,-1,true);
+		System.err.println(parseWithMweSystem("data/acl2016/fr-acl14-dev.conllu", "mwemodel.final", "res-mwe.conll",-1,true));
+		System.err.println(parseWithMweSystem("data/acl2016/fr-acl14-test.conllu", "mwemodel.final", "res-mwe.conll",-1,true));
 		
 		//MultipleEvaluation me = new MultipleEvaluation();
 		//Parser.trainWithMerge("data/clean/fa-ud-train.conllu", "tmp", 15,-1);
