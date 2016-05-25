@@ -14,6 +14,8 @@ import fr.upem.lgtools.process.TreebankEvaluations;
 import fr.upem.lgtools.process.TreebankIO;
 import fr.upem.lgtools.process.TreebankProcesses;
 import fr.upem.lgtools.text.DepTreebank;
+import fr.upem.lgtools.text.Sentence;
+import fr.upem.lgtools.text.Unit;
 
 public class Test {
    
@@ -72,9 +74,49 @@ public class Test {
 		TreebankProcesses.processTreebank(tb, spc, null);
 		*/
 		
-		trainMweSystem("data/acl2016/fr-acl14-train.conllu", "mwemodel", 5,-1,true);
-		System.err.println(parseWithMweSystem("data/acl2016/fr-acl14-dev.conllu", "mwemodel.final", "res-mwe.conll",-1,true));
-		System.err.println(parseWithMweSystem("data/acl2016/fr-acl14-test.conllu", "mwemodel.final", "res-mwe.conll",-1,true));
+		DepTreebank tb = Parser.readTreebank("data/acl2016/fr-acl14-test.conllu", -1);
+		
+		SentenceProcessComposition spc = new SentenceProcessComposition();
+		spc.add(TreebankProcesses.mergeFixedMWEs());
+		spc.add(TreebankProcesses.mergeRegularMWEs());
+		
+		spc.initProcess();
+		DepTreebank res = TreebankProcesses.prepareTreebank(tb, spc, null);
+		
+		
+		
+		int nTokens = 0;
+		int nUnits = 0;
+		int nFixed = 0;
+		int nSentences = 0;
+		for(Sentence s:res){
+			for(Unit u:s.getTokenSequence(true)){
+				if(u.isFixedMWE(s, true)){
+					nFixed++;
+				}
+			}
+			
+			nTokens += s.getTokens().size();
+			nUnits += s.getMWUnits().size();
+			nSentences++;
+		}
+		spc.endProcess();
+		/*
+		tb = Parser.readXConllTreebank("en.ewt-train.xconll", -1);
+		for(Sentence s:tb){
+			nTokens += s.getTokens().size();
+			nUnits += s.getMWUnits().size();
+			
+		}*/
+		
+		System.err.println(nSentences);
+		System.err.println(nTokens);
+		
+		System.err.println(nUnits);
+		System.err.println(nFixed);
+		//trainMweSystem("data/acl2016/fr-acl14-train.conllu", "mwemodel", 5,-1,true);
+		//System.err.println(parseWithMweSystem("data/acl2016/fr-acl14-dev.conllu", "mwemodel.final", "res-mwe.conll",-1,true));
+		//System.err.println(parseWithMweSystem("data/acl2016/fr-acl14-test.conllu", "mwemodel.final", "res-mwe.conll",-1,true));
 		
 		//MultipleEvaluation me = new MultipleEvaluation();
 		//Parser.trainWithMerge("data/clean/fa-ud-train.conllu", "tmp", 15,-1);
