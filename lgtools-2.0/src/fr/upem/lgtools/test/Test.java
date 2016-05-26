@@ -79,7 +79,7 @@ public class Test {
 		SentenceProcessComposition spc = new SentenceProcessComposition();
 		spc.add(TreebankProcesses.mergeFixedMWEs());
 		spc.add(TreebankProcesses.mergeRegularMWEs());
-		
+		spc.add(TreebankIO.saveInXConll("tt.conll"));
 		spc.initProcess();
 		DepTreebank res = TreebankProcesses.prepareTreebank(tb, spc, null);
 		
@@ -90,7 +90,9 @@ public class Test {
 		int nFixed = 0;
 		int nSentences = 0;
 		for(Sentence s:res){
+			System.err.println(s.getTokenSequence(true));
 			for(Unit u:s.getTokenSequence(true)){
+			
 				if(u.isFixedMWE(s, true)){
 					nFixed++;
 				}
