@@ -55,7 +55,12 @@ public class Test {
 		
 		spc.add(TreebankEvaluations.computeSegmentationAccuracy(false));
 		
+		spc.add(TreebankProcesses.fixedMWEAsTokens(false));
 		
+		spc.add(TreebankIO.saveInConll("mtmp.conll"));
+		//spc.add(TreebankIO.saveInMergedConll("mtmp.conll"));
+		//spc.add(TreebankProcesses.multipleTokensAsFixedMwe());
+		//spc.add(TreebankIO.saveInXConll("mtmp2.conll"));
 		TreebankProcesses.processTreebank(tb, spc, eval);
 		//Utils.saveTreebankInXConll(tb, output);
 		return eval;
@@ -74,12 +79,14 @@ public class Test {
 		TreebankProcesses.processTreebank(tb, spc, null);
 		*/
 		
-		DepTreebank tb = Parser.readTreebank("data/acl2016/fr-acl14-test.conllu", -1);
+		/*DepTreebank tb = Parser.readTreebank("data/acl2016/fr-acl14-train.conllu", -1);
 		
 		SentenceProcessComposition spc = new SentenceProcessComposition();
 		spc.add(TreebankProcesses.mergeFixedMWEs());
-		spc.add(TreebankProcesses.mergeRegularMWEs());
-		spc.add(TreebankIO.saveInXConll("tt.conll"));
+		//spc.add(TreebankProcesses.mergeRegularMWEs());
+		spc.add(TreebankProcesses.fixedMWEAsTokens(true));
+		
+		spc.add(TreebankIO.saveInConll("mergedTrain.conll"));
 		spc.initProcess();
 		DepTreebank res = TreebankProcesses.prepareTreebank(tb, spc, null);
 		
@@ -90,7 +97,7 @@ public class Test {
 		int nFixed = 0;
 		int nSentences = 0;
 		for(Sentence s:res){
-			System.err.println(s.getTokenSequence(true));
+			//System.err.println(s.getTokenSequence(true));
 			for(Unit u:s.getTokenSequence(true)){
 			
 				if(u.isFixedMWE(s, true)){
@@ -102,7 +109,7 @@ public class Test {
 			nUnits += s.getMWUnits().size();
 			nSentences++;
 		}
-		spc.endProcess();
+		spc.endProcess();*/ 
 		/*
 		tb = Parser.readXConllTreebank("en.ewt-train.xconll", -1);
 		for(Sentence s:tb){
@@ -110,13 +117,16 @@ public class Test {
 			nUnits += s.getMWUnits().size();
 			
 		}*/
-		
+		/*
 		System.err.println(nSentences);
 		System.err.println(nTokens);
 		
 		System.err.println(nUnits);
 		System.err.println(nFixed);
-		//trainMweSystem("data/acl2016/fr-acl14-train.conllu", "mwemodel", 5,-1,true);
+		*/
+		trainMweSystem("data/acl2016/fr-acl14-train.conllu", "models/acl2016/fr-acl14-train.conllu.imwe.0.final", 5,-1,true);
+		trainMweSystem("data/acl2016/fr-acl14-train.conllu", "models/acl2016/fr-acl14-train.conllu.imwe.1.final", 5,-1,true);
+		trainMweSystem("data/acl2016/fr-acl14-train.conllu", "models/acl2016/fr-acl14-train.conllu.imwe.2.final", 5,-1,true);
 		//System.err.println(parseWithMweSystem("data/acl2016/fr-acl14-dev.conllu", "mwemodel.final", "res-mwe.conll",-1,true));
 		//System.err.println(parseWithMweSystem("data/acl2016/fr-acl14-test.conllu", "mwemodel.final", "res-mwe.conll",-1,true));
 		

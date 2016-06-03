@@ -330,11 +330,13 @@ public class Parser {
 			spc.add(TreebankProcesses.removeRegularMWEs());//in case treebank contains regular MWEs
 			
 	    }
+		
 		spc.add(TreebankProcesses.unlabelMWEArcs());
 		
 		spc.add(TreebankProcesses.mergeFixedMWEs());
-		spc.add(TreebankProcesses.mergeRegularMWEs());
 		
+		spc.add(TreebankProcesses.mergeRegularMWEs());
+		/*
 		spc.add(TreebankEvaluations.computeSegmentationAccuracy(false));
 		spc.add(TreebankEvaluations.computeSegmentationAccuracy(true));
 		spc.add(TreebankEvaluations.computeSegmentationParsingScore());
@@ -343,14 +345,8 @@ public class Parser {
 		
 		spc.add(TreebankProcesses.unmergeFixedMWE());
 		spc.add(TreebankIO.saveInXConll("unmerge.conll"));
-		
-		/*	
-		
-		if(parameters.fixedMweOnly && !parameters.baseline){
-			
-		}
-		
 		*/
+		
 		
 		
 		if(parameters.output != null){

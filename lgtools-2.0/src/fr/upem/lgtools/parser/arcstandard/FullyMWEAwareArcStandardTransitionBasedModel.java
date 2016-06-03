@@ -43,8 +43,9 @@ ArcStandardTransitionBasedParserModel{
 
 
 	@Override
-	public Configuration<DepTree> getInitialConfiguration(Sentence s) {		
-		return new Configuration<DepTree>(s, new DepTree(s.getUnits().size() + 1),ParserUtils.createGoldTree(s), 1, 2);
+	public Configuration<DepTree> getInitialConfiguration(Sentence s,boolean needsGold) {
+		DepTree t = needsGold?ParserUtils.createGoldTree(s):null;
+		return new Configuration<DepTree>(s, new DepTree(s.getUnits().size() + 1),t, 1, 2);
 	}
 
 

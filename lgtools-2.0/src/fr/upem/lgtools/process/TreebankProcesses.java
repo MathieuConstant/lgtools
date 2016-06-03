@@ -319,7 +319,9 @@ public class TreebankProcesses {
 
 	private static Map<Unit,List<Unit>> getRegularMWEs(Sentence res, boolean goldAnnotation,Map<Unit,String> mwePoses){
 		HashMap<Unit,List<Unit>> mwes = new HashMap<Unit, List<Unit>>();
+		//System.err.println(goldAnnotation);
 		for(Unit u:res.getTokens()){
+			//System.err.println(u);
 			//System.err.println(u);
 			Unit r = findMWESyntacticHead(u,res,goldAnnotation);
 			if(r != null){
@@ -345,25 +347,30 @@ public class TreebankProcesses {
 		Sentence res = new Sentence(s);
 		//Sentence res =s;
 
+		//System.err.println(s.getTokens());
 		HashMap<Unit,String> mwePoses = new HashMap<Unit, String>();
 		HashMap<Unit,String> gmwePoses = new HashMap<Unit, String>();
 
+		//System.err.println("HHH");
 
 		//getMWEs
 		Map<Unit,List<Unit>> gmwes = getRegularMWEs(res,true,gmwePoses);
 		Map<Unit,List<Unit>> mwes = getRegularMWEs(res,false,mwePoses);
 
+		
+		//System.err.println("HHH2");
 		//remove mwe label from syntactic labels
 		for(Unit u:res.getTokens()){
 			modifyLabel(u, true);
 			modifyLabel(u, false);
 
 		}
-
+		//System.err.println("HHH3");
 		//	add merged unit
 		addRegularMWEUnits(res,mwes,mwePoses,false);
 		addRegularMWEUnits(res,gmwes,gmwePoses,true);
 		//addMWEUnit
+		//System.err.println("HHH4");
 		return res;
 	}
 
@@ -866,13 +873,144 @@ public class TreebankProcesses {
 		};
 	}
 
+	public static <T extends Analysis> SentenceProcess multipleTokensAsFixedMwe(){
+		return new AbstractSentenceProcess() {
 
+			@Override
+			public Sentence apply(Sentence s, SimpleEvaluation eval) {
+				int i = 1;
+				int j = 0;
+				int k = 1;
+				Map<Integer,Integer> map = new HashMap<Integer, Integer>();
+				List<Unit> units = new ArrayList<Unit>();
+				List<Unit> mwes = new ArrayList<Unit>();
+				for(Unit u:s.getTokens()){
+					String form = u.getForm();
+					String[] toks = form.split("_");
+					if(toks.length > 1){
+						j++;
+						mwes.add(u);
+					}
+					map.put(k, i);
+					int n = i;
+					for(String t:toks){
+						Unit ur = new Unit(i,t,i);
+						units.add(ur);
+						
+						if(toks.length > 1){
+						   ur.setPredictedLhead(j);
+						}
+						else
+						{
+							ur.setPredictedSlabel(u.getPredictedSlabel());
+							ur.setShead(u.getSHead(false));
+						}
+						
+						i++;
+					}
+					
+					k++;
+				}
+				
+				ArrayList<Unit> mwes2 = new ArrayList<Unit>();
+				for(Unit u:mwes){
+					String[] toks = u.getForm().split("_");
+					int[] positions = new int[toks.length];
+					int id = map.get(u.getId());
+					for(int m=0; m< toks.length ;m++){
+						positions[m] = id+m;
+					}
+					
+					Unit ur = new Unit(i,u,positions);
+				    units.add(ur);
+				    mwes2.add(ur);
+				   i++;	
+				}
+				
+				//System.err.println(map);
+				for(Unit u:units){
+					int h = u.getSHead(false);
+					//System.err.println(ur);
+					//System.err.println("--"+u+"--"+u.getGoldSheadId()+"=="+h);
+					if(h > 0){
+					  u.setShead(map.get(h));
+					}
+					h = u.getPredictedLheadId();
+					if(h > 0){
+						u.setPredictedLhead(mwes2.get(h - 1).getId());
+					}
+					
+				}
+
+				
+	
+				return new Sentence(units);
+			}
+
+
+		};
+	}
+	
+	
+
+	public static <T extends Analysis> SentenceProcess fixedMWEAsTokens(final boolean goldAnnotation){
+		   return new AbstractSentenceProcess() {
+			
+			@Override
+			public Sentence apply(Sentence s, SimpleEvaluation eval) {
+				int i = 1;
+				Map<Integer,Integer> map = new HashMap<Integer, Integer>();
+				for(Unit u:s.getTokenSequence(goldAnnotation)){
+					map.put(u.getId(), i);
+					i++;
+				}
+				List<Unit> units = new LinkedList<Unit>();
+				    i = 1;
+					for(Unit u:s.getTokenSequence(goldAnnotation)){
+						Unit ur = new Unit(i,u,i);
+						//System.err.println(ur);
+						//System.err.println(ur.getSHead(false));
+						//System.err.println(map.get(ur.getSHead(false)));
+						if(!goldAnnotation){
+							if(ur.getSHead(false) > 0){
+								ur.setShead(map.get(ur.getSHead(false)));
+								
+							}
+							ur.setGoldShead(-1);
+						}
+						else{
+							if(ur.getSHead(true) > 0){
+								//System.err.println(ur);
+								ur.setGoldShead(map.get(ur.getSHead(true)));
+							}
+							
+						}
+						
+						//ur.setGoldShead(map.get(ur.getSHead(true)));
+						units.add(ur);
+						i++;
+					}
+			
+				
+				
+				
+				return new Sentence(units);
+			}
+
+			
+		};
+		   
+	   }
+	
+	
    public static <T extends Analysis> SentenceProcess greedyParse(final TransitionBasedSystem<T> parser){
 	   return new AbstractSentenceProcess() {
 		
 		@Override
 		public Sentence apply(Sentence s, SimpleEvaluation eval) {
+			//System.err.println(s.getTokenSequence(false));
 			T analysis = parser.greedyParse(s);
+			//System.err.println(s.getTokenSequence(false));
 			parser.getModel().updateSentenceAfterAnalysis(s,analysis); 
  			//System.err.println(s.getTokenSequence(false));
  			

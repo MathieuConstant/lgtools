@@ -74,7 +74,7 @@ public class PerceptronTransitionBasedSystem<T extends Analysis> extends Transit
    		 for(Sentence gold:tb.shuffle()){
    			 sent++;
    			 if(sent % 500 == 0){System.err.println("Processed "+ sent+ " sentences");}
-   			 Configuration<T> c = tbm.getInitialConfiguration(gold);
+   			 Configuration<T> c = tbm.getInitialConfiguration(gold,true);
    			 stop = false;
    			 //System.err.println("#############################");
    			//System.err.println(gold.getTokenSequence(true));
@@ -91,8 +91,8 @@ public class PerceptronTransitionBasedSystem<T extends Analysis> extends Transit
    					 System.err.println("Unknown transition due to SWAP in non-projective sentence?");
    					 break;
    				 }*/
-   				//System.err.println("CONF="+c);
-   				//System.err.println("valid: "+tbm.getValidTransitions(c));
+   				System.err.println("CONF="+c);
+   				System.err.println("valid: "+tbm.getValidTransitions(c));
    				//System.err.println(c.getHistory());
    				  
    				//System.err.println(c.getAnalyses());

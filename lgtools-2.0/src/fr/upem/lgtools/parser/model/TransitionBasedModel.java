@@ -159,7 +159,8 @@ public abstract class TransitionBasedModel<T extends Analysis> {
 	
 	
 	//external abstract methods
-	abstract public Configuration<T> getInitialConfiguration(Sentence s);
+	abstract public Configuration<T> getInitialConfiguration(Sentence s,boolean needsGold);
+	
 	abstract public Transition<T> staticOracle(Configuration<T> configuration);
 	abstract public DepTreebank filter(DepTreebank tb); //used to filter gold treebank for training, with respect to system constraints
 	abstract public void updateSentenceAfterAnalysis(Sentence s,T analysis);

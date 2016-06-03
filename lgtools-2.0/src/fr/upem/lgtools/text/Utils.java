@@ -43,6 +43,15 @@ public class Utils {
 		
 	}
 	
+	private static void writeMergedUnit(BufferedWriter out, Unit u,Map<Integer,Integer> map) throws IOException{
+		out.write(map.get(u.getId())+"\t"+u.getForm()+"\t"+u.getLemma()+"\t"+u.getCpos());
+		out.write("\t"+u.getPos()+"\t"+feats(u.getFeatures()));
+		out.write("\t"+map.get(u.getPredictedSheadId())+"\t"+u.getPredictedSlabel());
+		out.write("\t"+map.get(u.getGoldSheadId())+"\t"+u.getGoldSlabel());
+		out.write("\n");
+		
+	}
+	
 	private static void writeUnitInXConll(BufferedWriter out, Unit u) throws IOException{
 		out.write(u.getId()+"\t"+Arrays.toString(u.getPositions())+"\t"+u.getForm()+"\t"+u.getLemma()+"\t"+u.getCpos());
 		out.write("\t"+u.getPos()+"\t"+feats(u.getFeatures()));
@@ -61,6 +70,17 @@ public class Utils {
 		}
 		out.write("\n");
 	}
+	
+	
+public static void writeSentenceInConll(BufferedWriter out,Sentence s) throws IOException{
+		for(Unit u:s.getTokens()){
+			writeUnit(out,u);
+			
+		}
+		out.write("\n");
+	}
+	
+	
 	
 	
 	public static BufferedWriter openBufferedWriter(String filename) throws UnsupportedEncodingException, FileNotFoundException{

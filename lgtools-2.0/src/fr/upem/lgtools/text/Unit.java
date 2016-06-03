@@ -55,10 +55,11 @@ public class Unit {
       * @param u input unit
       */
      
-     public Unit(Unit u){
-    	 this.id = u.id;
+     public Unit(int id,Unit u,int... positions){
+    	 this.id = id;
     	 this.form = u.form;
-    	 this.positions = Arrays.copyOf(u.positions,u.positions.length);
+    	 //this.positions = Arrays.copyOf(u.positions,u.positions.length);
+    	 this.positions = positions;
     	 this.lemma = u.lemma;
     	 this.cpos = u.cpos;
     	 this.pos = u.pos;
@@ -70,11 +71,12 @@ public class Unit {
     	 this.lhead = u.lhead;
     	 this.goldLHead = u.goldLHead;
     	 this.subunits.addAll(u.subunits);
-    	 
-    	 
-    	 
+    	   	 
      }
      
+     public Unit(Unit u){
+    	 this(u.getId(),u,Arrays.copyOf(u.positions,u.positions.length));
+     }
      
 	
 
@@ -461,7 +463,36 @@ public class Unit {
 	}
 
 
+	private static boolean areEqual(Unit u, Unit v){
+		int[] pu = u.getPositions();
+		int[] pv = v.getPositions();
+		if(pu.length != pv.length){
+			return false;
+		}
+		for(int i = 0 ; i < pu.length ; i++){
+			if(pu[i] != pv[i]){
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(!(obj instanceof Unit)){
+			return false;
+		}
+		Unit u = (Unit) obj;
+		return areEqual(u, this);
+	}
+	
 
+	@Override
+	public int hashCode() {
+		return Arrays.hashCode(positions);
+	}
+	
+	
 
 	@Override
 	public String toString(){

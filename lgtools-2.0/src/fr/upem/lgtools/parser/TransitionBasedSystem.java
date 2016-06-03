@@ -48,11 +48,11 @@ public abstract class TransitionBasedSystem<T extends Analysis> {
      
      public T greedyParse(Sentence s){
     	initSentence(s);
- 		Configuration<T> c = tbm.getInitialConfiguration(s);
+ 		Configuration<T> c = tbm.getInitialConfiguration(s,false);
  		//System.err.println(s.getTokens());
  		//System.err.println(tbm.getModel());
  		//System.err.println();
- 		//System.err.println(s.getTokenSequence(true));
+ 		//System.err.println(s.getTokenSequence(false));
  		while(!c.isTerminal()){
  			FeatureVector fv = tbm.extractFeatures(c);
  			//System.err.println(c.getSentence().getUnits());
@@ -67,9 +67,9 @@ public abstract class TransitionBasedSystem<T extends Analysis> {
 			
 			//System.err.println(c.getAnalyses());
  			c = t.performAll(c);
- 			
+ 			//System.err.println("JJ");
  		}
- 		
+ 		//System.err.println("CCC");
  		//System.err.println(s.getTokenSequence(true));
  		//System.err.println(s.getTokenSequence(false));
  		return c.getAnalyses();
@@ -128,7 +128,7 @@ public abstract class TransitionBasedSystem<T extends Analysis> {
      
      
      public ParseHypothesis<T> beamSearchParse(Sentence s, int k, boolean returnWhenFail){
-    	 Configuration<T> c0 = tbm.getInitialConfiguration(s);
+    	 Configuration<T> c0 = tbm.getInitialConfiguration(s,false);
     	 ParseHypothesis<T> h0 = new ParseHypothesis<T>(c0, 0.0, new FeatureVector(tbm.getFeatures()),null,true,null);
     	 LinkedList<ParseHypothesis<T>> beam = new LinkedList<ParseHypothesis<T>>();
     	 beam.add(h0);
@@ -202,7 +202,7 @@ public abstract class TransitionBasedSystem<T extends Analysis> {
      
      
      public T oracleParse(Sentence s){
-  		Configuration<T> c = tbm.getInitialConfiguration(s);
+  		Configuration<T> c = tbm.getInitialConfiguration(s,true);
   		while(!c.isTerminal()){
   			//System.err.println(c);
   			Transition<T> t = tbm.staticOracle(c); 
