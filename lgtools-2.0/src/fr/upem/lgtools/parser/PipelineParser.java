@@ -5,6 +5,7 @@ import java.util.Iterator;
 
 import fr.upem.lgtools.evaluation.SimpleEvaluation;
 import fr.upem.lgtools.parser.arcstandard.ArcStandardTransitionBasedParserModel;
+import fr.upem.lgtools.parser.arcstandard.ImplicitCmpFullyMWEAwareArcStandardTransitionBasedModel;
 import fr.upem.lgtools.parser.mwereco.MweRecognizerModel;
 import fr.upem.lgtools.process.SentenceProcessComposition;
 import fr.upem.lgtools.process.TreebankEvaluations;
@@ -19,9 +20,10 @@ public class PipelineParser {
 	
 	public static void main(String[] args) throws IOException {
 		String filename="data/acl2016/fr-acl14-test.conllu";
-		String mmodel="models/acl2016/fr-acl14-train.conllu.imwe.2.final.final";
-		String pmodel="models/acl2016/fr-acl14-train.conllu.pipe.base.2.final.final";
-				
+		String mmodel="models/acl2016/fr-acl14-train.conllu.imwe.0.final.final";
+		String pmodel="models/acl2016/fr-acl14-train.conllu.pipe.impl.0.final.final";
+		boolean isBaseline = false;
+		
 		DepTreebank tb = Parser.readTreebank(filename,-1);
 		MweRecognizerModel tbm = new MweRecognizerModel(mmodel);
 		TransitionBasedSystem<DepTree> parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
@@ -44,13 +46,22 @@ public class PipelineParser {
 		
 		
 		
-		ArcStandardTransitionBasedParserModel tbp = new ArcStandardTransitionBasedParserModel(pmodel);
+		ArcStandardTransitionBasedParserModel tbp;
+		if(isBaseline){
+		  tbp = new ArcStandardTransitionBasedParserModel(pmodel);
+		}
+		else{
+			tbp = new ImplicitCmpFullyMWEAwareArcStandardTransitionBasedModel(pmodel);
+		}
 		parser = new PerceptronTransitionBasedSystem<DepTree>(tbp);
 		spc.add(TreebankProcesses.greedyParse(parser));
-		spc.add(TreebankIO.saveInConll("tmp.conll"));
+		spc.add(TreebankProcesses.unbinarizeMWE(false));
+		spc.add(TreebankIO.saveInXConll("raw.xconll"));
+		
 		spc.add(TreebankProcesses.multipleTokensAsFixedMwe());
-		spc.add(TreebankProcesses.mergeRegularMWEs());
-
+		//if(isBaseline){
+		  spc.add(TreebankProcesses.mergeRegularMWEs());
+		//}
 		spc.add(TreebankIO.saveInXConll("tmp.xconll"));
 	
 		SentenceProcessComposition spc2 = new SentenceProcessComposition();

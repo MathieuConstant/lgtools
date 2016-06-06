@@ -125,8 +125,8 @@ public class Test {
 		System.err.println(nFixed);
 		*/
 		trainMweSystem("data/acl2016/fr-acl14-train.conllu", "models/acl2016/fr-acl14-train.conllu.imwe.0.final", 5,-1,true);
-		trainMweSystem("data/acl2016/fr-acl14-train.conllu", "models/acl2016/fr-acl14-train.conllu.imwe.1.final", 5,-1,true);
-		trainMweSystem("data/acl2016/fr-acl14-train.conllu", "models/acl2016/fr-acl14-train.conllu.imwe.2.final", 5,-1,true);
+		//trainMweSystem("data/acl2016/fr-acl14-train.conllu", "models/acl2016/fr-acl14-train.conllu.imwe.1.final", 5,-1,true);
+		//trainMweSystem("data/acl2016/fr-acl14-train.conllu", "models/acl2016/fr-acl14-train.conllu.imwe.2.final", 5,-1,true);
 		//System.err.println(parseWithMweSystem("data/acl2016/fr-acl14-dev.conllu", "mwemodel.final", "res-mwe.conll",-1,true));
 		//System.err.println(parseWithMweSystem("data/acl2016/fr-acl14-test.conllu", "mwemodel.final", "res-mwe.conll",-1,true));
 		

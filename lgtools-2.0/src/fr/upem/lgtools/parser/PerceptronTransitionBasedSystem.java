@@ -91,8 +91,8 @@ public class PerceptronTransitionBasedSystem<T extends Analysis> extends Transit
    					 System.err.println("Unknown transition due to SWAP in non-projective sentence?");
    					 break;
    				 }*/
-   				System.err.println("CONF="+c);
-   				System.err.println("valid: "+tbm.getValidTransitions(c));
+   				//System.err.println("CONF="+c);
+   				//System.err.println("valid: "+tbm.getValidTransitions(c));
    				//System.err.println(c.getHistory());
    				  
    				//System.err.println(c.getAnalyses());

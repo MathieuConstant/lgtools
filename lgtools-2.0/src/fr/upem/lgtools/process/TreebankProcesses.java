@@ -244,13 +244,31 @@ public class TreebankProcesses {
 
 			@Override
 			public Sentence apply(Sentence s, SimpleEvaluation eval) {
-
+				//System.err.println(s.getTokenSequence(false));
 				return mergeFixedMWEs(s);
 			}
 		};
 	}
 
 
+	public static SentenceProcess copyGold(){
+		return new AbstractSentenceProcess() {
+
+			@Override
+			public Sentence apply(Sentence s, SimpleEvaluation eval) {
+				Sentence res = new Sentence(s);
+				for(Unit u:res.getUnits()){
+					u.setPredictedLhead(u.getGoldLHead());
+					u.setPredictedSlabel(u.getGoldSlabel());
+					u.setShead(u.getGoldSheadId());
+					
+				}
+				return res;
+			}
+		};
+	}
+	
+	
 	public static SentenceProcess copy(){
 		return new AbstractSentenceProcess() {
 
@@ -904,11 +922,27 @@ public class TreebankProcesses {
 						{
 							ur.setPredictedSlabel(u.getPredictedSlabel());
 							ur.setShead(u.getSHead(false));
+							if(u.getPredictedLheadId() > 0){
+								ur.setPredictedLhead(-u.getPredictedLheadId());
+							}
 						}
 						
 						i++;
 					}
 					
+					k++;
+				}
+				for(Unit u:s.getMWUnits()){
+					//System.err.println(u);
+					int[]positions = Arrays.copyOf(u.getPositions(), u.getPositions().length);
+					for(int n= 0;n<positions.length;n++){
+						//System.err.println(map.get(positions[n])+" "+positions[n]);
+						positions[n] = map.get(positions[n]);
+					}
+					Unit ur = new Unit(i,u.getForm(),positions);
+					map.put(k, i);
+					units.add(ur);
+					i++;
 					k++;
 				}
 				
@@ -937,7 +971,15 @@ public class TreebankProcesses {
 					}
 					h = u.getPredictedLheadId();
 					if(h > 0){
+						try{
 						u.setPredictedLhead(mwes2.get(h - 1).getId());
+						}
+						catch(IndexOutOfBoundsException e){
+							System.err.println(mwes2);
+						}
+					}
+					if(h < 0){
+						u.setPredictedLhead(map.get(-h));
 					}
 					
 				}
@@ -958,15 +1000,25 @@ public class TreebankProcesses {
 			
 			@Override
 			public Sentence apply(Sentence s, SimpleEvaluation eval) {
+				
+				
 				int i = 1;
 				Map<Integer,Integer> map = new HashMap<Integer, Integer>();
 				for(Unit u:s.getTokenSequence(goldAnnotation)){
 					map.put(u.getId(), i);
 					i++;
 				}
+				/*for(Unit u:s.getMWUnits()){
+					map.put(u.getId(), i);
+					i++;
+				}*/
+				List<Unit> initialUnits = new LinkedList<Unit>();
+				initialUnits.addAll(s.getTokenSequence(goldAnnotation));
+				//initialUnits.addAll(s.getMWUnits());
+				
 				List<Unit> units = new LinkedList<Unit>();
 				    i = 1;
-					for(Unit u:s.getTokenSequence(goldAnnotation)){
+					for(Unit u:initialUnits){
 						Unit ur = new Unit(i,u,i);
 						//System.err.println(ur);
 						//System.err.println(ur.getSHead(false));

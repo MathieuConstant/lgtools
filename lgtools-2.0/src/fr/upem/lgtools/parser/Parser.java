@@ -237,6 +237,7 @@ public class Parser {
 			tb = readTreebank(parameters.train,parameters.trainSize);
 		}
 		  SentenceProcessComposition spc = new SentenceProcessComposition();
+		  spc.add(TreebankProcesses.copyGold());
 		  spc.add(TreebankIO.saveInXConll("tmpx.conll"));
 		if(!parameters.fixedMweOnly){
 			//trainFullSystem(parameters.train, parameters.model, parameters.iters, -1, true);
