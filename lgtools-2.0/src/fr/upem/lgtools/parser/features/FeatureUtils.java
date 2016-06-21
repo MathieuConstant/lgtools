@@ -92,9 +92,11 @@ public class FeatureUtils {
 	
 
 	
+	/*
 	private static boolean isCompletedMwe(Unit u){
 		return u.isMWE() && !"*".equals(u.getPos());
 	}
+	*/
 	
 
 	
@@ -143,8 +145,8 @@ public class FeatureUtils {
 	
 	public static void addUnitTripletFeatures(String fid,Unit u1,Unit u2,Unit u3,FeatureVector feats,Configuration<DepTree> configuration){
 		    String t1 = u1.getPos();
-		    String t2 = u2.getPos();
-		    String t3 = u3.getPos();
+		    //String t2 = u2.getPos();
+		    //String t3 = u3.getPos();
 		
 			feats.add(fid+"_t_t_t="+t1+"#"+u2.getPos()+"#"+u3.getPos());		
 			feats.add(fid+"_f_t_t="+u1.getForm()+"#"+u2.getPos()+"#"+u3.getPos());
@@ -393,6 +395,10 @@ public class FeatureUtils {
 		return b.get(2);
 	}
 	
+	
+	public static Unit getUnit(Unit u){
+		return u == null?NULL_UNIT:u;
+	}
 	
 	
 }

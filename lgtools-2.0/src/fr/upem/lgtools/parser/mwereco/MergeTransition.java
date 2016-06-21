@@ -4,9 +4,9 @@
 package fr.upem.lgtools.parser.mwereco;
 
 import java.util.ArrayList;
-import java.util.Deque;
 
 import fr.upem.lgtools.parser.Configuration;
+import fr.upem.lgtools.parser.Container;
 import fr.upem.lgtools.parser.DepTree;
 import fr.upem.lgtools.parser.transitions.LabeledTransition;
 import fr.upem.lgtools.parser.transitions.TransitionUtils;
@@ -25,7 +25,7 @@ public class MergeTransition extends LabeledTransition<DepTree> {
 	
 	@Override
 	public boolean isValid(Configuration<DepTree> configuration) {
-		Deque<Unit> stack = configuration.getFirstStack();
+		Container stack = configuration.getFirstStack();
 		if(stack.size() < 3){
 			return false;
 		}
@@ -34,8 +34,8 @@ public class MergeTransition extends LabeledTransition<DepTree> {
 
 	@Override
 	public Configuration<DepTree> perform(Configuration<DepTree> configuration) {
-		Deque<Unit> stack = configuration.getFirstStack();
-		ArrayList<Deque<Unit>> stacks = new ArrayList<Deque<Unit>>();
+		Container stack = configuration.getFirstStack();
+		ArrayList<Container> stacks = new ArrayList<Container>();
 		Unit u0 = stack.pop();
 		Unit u1 = stack.pop();
 		stacks.add(stack);

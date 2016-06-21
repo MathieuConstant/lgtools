@@ -5,12 +5,12 @@ package fr.upem.lgtools.parser.arcstandard;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
 import fr.upem.lgtools.parser.Configuration;
+import fr.upem.lgtools.parser.Container;
 import fr.upem.lgtools.parser.DepTree;
 import fr.upem.lgtools.parser.features.FeatureMapping;
 import fr.upem.lgtools.parser.model.TransitionBasedDependencyParserModel;
@@ -25,6 +25,7 @@ import fr.upem.lgtools.text.Unit;
  * @author mconstant
  *
  */
+
 public class ArcStandardTransitionBasedParserModel extends
 		TransitionBasedDependencyParserModel {
 
@@ -54,10 +55,10 @@ public class ArcStandardTransitionBasedParserModel extends
 	 */
 	
 	String getLeftArcLabel(Configuration<DepTree> configuration){
-		Deque<Unit> stack = configuration.getFirstStack();
+		Container stack = configuration.getFirstStack();
 		if(stack.size() > 2){
 			Unit u1 = stack.pop();
-			Unit u2 = stack.peek();
+			Unit u2 = stack.peekFirst();
 			stack.push(u1);
 			if(u2.getGoldSheadId() == u1.getId() && hasAllItsDependents(u2,configuration)){
 				return u2.getGoldSlabel();
@@ -101,10 +102,10 @@ public class ArcStandardTransitionBasedParserModel extends
 	
 	
 	String getRightArcLabel(Configuration<DepTree> configuration){
-		Deque<Unit> stack = configuration.getFirstStack();
+		Container stack = configuration.getFirstStack();
 		if(stack.size() >= 2){
 			Unit u1 = stack.pop();
-			Unit u2 = stack.peek();
+			Unit u2 = stack.peekFirst();
 			stack.push(u1);
 			if(u1.getGoldSheadId() == u2.getId() && hasAllItsDependents(u1,configuration)){
 				
@@ -150,12 +151,12 @@ public class ArcStandardTransitionBasedParserModel extends
 	
 	
 	private boolean swapIsRequired(Configuration<DepTree> configuration){
-		 Deque<Unit> stack = configuration.getFirstStack();
+		 Container stack = configuration.getFirstStack();
 		 if(stack.size() < 3){
 			 return false;
 		 }
 		 Unit s0 = stack.pop();
-		 Unit s1 = stack.peek();
+		 Unit s1 = stack.peekFirst();
 		 stack.push(s0);
 		 
 		 Sentence s=configuration.getSentence();

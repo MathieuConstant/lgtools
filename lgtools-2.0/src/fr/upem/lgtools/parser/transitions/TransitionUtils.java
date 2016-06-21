@@ -5,11 +5,11 @@ package fr.upem.lgtools.parser.transitions;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Deque;
 import java.util.List;
 
 import fr.upem.lgtools.parser.Configuration;
 import fr.upem.lgtools.parser.Constants;
+import fr.upem.lgtools.parser.Container;
 import fr.upem.lgtools.parser.DepTree;
 import fr.upem.lgtools.text.Sentence;
 import fr.upem.lgtools.text.Unit;
@@ -84,7 +84,7 @@ public class TransitionUtils {
 			return mwe;
 		}
 	
-	public static Configuration<DepTree> performMerge(Configuration<DepTree> configuration, String label, Unit u1, Unit u0, Collection<Deque<Unit>> stacks){
+	public static Configuration<DepTree> performMerge(Configuration<DepTree> configuration, String label, Unit u1, Unit u0, Collection<Container> stacks){
 
 		Unit u = mergeUnitsAndAdd(u1,u0,configuration.getSentence());
 		if(label != null && !label.equals("")){
@@ -100,7 +100,7 @@ public class TransitionUtils {
 		//u.setPos(u.getPOSPattern(configuration.getSentence())); //NO-> memory explosion
 		DepTree tree = configuration.getAnalyses();
 		tree.addLinks(u.getId(),u1.getId(),u0.getId());
-		for(Deque<Unit> stack:stacks){
+		for(Container stack:stacks){
 			stack.push(u);
 		}
 

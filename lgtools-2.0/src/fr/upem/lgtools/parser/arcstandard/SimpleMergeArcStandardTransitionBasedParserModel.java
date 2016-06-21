@@ -5,10 +5,10 @@ package fr.upem.lgtools.parser.arcstandard;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Deque;
 import java.util.LinkedList;
 
 import fr.upem.lgtools.parser.Configuration;
+import fr.upem.lgtools.parser.Container;
 import fr.upem.lgtools.parser.DepTree;
 import fr.upem.lgtools.parser.features.FeatureMapping;
 import fr.upem.lgtools.parser.transitions.Transition;
@@ -46,10 +46,10 @@ public abstract class SimpleMergeArcStandardTransitionBasedParserModel extends A
 
 
 	private String getMerge(Configuration<DepTree> configuration){
-		Deque<Unit> stack = configuration.getFirstStack();
+		Container stack = configuration.getFirstStack();
 		if(stack.size() > 2){
 			Unit u1 = stack.pop();
-			Unit u2 = stack.peek();
+			Unit u2 = stack.peekFirst();
 			stack.push(u1);
 			int l1 = u2.getGoldLHead();
 			int l2 = u1.getGoldLHead();

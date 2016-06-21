@@ -7,8 +7,8 @@ package fr.upem.lgtools.parser.arcstandard;
 
 import java.util.Deque;
 
-import fr.upem.lgtools.parser.Buffer;
 import fr.upem.lgtools.parser.Configuration;
+import fr.upem.lgtools.parser.Container;
 import fr.upem.lgtools.parser.DepTree;
 import fr.upem.lgtools.parser.features.FeatureMapping;
 import fr.upem.lgtools.parser.features.FeatureUtils;
@@ -27,15 +27,15 @@ public class FullDefaultFeatureExtractor extends DefaultFeatureExtractor {
 	}
 	
 	private void extractLexicalFeatures(Configuration<DepTree> configuration, FeatureVector feats){
-		Buffer buffer = configuration.getFirstBuffer();
-		Deque<Unit> stack= configuration.getSecondStack();
+		Container buffer = configuration.getFirstBuffer();
+		Container stack= configuration.getSecondStack();
 		//feats.add("BIAS");
 		//feats.add("EMPTY2");
-		Unit s0u = stack.peek();
-		Unit s1u = FeatureUtils.getSecondElementInStack(stack);
+		Unit s0u = FeatureUtils.getUnit(stack.peekFirst());
+		Unit s1u = FeatureUtils.getUnit(stack.peekSecond());
 		//Unit s2u = FeatureUtils.getThirdElementInStack(stack);
-		Unit b0u = FeatureUtils.getFirstElementInBuffer(buffer);
-		Unit b1u = FeatureUtils.getSecondElementInBuffer(buffer);
+		Unit b0u = FeatureUtils.getUnit(buffer.peekFirst());
+		Unit b1u = FeatureUtils.getUnit(buffer.peekSecond());
 		//Unit b2u = FeatureUtils.getThirdElementInBuffer(buffer);
 		
 		FeatureUtils.addUnitFeatures("lex:s0u", s0u,feats,configuration);
@@ -160,14 +160,14 @@ public class FullDefaultFeatureExtractor extends DefaultFeatureExtractor {
 	
 	private void extractCombinedLexicalAndSyntacticFeatures(Configuration<DepTree> configuration, FeatureVector feats){
 		//Buffer buffer = configuration.getFirstBuffer();
-		Deque<Unit> synStack= configuration.getFirstStack();
+		Container synStack= configuration.getFirstStack();
 		//Deque<Unit> synStack= configuration.getFirstStack();
 		if(synStack.size() <= 2){
 			return;
 		}
 		
 		Unit s0u = synStack.pop();
-		Unit s1u = synStack.peek();
+		Unit s1u = synStack.peekFirst();
 		synStack.push(s0u);
 		addCombinedLexicalAndSyntacticFeatures("both:s0u", s0u, configuration, feats);
 		addCombinedLexicalAndSyntacticFeatures("both:s1u", s1u, configuration, feats);

@@ -1,9 +1,9 @@
 package fr.upem.lgtools.parser.arcstandard;
 
 import java.util.ArrayList;
-import java.util.Deque;
 
 import fr.upem.lgtools.parser.Configuration;
+import fr.upem.lgtools.parser.Container;
 import fr.upem.lgtools.parser.DepTree;
 import fr.upem.lgtools.parser.transitions.LabeledTransition;
 import fr.upem.lgtools.parser.transitions.TransitionUtils;
@@ -23,18 +23,16 @@ public class MergeBothTransition extends LabeledTransition<DepTree> {
 	
 
 	
-	
-	
 	@Override
 	public Configuration<DepTree> perform(Configuration<DepTree> configuration) {
-		Deque<Unit> stack = configuration.getFirstStack();
-		Deque<Unit> lexStack = null;
+		Container stack = configuration.getFirstStack();
+		Container lexStack = null;
 		boolean hasMoreStacks = configuration.stackCount() >= 2;
 		if(hasMoreStacks){
 			lexStack = configuration.getSecondStack();	
 		}
 		
-		ArrayList<Deque<Unit>> stacks = new ArrayList<Deque<Unit>>();
+		ArrayList<Container> stacks = new ArrayList<Container>();
 		Unit u0 = stack.pop();
 		Unit u1 = stack.pop();
 		stacks.add(stack);
@@ -54,7 +52,7 @@ public class MergeBothTransition extends LabeledTransition<DepTree> {
 		if(!ParserUtils.passContrainedMergeCondition(withConstrainedMerge,configuration)){
 			return false;
 		}
-		Deque<Unit> stack = configuration.getFirstStack();
+		Container stack = configuration.getFirstStack();
 		DepTree tree = configuration.getAnalyses();
 		if(stack.size() <= 2){
 			return false;
@@ -71,12 +69,12 @@ public class MergeBothTransition extends LabeledTransition<DepTree> {
 		
 		boolean hasMoreStacks = configuration.stackCount() >= 2;
 		if(hasMoreStacks){
-			Deque<Unit> lexStack = configuration.getSecondStack();
+			Container lexStack = configuration.getSecondStack();
 			if(lexStack.size() <= 2){
 				res = false;
 			}
 			Unit u02 = lexStack.pop();
-			Unit u12 = lexStack.peek();
+			Unit u12 = lexStack.peekFirst();
 			lexStack.push(u02);
 			if(u02.getId() != u0.getId() || u12.getId() != u1.getId()){
 				res = false;

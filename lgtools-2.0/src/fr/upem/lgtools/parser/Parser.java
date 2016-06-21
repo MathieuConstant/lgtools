@@ -337,16 +337,16 @@ public class Parser {
 		spc.add(TreebankProcesses.mergeFixedMWEs());
 		
 		spc.add(TreebankProcesses.mergeRegularMWEs());
-		/*
+		
 		spc.add(TreebankEvaluations.computeSegmentationAccuracy(false));
 		spc.add(TreebankEvaluations.computeSegmentationAccuracy(true));
-		spc.add(TreebankEvaluations.computeSegmentationParsingScore());
+		//spc.add(TreebankEvaluations.computeSegmentationParsingScore());
 		
 		
 		
 		spc.add(TreebankProcesses.unmergeFixedMWE());
-		spc.add(TreebankIO.saveInXConll("unmerge.conll"));
-		*/
+		//spc.add(TreebankIO.saveInXConll("unmerge.conll"));
+		
 		
 		
 		

@@ -3,11 +3,9 @@
  */
 package fr.upem.lgtools.parser.transitions;
 
-import java.util.Deque;
-
 import fr.upem.lgtools.parser.Analysis;
-import fr.upem.lgtools.parser.Buffer;
 import fr.upem.lgtools.parser.Configuration;
+import fr.upem.lgtools.parser.Container;
 import fr.upem.lgtools.text.Unit;
 
 /**
@@ -26,12 +24,12 @@ public class ShiftTransition<T extends Analysis> extends AbstractTransition<T>{
 		if(!isValid(configuration)){
 			throw new IllegalStateException("The buffer should not be empty before performing a SHIFT!");
 		}
-		Buffer buffer = configuration.getFirstBuffer();
-		Unit u = buffer.next();
-		Deque<Unit> stack = configuration.getFirstStack();
+		Container buffer = configuration.getFirstBuffer();
+		Unit u = buffer.read();
+		Container stack = configuration.getFirstStack();
 		stack.push(u);
 		if(configuration.stackCount() >= 2){
-			Deque<Unit> lexstack = configuration.getSecondStack();
+			Container lexstack = configuration.getSecondStack();
 			lexstack.push(u);
 		}
 		return configuration;
@@ -39,7 +37,7 @@ public class ShiftTransition<T extends Analysis> extends AbstractTransition<T>{
 
 	@Override
 	public boolean isValid(Configuration<T> configuration) {
-		Buffer buffer = configuration.getFirstBuffer();
+		Container buffer = configuration.getFirstBuffer();
 		return buffer.size() != 0;
 	}
 

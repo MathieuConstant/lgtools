@@ -3,10 +3,8 @@
  */
 package fr.upem.lgtools.parser.arcstandard;
         
-import java.util.Deque;
-
-import fr.upem.lgtools.parser.Buffer;
 import fr.upem.lgtools.parser.Configuration;
+import fr.upem.lgtools.parser.Container;
 import fr.upem.lgtools.parser.DepTree;
 import fr.upem.lgtools.parser.features.FeatureExtractor;
 import fr.upem.lgtools.parser.features.FeatureMapping;
@@ -49,18 +47,18 @@ public class DefaultFeatureExtractor implements FeatureExtractor<DepTree> {
 	};
 	
 	
-	FeatureVector extract(String prefix,Configuration<DepTree> configuration,Deque<Unit> stack, FeatureVector feats) {
+	FeatureVector extract(String prefix,Configuration<DepTree> configuration,Container stack, FeatureVector feats) {
 		
 		
-		Buffer buffer = configuration.getFirstBuffer();
+		Container buffer = configuration.getFirstBuffer();
 		//feats.add("BIAS");
 		//feats.add("EMPTY2");
-		Unit s0u = stack.peek();
-		Unit s1u = FeatureUtils.getSecondElementInStack(stack);
-		Unit s2u = FeatureUtils.getThirdElementInStack(stack);
-		Unit b0u = FeatureUtils.getFirstElementInBuffer(buffer);
-		Unit b1u = FeatureUtils.getSecondElementInBuffer(buffer);
-		Unit b2u = FeatureUtils.getThirdElementInBuffer(buffer);
+		Unit s0u = FeatureUtils.getUnit(stack.peekFirst());
+		Unit s1u = FeatureUtils.getUnit(stack.peekSecond());
+		Unit s2u = FeatureUtils.getUnit(stack.peekThird());
+		Unit b0u = FeatureUtils.getUnit(buffer.peekFirst());
+		Unit b1u = FeatureUtils.getUnit(buffer.peekSecond());
+		Unit b2u = FeatureUtils.getUnit(buffer.peekThird());
 		//System.err.println(configuration);
 		//System.err.println("STACK//"+s0u.getForm()+"::"+s1u.getForm()+"::"+s2u.getForm());
 		//System.err.println("BUFFER//"+b0u.getForm()+"::"+b1u.getForm()+"::"+b2u.getForm());

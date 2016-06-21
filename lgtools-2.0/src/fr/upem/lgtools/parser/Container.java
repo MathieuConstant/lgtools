@@ -1,9 +1,10 @@
 /**
  * 
  */
-package fr.upem.lgtools2.parser;
+package fr.upem.lgtools.parser;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import fr.upem.lgtools.text.Unit;
@@ -13,8 +14,11 @@ import fr.upem.lgtools.text.Unit;
  *
  */
 public class Container implements Iterable<Unit>{
+
+	
 	
 	Element head;
+	int size = 0;
 	
 	public Container(){
 		head = null;
@@ -26,16 +30,23 @@ public class Container implements Iterable<Unit>{
 	
 	public Container(Unit... units){
 		head = null;
-		for(int i= units.length - 1 ; i >= 0 ; i++){
+		for(int i= units.length - 1 ; i >= 0 ; i--){
 		   addFirst(units[i]);	
 		}
 	}
 	
+	public Container(List<Unit> units){
+		this(units.toArray(new Unit[units.size()]));
+	}
+	
+	public int size(){
+		return size;
+	}
 	
 	private void addFirst(Unit u){
 		Element h = new Element(u,head);
 		head = h;
-	
+		size++;
 	}
 	
 	public boolean isEmpty(){
@@ -61,6 +72,7 @@ public class Container implements Iterable<Unit>{
 		}
 		Element h = head;
 		head = head.getNext();
+		size--;
 		return h.getUnit();
 	}
 
@@ -74,6 +86,10 @@ public class Container implements Iterable<Unit>{
 		}
 		Element next = head.getNext();
 		return next == null?null:next.getUnit();
+	}
+	
+	public Unit peekThird(){
+		return peek(2);
 	}
 	
 	

@@ -3,9 +3,8 @@
  */
 package fr.upem.lgtools.parser.arcstandard;
 
-import java.util.Deque;
-
 import fr.upem.lgtools.parser.Configuration;
+import fr.upem.lgtools.parser.Container;
 import fr.upem.lgtools.parser.DepTree;
 import fr.upem.lgtools.text.Unit;
 
@@ -25,16 +24,16 @@ public class LeftArcTransitionWithImplicitComplete extends LeftArcTransition {
 	
 	
 	Unit getTargetUnitForCompletion(Configuration<DepTree> configuration){
-		Deque<Unit> stack = configuration.getFirstStack();
+		Container stack = configuration.getFirstStack();
 		Unit u0 = stack.pop();
-		Unit u = stack.peek();
+		Unit u = stack.peekFirst();
 		stack.push(u0);
 		return ParserUtils.getLexicalUnitFromComponent(u, configuration.getAnalyses(), configuration.getSentence());
 		
 	}
 	
 	void completeUnit(Unit u,Configuration<DepTree> configuration){
-		Deque<Unit> stack = configuration.getSecondStack();
+		Container stack = configuration.getSecondStack();
 		Unit u0 = stack.pop();
 		Unit u1 = stack.pop();
 		//System.err.println("LA:");

@@ -5,10 +5,10 @@ package fr.upem.lgtools.parser.mwereco;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Deque;
 import java.util.LinkedList;
 
 import fr.upem.lgtools.parser.Configuration;
+import fr.upem.lgtools.parser.Container;
 import fr.upem.lgtools.parser.DepTree;
 import fr.upem.lgtools.parser.features.FeatureExtractor;
 import fr.upem.lgtools.parser.features.FeatureMapping;
@@ -46,10 +46,10 @@ public class MweRecognizerModel extends
 	
 	String getMerge(Configuration<DepTree> configuration){
 
-		Deque<Unit> stack = configuration.getFirstStack();
+		Container stack = configuration.getFirstStack();
 		if(stack.size() > 2){
 			Unit u1 = stack.pop();
-			Unit u2 = stack.peek();
+			Unit u2 = stack.peekFirst();
 			stack.push(u1);
 			if(!u2.hasGoldLexicalHead() || !u1.hasGoldLexicalHead()){
 				return null;
@@ -72,9 +72,9 @@ public class MweRecognizerModel extends
 
 
 	boolean completeIsPossible(Configuration<DepTree> configuration){
-		Deque<Unit> stack = configuration.getFirstStack();
+		Container stack = configuration.getFirstStack();
 		if(stack.size() > 1){
-			Unit u = stack.peek();
+			Unit u = stack.peekFirst();
 			if(!u.hasGoldLexicalHead()){
 				return true;
 			}

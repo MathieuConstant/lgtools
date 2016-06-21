@@ -11,7 +11,6 @@ import fr.upem.lgtools.parser.model.TransitionBasedModel;
 import fr.upem.lgtools.parser.transitions.Transition;
 import fr.upem.lgtools.text.DepTreebank;
 import fr.upem.lgtools.text.Sentence;
-import fr.upem.lgtools.text.Utils;
 
 /**
  * @author Mathieu

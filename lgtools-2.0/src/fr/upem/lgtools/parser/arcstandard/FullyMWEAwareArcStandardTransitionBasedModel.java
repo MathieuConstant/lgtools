@@ -4,12 +4,11 @@
 package fr.upem.lgtools.parser.arcstandard;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Deque;
 import java.util.LinkedList;
 
 import fr.upem.lgtools.parser.Configuration;
+import fr.upem.lgtools.parser.Container;
 import fr.upem.lgtools.parser.DepTree;
 import fr.upem.lgtools.parser.features.FeatureExtractor;
 import fr.upem.lgtools.parser.features.FeatureMapping;
@@ -65,11 +64,11 @@ ArcStandardTransitionBasedParserModel{
 
 	String getMergeBoth(Configuration<DepTree> configuration){
 
-		Deque<Unit> stack = configuration.getFirstStack();
-		Deque<Unit> lexStack = configuration.getSecondStack();
+		Container stack = configuration.getFirstStack();
+		Container lexStack = configuration.getSecondStack();
 		if(stack.size() > 2 && lexStack.size() > 2){
 			Unit u1 = stack.pop();
-			Unit u2 = stack.peek();
+			Unit u2 = stack.peekFirst();
 			stack.push(u1);
 			//the two units on top of stask must have a lexical head
 			if(!u2.hasGoldLexicalHead() || !u1.hasGoldLexicalHead()){
@@ -79,7 +78,7 @@ ArcStandardTransitionBasedParserModel{
 			int l2 = u1.getGoldLHead();
 
 			Unit u12 = lexStack.pop();
-			Unit u22 = lexStack.peek();
+			Unit u22 = lexStack.peekFirst();
 			lexStack.push(u12);
 			//System.err.println(u1+"??"+u2);
 			Sentence s = configuration.getSentence();
@@ -105,10 +104,10 @@ ArcStandardTransitionBasedParserModel{
 
 	String getMerge(Configuration<DepTree> configuration){
 
-		Deque<Unit> stack = configuration.getSecondStack();
+		Container stack = configuration.getSecondStack();
 		if(stack.size() > 2){
 			Unit u1 = stack.pop();
-			Unit u2 = stack.peek();
+			Unit u2 = stack.peekFirst();
 			stack.push(u1);
 			if(!u2.hasGoldLexicalHead() || !u1.hasGoldLexicalHead()){
 				return null;
@@ -135,9 +134,9 @@ ArcStandardTransitionBasedParserModel{
 
 
 	boolean completeIsPossible(Configuration<DepTree> configuration){
-		Deque<Unit> stack = configuration.getSecondStack();
+		Container stack = configuration.getSecondStack();
 		if(stack.size() > 1){
-			Unit u = stack.peek();
+			Unit u = stack.peekFirst();
 			//System.err.println(u+"--"+u.getLheadId());
 			if(!u.hasGoldLexicalHead()){
 				return true;

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package fr.upem.lgtools2.parser;
+package fr.upem.lgtools.parser;
 
 import fr.upem.lgtools.text.Unit;
 
