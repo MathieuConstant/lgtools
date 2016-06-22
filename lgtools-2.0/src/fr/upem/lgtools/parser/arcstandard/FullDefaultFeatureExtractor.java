@@ -5,8 +5,6 @@ package fr.upem.lgtools.parser.arcstandard;
 
 
 
-import java.util.Deque;
-
 import fr.upem.lgtools.parser.Configuration;
 import fr.upem.lgtools.parser.Container;
 import fr.upem.lgtools.parser.DepTree;

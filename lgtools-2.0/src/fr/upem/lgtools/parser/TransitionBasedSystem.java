@@ -152,7 +152,7 @@ public abstract class TransitionBasedSystem<T extends Analysis> {
     				 
     				 for(Transition<T> t:transitions){
     				     double newScore = tbm.getScore(fv,t);
-    				     Configuration<T> newConfig = new Configuration<T>(c); 
+    				     Configuration<T> newConfig = Configurations.createDefaultConfiguration(c); 
     				     //System.err.println("NEW="+newConfig);
     				     //System.err.println("OLD="+c);
     				     newConfig = t.performAll(newConfig);

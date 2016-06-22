@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import fr.upem.lgtools.parser.Configuration;
+import fr.upem.lgtools.parser.Configurations;
 import fr.upem.lgtools.parser.Container;
 import fr.upem.lgtools.parser.DepTree;
 import fr.upem.lgtools.parser.features.FeatureExtractor;
@@ -44,7 +45,7 @@ ArcStandardTransitionBasedParserModel{
 	@Override
 	public Configuration<DepTree> getInitialConfiguration(Sentence s,boolean needsGold) {
 		DepTree t = needsGold?ParserUtils.createGoldTree(s):null;
-		return new Configuration<DepTree>(s, new DepTree(s.getUnits().size() + 1),t, 1, 2);
+		return Configurations.createDefaultConfiguration(s, 1, 2, t);		
 	}
 
 

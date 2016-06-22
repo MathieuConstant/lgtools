@@ -14,8 +14,6 @@ import fr.upem.lgtools.process.TreebankEvaluations;
 import fr.upem.lgtools.process.TreebankIO;
 import fr.upem.lgtools.process.TreebankProcesses;
 import fr.upem.lgtools.text.DepTreebank;
-import fr.upem.lgtools.text.Sentence;
-import fr.upem.lgtools.text.Unit;
 
 public class Test {
    

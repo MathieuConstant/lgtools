@@ -6,6 +6,7 @@ package fr.upem.lgtools.parser.model;
 import java.io.IOException;
 
 import fr.upem.lgtools.parser.Configuration;
+import fr.upem.lgtools.parser.Configurations;
 import fr.upem.lgtools.parser.DepTree;
 import fr.upem.lgtools.parser.arcstandard.DefaultFeatureExtractor;
 import fr.upem.lgtools.parser.arcstandard.ParserUtils;
@@ -36,7 +37,7 @@ public abstract class TransitionBasedDependencyParserModel extends
 	@Override
 	public Configuration<DepTree> getInitialConfiguration(Sentence s,boolean needsGold) {
 		DepTree t = needsGold?ParserUtils.createGoldTree(s):null;
-		return new Configuration<DepTree>(s, new DepTree(s.getUnits().size() + 1),t, 1, 1);
+		return Configurations.createDefaultConfiguration(s, 1, 1, t);
 	}
 
 	
