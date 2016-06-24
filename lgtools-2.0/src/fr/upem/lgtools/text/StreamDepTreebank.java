@@ -9,18 +9,24 @@ import java.util.NoSuchElementException;
 
 public class StreamDepTreebank extends DepTreebank {
 
+   public static enum ReaderType{
+	   CONLL,XCONLL,CONLLU
+   }
+	
    private BufferedReader reader;
-   private final boolean isXConll;
+   private final ReaderType readerType;
 	
 	public StreamDepTreebank(BufferedReader reader) {
 		this.reader = reader;
-		this.isXConll = false;
+		this.readerType = ReaderType.CONLL;
 	}
 	
-	public StreamDepTreebank(BufferedReader reader,boolean isXConll) {
+	public StreamDepTreebank(BufferedReader reader,ReaderType readerType) {
 		this.reader = reader;
-		this.isXConll = isXConll;
+		this.readerType = readerType;
 	}
+	
+	
 	
 
 	@Override
@@ -31,6 +37,17 @@ public class StreamDepTreebank extends DepTreebank {
 			private Sentence currentSentence;
 			
 			
+			private boolean isValidLine(String line){
+				
+				
+				if(line.startsWith("#")) return false;
+				String[]tab = line.split("\t");
+				if(tab[0].contains("-")){					
+					return false;				
+				}
+				return true;
+			}
+			
 			private Sentence readSentence() throws IOException{
 				List<Unit> units = new ArrayList<Unit>();
 				String line;
@@ -39,11 +56,26 @@ public class StreamDepTreebank extends DepTreebank {
 				}				
 				while(((line = reader.readLine())!=null) && (!line.isEmpty())){
 					//System.err.println("##"+line);
-					if(!isXConll){
-					    units.add(UnitFactory.createUnitFromConllString(line));
-					}
-					else{
-						units.add(UnitFactory.createUnitFromXConllString(line));
+					if(isValidLine(line)){
+						switch(readerType){
+						case CONLL:{
+							units.add(UnitFactory.createUnitFromConllString(line));
+							break;
+						}
+						case XCONLL:{
+							units.add(UnitFactory.createUnitFromXConllString(line));
+							break;
+						}
+						case CONLLU:{
+							units.add(UnitFactory.createUnitFromConlluString(line));
+							break;
+						}
+						default:{
+							throw new IllegalStateException(readerType+" is an unknown CONLL-like format");
+						}
+
+						}
+						
 					}
 					//System.err.println(line);
 				}

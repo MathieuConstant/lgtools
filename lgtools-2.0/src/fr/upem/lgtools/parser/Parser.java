@@ -23,6 +23,7 @@ import fr.upem.lgtools.text.BufferedDepTreebank;
 import fr.upem.lgtools.text.DepTreebank;
 import fr.upem.lgtools.text.DepTreebankFactory;
 import fr.upem.lgtools.text.StreamDepTreebank;
+import fr.upem.lgtools.text.StreamDepTreebank.ReaderType;
 
 public class Parser {
 	
@@ -48,7 +49,7 @@ public class Parser {
 
 	 public static DepTreebank readXConllTreebank(String filename,int size) throws FileNotFoundException{
 			BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(filename)));
-			DepTreebank gold = new BufferedDepTreebank(new StreamDepTreebank(reader,true));
+			DepTreebank gold = new BufferedDepTreebank(new StreamDepTreebank(reader,ReaderType.XCONLL));
 			if(size >= 0){
 				gold = DepTreebankFactory.limitSize(gold, size);
 			}
