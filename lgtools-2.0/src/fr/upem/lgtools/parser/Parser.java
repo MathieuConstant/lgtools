@@ -393,8 +393,7 @@ public class Parser {
 	
 	public static void main(String[] args) throws JSAPException, IOException {
 		Parameters parameters = new Parameters(args);
-		
-		
+			
 		
 		System.err.println("Model: "+parameters.model);
 		System.err.println("Train dataset: "+parameters.train);
