@@ -30,6 +30,8 @@ java -Xmx8g -cp classes:lib/JSAP-2.1.jar fr/upem/lgtools/parser/Parser -m _model
 - _output_ is the path of the output (parsed text)
 
 
-The tool also prints out evaluation score on the test data set.
+The tool also prints out evaluation score on the test data set:
+
+
 EVAL Fscore(MWE) Fscore(Fixed_MWE) Nan Nan UAS LAS
 
