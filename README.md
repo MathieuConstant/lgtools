@@ -7,7 +7,7 @@ Matthieu Constant and Joakim Nivre. 2016. A Transition-based System for Joint Le
 
 ## How to use the tool
 
-You need to download the JSAP-2.1 library.
+You first need to download the JSAP-2.1 library.
 
 For both training and parsing, the tool requires a conll file as input.
 It is necessary to have the 7th and 9th columns (HEAD) identical and 8th and 10th columns (LABEL) identical as well.
@@ -15,7 +15,7 @@ It is necessary to have the 7th and 9th columns (HEAD) identical and 8th and 10t
 
 ### Training  a model
 
-java -Xmx8g -cp classes:lib/JSAP-2.1.jar fr/upem/lgtools/parser/Parser -m _model_ -t _train-dataset_ -p
+java -Xmx8g -cp lgtools.jar:JSAP-2.1.jar fr/upem/lgtools/parser/Parser -m _model_ -t _train-dataset_ -p
 
 - _model_ is the path of the model you want to build
 - _train-dataset_ is the path of the training dataset in the conll format
@@ -23,7 +23,7 @@ java -Xmx8g -cp classes:lib/JSAP-2.1.jar fr/upem/lgtools/parser/Parser -m _model
 
 ### Parsing a text
 
-java -Xmx8g -cp classes:lib/JSAP-2.1.jar fr/upem/lgtools/parser/Parser -m _model_ -i _test-dataset_ -o _output_
+java -Xmx8g -cp lgtools.jar:JSAP-2.1.jar fr/upem/lgtools/parser/Parser -m _model_ -i _test-dataset_ -o _output_
 
 - _model_ is the path of the model to be applied
 - _test-dataset_ is the path of the input dataset to be tested
@@ -34,4 +34,5 @@ The tool also prints out evaluation score on the test data set:
 
 
 EVAL Fscore(MWE) Fscore(Fixed_MWE) Nan Nan UAS LAS
+
 
