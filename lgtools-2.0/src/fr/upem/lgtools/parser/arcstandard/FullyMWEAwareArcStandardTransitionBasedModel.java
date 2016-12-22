@@ -37,7 +37,9 @@ ArcStandardTransitionBasedParserModel{
 
 	public FullyMWEAwareArcStandardTransitionBasedModel(String filename)
 			throws IOException {
+		
 		super(filename);
+		
 	}
 
 
@@ -251,6 +253,10 @@ ArcStandardTransitionBasedParserModel{
 	@Override
 	protected Collection<Transition<DepTree>> createLabelIndependentTransitions() {
 		Collection<Transition<DepTree>> transitions = new LinkedList<Transition<DepTree>>();
+		if(!isProjective()){
+			//System.err.println("create SWAP HHH");
+		   transitions.add(createTransition(SWAP,null));
+		}
 		transitions.add(createTransition(SHIFT,null));
 		if(!hasImplicitCompleteTransition()){ 
 		    transitions.add(createTransition(COMPLETE,null));

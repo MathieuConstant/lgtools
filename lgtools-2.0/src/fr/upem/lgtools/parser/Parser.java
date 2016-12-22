@@ -252,6 +252,7 @@ public class Parser {
 				//spc.add(TreebankIO.saveInXConll("tmp.conll"));
 				spc.add(TreebankProcesses.mergeFixedMWEs());
 				spc.add(TreebankProcesses.mergeRegularMWEs());
+				spc.add(TreebankIO.saveInXConll("tmp1.conll"));
 				spc.add(TreebankProcesses.binarizeMWE(false));
 				spc.add(TreebankIO.saveInXConll("tmp.conll"));
 				
@@ -296,7 +297,7 @@ public class Parser {
 		     }
 		     else{
 		    	 if(parameters.implicitComplete){
-		    		 return new ImplicitCmpFullyMWEAwareArcStandardTransitionBasedModel(model);	 
+		    		 return new ImplicitCmpFullyMWEAwareArcStandardTransitionBasedModel(model,false);	 
 		    	 }
 		    	 else{
 		    		 return new BaselineFullyMWEAwareArcStandardTransitionBasedModel(model);	 
@@ -344,7 +345,7 @@ public class Parser {
 		//spc.add(TreebankEvaluations.computeSegmentationParsingScore());
 		
 		
-		
+		spc.add(TreebankIO.saveInXConll("out.conll"));
 		spc.add(TreebankProcesses.unmergeFixedMWE());
 		//spc.add(TreebankIO.saveInXConll("unmerge.conll"));
 		
@@ -403,6 +404,7 @@ public class Parser {
 		System.err.println("Iterations: "+parameters.iters);
 		System.err.println("Repeat:"+parameters.repeats);
 		System.err.println("Size: "+parameters.trainSize);
+		System.err.println("Projective: "+parameters.projective);
 		
 		if(parameters.train != null){
 			train(parameters);    

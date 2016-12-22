@@ -18,6 +18,7 @@ public class DepTree implements Analysis{
 	private DepArc[] rightMostDependencies;
 	private int[] links;
 	private Set<Integer>[] reverseLinks;
+	private Set<Unit> beingProcessed = new HashSet<Unit>();
 	
 	@SuppressWarnings("unchecked")
 	public DepTree(int size){
@@ -224,6 +225,16 @@ public class DepTree implements Analysis{
 			}
 		}
 		return true;
+	}
+
+	@Override
+	public boolean isBeingProcessed(Unit unit) {
+		return beingProcessed.contains(unit);
+	}
+
+	@Override
+	public void setAsBeingProcessed(Unit unit) {
+		beingProcessed.add(unit);
 	}
 	
 	

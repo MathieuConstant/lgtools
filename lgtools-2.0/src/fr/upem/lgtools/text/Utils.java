@@ -154,11 +154,28 @@ public static void writeSentenceInConll(BufferedWriter out,Sentence s) throws IO
 	
 	
 	
+	
+	
 	public static boolean isProjectiveSentence(Sentence sentence){
 		//Necessary condition: fixed MWEs must be contiguous
 		
+		
 		for(Unit u:sentence.getTokenSequence(true)){
 			int[] positions = u.getPositions();
+			//patch: some mwe u may not be fixed (because of stupid implementation that did not generalize for embeddings)
+			if(u.isRegularMWE(sentence,true)){
+				Unit c = null;
+				for(int i:positions){
+					c = sentence.get(i);
+					if(c.isFixedMWE(sentence, true)){
+						break;
+					}
+				}
+				positions = c.getPositions();
+			}
+			
+			
+			
 			Arrays.sort(positions);
 			int pos0 = positions[0];
 			for(int i = 1; i < positions.length ; i++){
@@ -166,6 +183,7 @@ public static void writeSentenceInConll(BufferedWriter out,Sentence s) throws IO
 				if(pos1 != pos0 + 1){
 					System.err.println("Sentence with non-contiguous fixed expressions");
 					System.err.println(u+"---"+Arrays.toString(positions));
+					System.err.println(sentence.getTokenSequence(true));
 					return false;
 				}
 				pos0 = pos1;
@@ -192,6 +210,7 @@ public static void writeSentenceInConll(BufferedWriter out,Sentence s) throws IO
 						  //System.err.println(u2+"--"+i2+" "+j2);
 						 //System.err.println(sentence);
 						System.err.println("Non projective sentence (class Utils)");
+						//System.err.println(sentence);
 								return false;
 					}
 					
@@ -200,6 +219,9 @@ public static void writeSentenceInConll(BufferedWriter out,Sentence s) throws IO
 			}
 
 		}
+		
+		
+		
 		return true;
 	}
 
@@ -301,6 +323,7 @@ public static void writeSentenceInConll(BufferedWriter out,Sentence s) throws IO
 	public static Map<Unit,Integer> getProjectiveOrderPositions(Sentence s){
 		 Map<Integer,Collection<Unit>> children = getGoldChildren(s);
 		 //System.err.println("ICI");
+		 //System.err.println("=="+s);
 		LinkedList<Unit> ordered = traverse(0,children,s); 
 		Map<Unit,Integer> positions = new HashMap<Unit, Integer>();
 		//System.err.println("="+ordered);
@@ -314,6 +337,30 @@ public static void writeSentenceInConll(BufferedWriter out,Sentence s) throws IO
 		 
 	}
 	
+	
+	//awful patch to deal with embedding
+	
+	public static Unit patchGetLexicalRoot(Sentence s,Unit initial, Unit current,boolean goldAnnotation){
+		if(current.isRegularMWE(s, goldAnnotation)){
+			//try to find the initial one in children
+			for(int i: current.getPositions()){
+				Unit v = s.get(i);
+				if(initial == v){
+					return v;
+				}
+			}
+			//if initial one not found, get first fixed one
+			for(int i: current.getPositions()){
+				Unit v = s.get(i);
+				if(v.isFixedMWE(s, goldAnnotation)){
+					return v;
+				}
+			}
+			
+		}
+		
+		return current;
+	}
 	
 	
 	public static List<Unit> getUnitSequence(boolean goldAnnotation, int sizeMax, Sentence s, Iterable<Unit> initialTokenList,boolean onlyFixedMwe){
@@ -334,6 +381,7 @@ public static void writeSentenceInConll(BufferedWriter out,Sentence s) throws IO
 				}
 				
 			}
+			r = patchGetLexicalRoot(s,u,r,goldAnnotation);
 			//System.err.println(u);
 			//System.err.println(r);
 			

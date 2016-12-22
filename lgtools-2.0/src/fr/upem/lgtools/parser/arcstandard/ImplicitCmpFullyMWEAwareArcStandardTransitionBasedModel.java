@@ -28,19 +28,12 @@ public class ImplicitCmpFullyMWEAwareArcStandardTransitionBasedModel
 	 * @param fm
 	 * @param tb
 	 */
-	public ImplicitCmpFullyMWEAwareArcStandardTransitionBasedModel(FeatureMapping fm, DepTreebank tb) {
-		super(fm, tb,true);
+	public ImplicitCmpFullyMWEAwareArcStandardTransitionBasedModel(FeatureMapping fm, DepTreebank tb,boolean isProjective) {
+		super(fm, tb,isProjective);
 		
 	}
 
-	/**
-	 * @param filename
-	 * @throws IOException
-	 */
-	public ImplicitCmpFullyMWEAwareArcStandardTransitionBasedModel(String filename) throws IOException {
-		super(filename);
-		
-	}
+	
 
 	public ImplicitCmpFullyMWEAwareArcStandardTransitionBasedModel(String filename, boolean withConstrainedMerge) throws IOException {
 		super(filename);
@@ -63,6 +56,12 @@ public class ImplicitCmpFullyMWEAwareArcStandardTransitionBasedModel
 		if(SHIFT.equals(type)){
 		    return new ShiftTransitionForFullSystem(SHIFT,withConstrainedMerge);
 		}
+		
+		if(SWAP.equals(type) && !isProjective()){
+			return new SwapTransition<DepTree>(SWAP);
+			
+		}
+		    
 		if(LEFT_ARC.equals(type)){
 			return new LeftArcTransitionWithImplicitComplete(LEFT_ARC, label);
 		}

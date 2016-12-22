@@ -81,6 +81,9 @@ public class SimpleConfiguration<T extends Analysis> implements Configuration<T>
 
    
    public int getProjectiveOrderPosition(Unit u){
+	   /*if(projectiveOrderPositions.get(u) == null){
+		   System.err.println("Proj Position "+u);
+	   }*/
 	   return projectiveOrderPositions.get(u);
    }
     

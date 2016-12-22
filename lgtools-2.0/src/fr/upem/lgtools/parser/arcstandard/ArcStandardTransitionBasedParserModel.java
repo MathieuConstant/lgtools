@@ -33,21 +33,27 @@ public class ArcStandardTransitionBasedParserModel extends
 	final String LEFT_ARC = "LA";
 	final String RIGHT_ARC = "RA";
 	final String SWAP = "SW";
-	final private boolean isProjective;
+
 	
 	public ArcStandardTransitionBasedParserModel(FeatureMapping fm,
 			DepTreebank tb,boolean isProjective) {
-		super(fm, tb);		
-		this.isProjective = isProjective;
+		super(fm, tb,isProjective);		
+		
 	}
 
 
+	
+	
+	
 
 	public ArcStandardTransitionBasedParserModel(String filename) throws IOException {
 		super(filename);
-		this.isProjective = false; //NOT TAKEN INTO ACCOUNT
 	}
 
+	
+	
+	
+	
 	/**
 	 * 
 	 * @param configuration
@@ -198,7 +204,7 @@ public class ArcStandardTransitionBasedParserModel extends
 		
 		//if SWAP is possible, then SWAP
 		
-		if(!isProjective){
+		if(!isProjective()){
 			if(swapIsRequired(configuration)){
 				//System.err.println("Oracle: RA+"+label);
 				
@@ -247,7 +253,7 @@ public class ArcStandardTransitionBasedParserModel extends
 		if(RIGHT_ARC.equals(type)){
 			return new RightArcTransition(RIGHT_ARC, label);
 		}
-		if(SWAP.equals(type) && !isProjective){
+		if(SWAP.equals(type) && !isProjective()){
 			return new SwapTransition<DepTree>(SWAP);
 		}
 		throw new IllegalStateException("Transition "+type + " is not allowed!");
@@ -260,7 +266,9 @@ public class ArcStandardTransitionBasedParserModel extends
 	protected Collection<Transition<DepTree>> createLabelIndependentTransitions() {
 		Collection<Transition<DepTree>> transitions = new LinkedList<Transition<DepTree>>();
 		transitions.add(createTransition(SHIFT,null));
-		if(!isProjective){
+		//System.err.println("create SH");
+		if(!isProjective()){
+			//System.err.println("create SWAP");
 		   transitions.add(createTransition(SWAP,null));
 		}
         return transitions;
@@ -270,7 +278,7 @@ public class ArcStandardTransitionBasedParserModel extends
 
 	@Override
 	public DepTreebank filter(DepTreebank tb) {
-		if(isProjective){
+		if(isProjective()){
 			return DepTreebankFactory.filterNonProjective(tb);
 		}
 		return DepTreebankFactory.filterOverlappingMWE(tb);

@@ -20,7 +20,7 @@ public abstract class ProjectiveTransitionBasedDependencyParserModel extends
 
 	public ProjectiveTransitionBasedDependencyParserModel(FeatureMapping fm,
 			DepTreebank tb) {
-		super(fm, tb);
+		super(fm, tb,true);
 		
 	}
 

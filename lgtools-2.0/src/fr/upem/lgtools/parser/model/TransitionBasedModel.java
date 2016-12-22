@@ -37,14 +37,21 @@ public abstract class TransitionBasedModel<T extends Analysis> {
 	private Model model;
 	protected final TransitionSet<T> transitions = new TransitionSet<T>();
 	private final FeatureExtractor<T> extractor;
+	private boolean isProjective;
 	
 	
 	
 	
+	
+	public boolean isProjective(){
+		//System.err.println("PROJ="+this.isProjective);
+		return this.isProjective;
+	}
 	
 	
 	// constructor used before training
-	public TransitionBasedModel(FeatureMapping fm,DepTreebank tb){
+	public TransitionBasedModel(FeatureMapping fm,DepTreebank tb,boolean isProjective){
+		this.isProjective = isProjective;
 		createTransitions(tb);
 		extractor = getFeatureExtractor(fm);
 		features = fm;

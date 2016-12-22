@@ -103,6 +103,7 @@ public class TransitionUtils {
 		for(Container stack:stacks){
 			stack.push(u);
 		}
+		configuration.getAnalyses().setAsBeingProcessed(u);
 
 		return configuration;
 	}

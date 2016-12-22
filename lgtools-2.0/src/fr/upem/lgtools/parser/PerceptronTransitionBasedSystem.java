@@ -11,6 +11,7 @@ import fr.upem.lgtools.parser.model.TransitionBasedModel;
 import fr.upem.lgtools.parser.transitions.Transition;
 import fr.upem.lgtools.text.DepTreebank;
 import fr.upem.lgtools.text.Sentence;
+import fr.upem.lgtools.text.Utils;
 
 /**
  * @author Mathieu
@@ -77,19 +78,24 @@ public class PerceptronTransitionBasedSystem<T extends Analysis> extends Transit
    			 stop = false;
    			 //System.err.println("#############################");
    			//System.err.println(gold.getTokenSequence(true));
-   			/* if(!Utils.isProjectiveSentence(c.getSentence())){
-   			     System.err.println("NON PROJECTIVE");
+   			 //if(!Utils.isProjectiveSentence(c.getSentence())){
+   				//System.err.println(gold.getTokenSequence(true));
+   			     //System.err.println("NON PROJECTIVE");
    			 //System.err.println(c.getProjectiveOrderPosition());
-   			 }*/
+   			 //}
    			 
    			 while(!c.isTerminal() && !stop){
    				 FeatureVector fv = tbm.extractFeatures(c);
    				 Transition<T> pt = tbm.getBestValidTransition(fv,c);
    				 Transition<T> ot = tbm.getBestCorrectTransition(fv,c);
-   				 /*if(ot == null){
+   				 
+   				 if(ot == null){
    					 System.err.println("Unknown transition due to SWAP in non-projective sentence?");
+   					System.err.println(gold.getTokenSequence(true));
    					 break;
-   				 }*/
+   				 }
+   				 
+   				//if(!Utils.isProjectiveSentence(c.getSentence())){
    				//System.err.println("CONF="+c);
    				//System.err.println("valid: "+tbm.getValidTransitions(c));
    				//System.err.println(c.getHistory());
@@ -97,6 +103,7 @@ public class PerceptronTransitionBasedSystem<T extends Analysis> extends Transit
    				//System.err.println(c.getAnalyses());
    				 
    				 //System.err.println("gold="+ot+"--predicted="+pt);
+   				//}
    				 
    				//System.err.println("PT "+pt);
    				//System.err.println("OT "+ot);

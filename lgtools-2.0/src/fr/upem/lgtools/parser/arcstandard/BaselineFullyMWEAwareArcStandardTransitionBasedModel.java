@@ -31,6 +31,7 @@ public class BaselineFullyMWEAwareArcStandardTransitionBasedModel extends FullyM
 	 */
 	public BaselineFullyMWEAwareArcStandardTransitionBasedModel(String filename) throws IOException {
 		super(filename);
+	
 	}
 	
 	@Override

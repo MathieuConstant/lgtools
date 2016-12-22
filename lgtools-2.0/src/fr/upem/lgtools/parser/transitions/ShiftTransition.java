@@ -28,9 +28,10 @@ public class ShiftTransition<T extends Analysis> extends AbstractTransition<T>{
 		Unit u = buffer.read();
 		Container stack = configuration.getFirstStack();
 		stack.push(u);
-		if(configuration.stackCount() >= 2){
+		if(configuration.stackCount() >= 2 && !configuration.getAnalyses().isBeingProcessed(u)){
 			Container lexstack = configuration.getSecondStack();
 			lexstack.push(u);
+			configuration.getAnalyses().setAsBeingProcessed(u);
 		}
 		return configuration;
 	}

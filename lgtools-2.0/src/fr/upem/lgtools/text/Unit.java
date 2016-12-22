@@ -404,6 +404,31 @@ public class Unit {
 	}
 
 	
+	public List<Integer> getTokenPositions(Sentence s){
+		ArrayList<Integer> list = new ArrayList<Integer>();
+		
+		if(positions.length == 1){
+			list.add(positions[0]);
+		}
+		else{
+		for(int i:positions){
+			
+				Unit u = s.get(i);
+				list.addAll(u.getTokenPositions(s));
+				//System.err.println(s);
+				
+				
+			}
+		
+		}
+		
+		
+		
+		return list;
+		
+	}
+	
+	
 	
 	public void addFeature(String att,String val){
 		feats.put(att, val);

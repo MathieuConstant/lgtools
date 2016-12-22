@@ -51,7 +51,7 @@ public class PipelineParser {
 		  tbp = new ArcStandardTransitionBasedParserModel(pmodel);
 		}
 		else{
-			tbp = new ImplicitCmpFullyMWEAwareArcStandardTransitionBasedModel(pmodel);
+			tbp = new ImplicitCmpFullyMWEAwareArcStandardTransitionBasedModel(pmodel,true);
 		}
 		parser = new PerceptronTransitionBasedSystem<DepTree>(tbp);
 		spc.add(TreebankProcesses.greedyParse(parser));

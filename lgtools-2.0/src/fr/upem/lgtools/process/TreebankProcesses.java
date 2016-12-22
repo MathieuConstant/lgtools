@@ -67,6 +67,20 @@ public class TreebankProcesses {
 	}
 
 
+	
+	private static List<Integer> getTokenPositions(int[] mwePositions, Sentence s){
+		List<Integer> list = new ArrayList<Integer>();
+		for(int i:mwePositions){
+			Unit u = s.get(i);
+			list.addAll(u.getTokenPositions(s));
+		}
+		return list;
+		
+	}
+	
+	
+	
+	
 
 	//for now, it only deals with MWE component positions and not POS of the MWE 
 
@@ -81,12 +95,21 @@ public class TreebankProcesses {
 
 	private static Unit mweUnitAlreadyExists(int[] mwePositions, Sentence s){
 		List<Unit> units = s.getMWUnits();
+		
+		//in order to deal with embeddings get token positions only
+		List<Integer> positions1 = getTokenPositions(mwePositions, s);
+		
+		
+		
+		
 		//System.err.println(units);
 		for(Unit u:units){
+			List<Integer> positions2 = u.getTokenPositions(s); 
 			//System.err.println(u);
-			//System.err.println("already "+Arrays.toString(u.getPositions()));
-			//System.err.println(Arrays.toString(mwePositions));
-			if(Arrays.equals(u.getPositions(), mwePositions)){
+			//System.err.println("already "+positions2);
+			//System.err.println(positions1);
+			
+			if(Arrays.equals(positions1.toArray(), positions2.toArray())){
 				return u;
 			}
 
@@ -118,11 +141,19 @@ public class TreebankProcesses {
 			}
 			i++;
 		}
+		List<Integer> posi = getTokenPositions(positions, s);
+		int[] positions2 = new int[posi.size()];
+		for(int k = 0 ; k < posi.size() ; k++){
+			positions2[k] = posi.get(k);
+		}
+		Arrays.sort(positions2);
 		Arrays.sort(positions);
 		
 		StringBuilder mweForm = new StringBuilder();
-		for(int c:positions){
+		StringBuilder mweLemma = new StringBuilder();
+		for(int c:positions2){
 			mweForm.append("_").append(s.get(c).getForm());
+			mweLemma.append("_").append(s.get(c).getLemma());
 		}
 
 		if(pos == null || pos.equals("")){
@@ -173,7 +204,8 @@ public class TreebankProcesses {
 				head.setPredictedLhead(mwe.getId());
 			}	
 		}
-		mwe.setLemma(concatenateLemmas(mwe, s)); //lemma 
+		//mwe.setLemma(concatenateLemmas(mwe, s)); //lemma
+		mwe.setLemma(mweLemma.substring(1));
 		//mwe.setLemma(s.get(mwe.getPositions()[0]).getLemma());  //MODIFY IF TEST FAILS
 	}
 
@@ -338,7 +370,8 @@ public class TreebankProcesses {
 	private static Map<Unit,List<Unit>> getRegularMWEs(Sentence res, boolean goldAnnotation,Map<Unit,String> mwePoses){
 		HashMap<Unit,List<Unit>> mwes = new HashMap<Unit, List<Unit>>();
 		//System.err.println(goldAnnotation);
-		for(Unit u:res.getTokens()){
+		
+		for(Unit u:res.getTokenSequence(goldAnnotation)){ //we assume the merging of fixed MWEs have been performed before
 			//System.err.println(u);
 			//System.err.println(u);
 			Unit r = findMWESyntacticHead(u,res,goldAnnotation);
@@ -378,11 +411,14 @@ public class TreebankProcesses {
 		
 		//System.err.println("HHH2");
 		//remove mwe label from syntactic labels
-		for(Unit u:res.getTokens()){
+		for(Unit u:res.getTokenSequence(true)){
 			modifyLabel(u, true);
-			modifyLabel(u, false);
-
 		}
+		
+		for(Unit u:res.getTokenSequence(false)){
+			modifyLabel(u, false);
+		}
+		
 		//System.err.println("HHH3");
 		//	add merged unit
 		addRegularMWEUnits(res,mwes,mwePoses,false);

@@ -24,8 +24,8 @@ public abstract class TransitionBasedDependencyParserModel extends
 		TransitionBasedModel<DepTree> {
 
 	public TransitionBasedDependencyParserModel(FeatureMapping fm,
-			DepTreebank tb) {
-		super(fm, tb);
+			DepTreebank tb,boolean isProjective) {
+		super(fm, tb,isProjective);
 		
 	}
 
