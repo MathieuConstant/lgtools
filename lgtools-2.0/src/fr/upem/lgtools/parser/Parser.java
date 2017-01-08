@@ -327,6 +327,10 @@ public class Parser {
 		
 		spc.add(TreebankProcesses.greedyParse(parser));
 		
+		if(parameters.baseline){
+		    spc.add(TreebankEvaluations.computeParsingAccuracy());
+		}
+		
 		spc.add(TreebankIO.saveInXConll("tmp.conll"));
 		
 		if(parameters.fixedMweOnly){
@@ -359,9 +363,9 @@ public class Parser {
 	   
 	   
 	    
-	   
+	   if(!parameters.baseline){
 	    spc.add(TreebankEvaluations.computeParsingAccuracy());
-	    
+	   }
 	    
 		
 		TreebankProcesses.processTreebank(tb, spc, eval);

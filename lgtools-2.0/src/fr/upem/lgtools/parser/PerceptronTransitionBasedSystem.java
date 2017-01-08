@@ -70,6 +70,9 @@ public class PerceptronTransitionBasedSystem<T extends Analysis> extends Transit
    		 int cnt = 0;
    		 int sent = 0;
    		 int total = 0;
+   		 int unkTransBug = 0;
+   		 int illegalStateBug = 0;
+   		 
    		 boolean stop = false;
    		 for(Sentence gold:tb.shuffle()){
    			 sent++;
@@ -92,7 +95,8 @@ public class PerceptronTransitionBasedSystem<T extends Analysis> extends Transit
    				 if(ot == null){
    					 System.err.println("Unknown transition due to SWAP in non-projective sentence?");
    					System.err.println(gold.getTokenSequence(true));
-   					 break;
+   					unkTransBug++; 
+   					break;
    				 }
    				 
    				//if(!Utils.isProjectiveSentence(c.getSentence())){
@@ -113,7 +117,15 @@ public class PerceptronTransitionBasedSystem<T extends Analysis> extends Transit
    				//System.err.println("COPY="+new Configuration<T>(c));
    				 if(pt.equals(ot)){ // true prediction
    					 //System.err.println("true="+ot);
-   					 c = pt.performAll(c); 
+   					 try{
+   					   c = pt.performAll(c);
+   					 }
+   					 catch(IllegalStateException e){
+   						System.err.println("Illegal state in parser due to embedding or conversion:");
+   	   					System.err.println(gold.getTokenSequence(true));
+   	   				illegalStateBug++;
+   	   					break;
+   					 }
    					 cnt++;
    				 }
    				 else{  //false prediction
@@ -122,8 +134,15 @@ public class PerceptronTransitionBasedSystem<T extends Analysis> extends Transit
    					 tbm.update(fv,ot,pt,averaged,step);
    					 stop = false;//early update if stop == true
    					 if(!stop){
+   						 try{
    					    c = ot.performAll(c);
-   					    
+   						 }
+   						 catch(IllegalStateException e){
+   						System.err.println("Illegal state in parser due to embedding or conversion:");
+   	   					System.err.println(gold.getTokenSequence(true));
+   	   				illegalStateBug++; 
+   	   					break;
+   					 }
    					 }
    				 }
    				
@@ -153,6 +172,7 @@ public class PerceptronTransitionBasedSystem<T extends Analysis> extends Transit
    		 System.err.println("Accuracy on training transition sequence: "+((double)cnt)/total+ "  ("+cnt+"/"+total+")");
    		 System.err.println("Ratio of activated features: "+tbm.getActivatedFeatureRatio());
 	       	 System.err.println("Number of sentences: "+sent);
+	       	 System.err.println("Sentences with bugs: "+unkTransBug+ " unknown trans. and "+ illegalStateBug + " illegal state bugs");
    	 }
    	 tbm.setModel(tbm.getAveragedModel(averaged,step));
    	 tbm.save(modelFilename+".final");
