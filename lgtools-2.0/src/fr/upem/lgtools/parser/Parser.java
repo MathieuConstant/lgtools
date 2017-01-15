@@ -329,42 +329,61 @@ public class Parser {
 		
 		if(parameters.baseline){
 		    spc.add(TreebankEvaluations.computeParsingAccuracy());
+		    if(parameters.output != null){
+				spc.add(TreebankIO.saveInConll(parameters.output));
+			}
+		}
+		else{
+			if(parameters.output != null){
+				//spc.add(TreebankProcesses.unbinarizeMWE(false));
+				//spc.add(TreebankIO.saveInXConll(parameters.output+".xconll"));
+			}
+			spc.add(TreebankProcesses.unbinarizeMWE(false));
+			
 		}
 		
-		spc.add(TreebankIO.saveInXConll("tmp.conll"));
+		//spc.add(TreebankIO.saveInXConll("tmp.conll"));
+		
+		
 		
 		if(parameters.fixedMweOnly){
 			spc.add(TreebankProcesses.removeRegularMWEs());//in case treebank contains regular MWEs
 			
 	    }
 		
-		spc.add(TreebankProcesses.unlabelMWEArcs());
+		//spc.add(TreebankProcesses.unlabelMWEArcs());
+		if(parameters.baseline){
+		   spc.add(TreebankProcesses.mergeFixedMWEs());
 		
-		spc.add(TreebankProcesses.mergeFixedMWEs());
-		
-		spc.add(TreebankProcesses.mergeRegularMWEs());
+		   spc.add(TreebankProcesses.mergeRegularMWEs());
+		}
 		
 		spc.add(TreebankEvaluations.computeSegmentationAccuracy(false));
 		spc.add(TreebankEvaluations.computeSegmentationAccuracy(true));
 		//spc.add(TreebankEvaluations.computeSegmentationParsingScore());
 		
 		
-		spc.add(TreebankIO.saveInXConll("out.conll"));
+		//spc.add(TreebankIO.saveInXConll("out.conll"));
 		spc.add(TreebankProcesses.unmergeFixedMWE());
 		//spc.add(TreebankIO.saveInXConll("unmerge.conll"));
 		
 		
 		
-		
+		/*
 		if(parameters.output != null){
 			spc.add(TreebankIO.saveInXConll(parameters.output));
 		}
-		
+		*/
 	   
 	   
 	    
 	   if(!parameters.baseline){
 	    spc.add(TreebankEvaluations.computeParsingAccuracy());
+	    
+		if(parameters.output != null){
+			spc.add(TreebankIO.saveInConll(parameters.output));
+		}
+		
 	   }
 	    
 		

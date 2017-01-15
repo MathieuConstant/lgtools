@@ -363,6 +363,7 @@ public static void writeSentenceInConll(BufferedWriter out,Sentence s) throws IO
 	}
 	
 	
+	
 	public static List<Unit> getUnitSequence(boolean goldAnnotation, int sizeMax, Sentence s, Iterable<Unit> initialTokenList,boolean onlyFixedMwe){
 		List<Unit> tokens = new ArrayList<Unit>();
 		boolean[] handled = new boolean[sizeMax+1];
