@@ -140,7 +140,10 @@ public abstract class SimpleMergeArcStandardTransitionBasedParserModel extends A
 			Unit r = unit.GetGoldLexicalParent(s);
 			
 			if(r != null){
-				//System.err.println(r+"=="+unit+ " --"+r.getPos());
+				/*if(r.getPos().equals("mwe")){
+				  System.err.println(r+"=="+unit+ " --"+r.getPos());
+				  System.err.println(s.getUnits());
+				}*/
 				return createTransition(MERGE, r.getPos());				
 			}
 		}

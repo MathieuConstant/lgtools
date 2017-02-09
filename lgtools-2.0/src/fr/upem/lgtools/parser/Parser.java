@@ -262,7 +262,7 @@ public class Parser {
 		else{
 			spc.add(TreebankProcesses.removeRegularMWEs());//in case treebank contains regular MWEs
 			//spc.add(TreebankProcesses.removeMwePosInLabels());  //put an option in case one wants to keep mwe pos label
-			
+			spc.add(TreebankIO.saveInXConll("tmp1.conll"));
 			
 			if(parameters.baseline){
 				spc.add(TreebankIO.saveInXConll("tmp.conll"));
