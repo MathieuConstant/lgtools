@@ -6,6 +6,7 @@ package fr.upem.lgtools.parser.arcstandard;
 import fr.upem.lgtools.parser.Configuration;
 import fr.upem.lgtools.parser.Container;
 import fr.upem.lgtools.parser.DepTree;
+import fr.upem.lgtools.parser.ExternalData;
 import fr.upem.lgtools.parser.features.FeatureExtractor;
 import fr.upem.lgtools.parser.features.FeatureMapping;
 import fr.upem.lgtools.parser.features.FeatureUtils;
@@ -40,7 +41,7 @@ public class DefaultFeatureExtractor implements FeatureExtractor<DepTree> {
     
 	
 	@Override
-	public FeatureVector perform(fr.upem.lgtools.parser.Configuration<DepTree> config) {
+	public FeatureVector perform(fr.upem.lgtools.parser.Configuration<DepTree> config, ExternalData data) {
 		FeatureVector feats = new FeatureVector(fm);
 		extract("",config, config.getFirstStack(),feats);
 		return feats;

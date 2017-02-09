@@ -46,7 +46,7 @@ public abstract class TransitionBasedSystem<T extends Analysis> {
     	 
      }
      
-     public T greedyParse(Sentence s){
+     public T greedyParse(Sentence s, ExternalData data){
     	initSentence(s);
  		Configuration<T> c = tbm.getInitialConfiguration(s,false);
  		//System.err.println(s.getTokens());
@@ -54,7 +54,7 @@ public abstract class TransitionBasedSystem<T extends Analysis> {
  		//System.err.println();
  		//System.err.println(s.getTokenSequence(false));
  		while(!c.isTerminal()){
- 			FeatureVector fv = tbm.extractFeatures(c);
+ 			FeatureVector fv = tbm.extractFeatures(c,data);
  			//System.err.println(c.getSentence().getUnits());
 			Transition<T> t = tbm.getBestValidTransition(fv,c);
 			//Transition<T> o = tbm.getBestCorrectTransition(fv,c);
@@ -127,7 +127,7 @@ public abstract class TransitionBasedSystem<T extends Analysis> {
      }
      
      
-     public ParseHypothesis<T> beamSearchParse(Sentence s, int k, boolean returnWhenFail){
+     public ParseHypothesis<T> beamSearchParse(Sentence s, int k, boolean returnWhenFail, ExternalData data){
     	 Configuration<T> c0 = tbm.getInitialConfiguration(s,false);
     	 ParseHypothesis<T> h0 = new ParseHypothesis<T>(c0, 0.0, new FeatureVector(tbm.getFeatures()),null,true,null);
     	 LinkedList<ParseHypothesis<T>> beam = new LinkedList<ParseHypothesis<T>>();
@@ -142,7 +142,7 @@ public abstract class TransitionBasedSystem<T extends Analysis> {
     		 for(ParseHypothesis<T> h:beam){
     			 //System.err.println("START="+h);
     			 Configuration<T> c = h.getConfiguration();
-    			 FeatureVector fv = tbm.extractFeatures(c);
+    			 FeatureVector fv = tbm.extractFeatures(c,data);
     			 Set<Transition<T>> transitions = tbm.getValidTransitions(c);
     			 //System.err.println(transitions);
     			 if(transitions.isEmpty()){
@@ -335,6 +335,6 @@ public ParsingResult beamSearchParseTreebankAndEvaluate(DepTreebank tb,final int
      }
      
   */   
- 	 abstract public void staticOracleTrain(DepTreebank tb, DepTreebank dev, String modelFilename, int iterations) throws IOException;
- 	 abstract void inexactSearchTrain(DepTreebank tb, DepTreebank dev, String modelFilename, int iterations, int beamSize) throws IOException;
+ 	 abstract public void staticOracleTrain(DepTreebank tb, DepTreebank dev, String modelFilename, int iterations, ExternalData data) throws IOException;
+ 	 abstract void inexactSearchTrain(DepTreebank tb, DepTreebank dev, String modelFilename, int iterations, int beamSize, ExternalData data) throws IOException;
 }

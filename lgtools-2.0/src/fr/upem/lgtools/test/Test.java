@@ -5,6 +5,7 @@ import java.io.IOException;
 import fr.upem.lgtools.evaluation.Evaluation;
 import fr.upem.lgtools.evaluation.SimpleEvaluation;
 import fr.upem.lgtools.parser.DepTree;
+import fr.upem.lgtools.parser.ExternalData;
 import fr.upem.lgtools.parser.Parser;
 import fr.upem.lgtools.parser.PerceptronTransitionBasedSystem;
 import fr.upem.lgtools.parser.TransitionBasedSystem;
@@ -39,9 +40,10 @@ public class Test {
 		TransitionBasedSystem<DepTree> parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
 		SimpleEvaluation eval =new SimpleEvaluation();
 		SentenceProcessComposition spc = new SentenceProcessComposition();
+		
 
 		
-		spc.add(TreebankProcesses.greedyParse(parser)); 
+		spc.add(TreebankProcesses.greedyParse(parser, new ExternalData(null))); 
 		spc.add(TreebankIO.saveInXConll("tmp.conll"));
 		spc.add(TreebankProcesses.unbinarizeMWE(false));
         spc.add(TreebankProcesses.unlabelMWEArcs());

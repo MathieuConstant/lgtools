@@ -25,7 +25,7 @@ public class PerceptronTransitionBasedSystem<T extends Analysis> extends Transit
 
 	
 	@Override
-	public void inexactSearchTrain(DepTreebank tb, DepTreebank dev, String modelFilename, int iterations, int k) throws IOException{
+	public void inexactSearchTrain(DepTreebank tb, DepTreebank dev, String modelFilename, int iterations, int k, ExternalData data) throws IOException{
 		tb = tbm.filter(tb);
 	   	 Model averaged = new Model(tbm.getFeatureCount(),tbm.getLabelCount());
 	   	int step = 1;
@@ -38,7 +38,7 @@ public class PerceptronTransitionBasedSystem<T extends Analysis> extends Transit
 	   		for(Sentence gold:tb.shuffle()){
 	   			sent++;
 	   			if(sent % 1000 == 0){System.err.println("Processed "+ sent+ " sentences");}
-	   			ParseHypothesis<T> hyp = beamSearchParse(gold, k, true);
+	   			ParseHypothesis<T> hyp = beamSearchParse(gold, k, true, data);
 	   			System.err.println("Result parse:");
 	   			System.err.println(hyp);
 	   			if(!hyp.isGold()){
@@ -60,7 +60,8 @@ public class PerceptronTransitionBasedSystem<T extends Analysis> extends Transit
 	
 	
 	@Override
-	public void staticOracleTrain(DepTreebank tb, DepTreebank dev, String modelFilename, int iterations) throws IOException{
+	public void staticOracleTrain(DepTreebank tb, DepTreebank dev, String modelFilename, int iterations, ExternalData data) throws IOException{
+	 
    	 tb = tbm.filter(tb);
    	 Model averaged = new Model(tbm.getFeatureCount(),tbm.getLabelCount());
    	 System.err.println(tbm.getTransitions());
@@ -88,7 +89,7 @@ public class PerceptronTransitionBasedSystem<T extends Analysis> extends Transit
    			 //}
    			 
    			 while(!c.isTerminal() && !stop){
-   				 FeatureVector fv = tbm.extractFeatures(c);
+   				 FeatureVector fv = tbm.extractFeatures(c,data);
    				 Transition<T> pt = tbm.getBestValidTransition(fv,c);
    				 Transition<T> ot = tbm.getBestCorrectTransition(fv,c);
    				 

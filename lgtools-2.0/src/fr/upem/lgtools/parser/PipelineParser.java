@@ -29,9 +29,10 @@ public class PipelineParser {
 		TransitionBasedSystem<DepTree> parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
 		SimpleEvaluation eval =new SimpleEvaluation();
 		SentenceProcessComposition spc = new SentenceProcessComposition();
+		ExternalData data = new ExternalData(null);
 
 		
-		spc.add(TreebankProcesses.greedyParse(parser)); 
+		spc.add(TreebankProcesses.greedyParse(parser,data)); 
 		spc.add(TreebankProcesses.unbinarizeMWE(false));
         spc.add(TreebankProcesses.unlabelMWEArcs());
 		
@@ -54,7 +55,7 @@ public class PipelineParser {
 			tbp = new ImplicitCmpFullyMWEAwareArcStandardTransitionBasedModel(pmodel,true);
 		}
 		parser = new PerceptronTransitionBasedSystem<DepTree>(tbp);
-		spc.add(TreebankProcesses.greedyParse(parser));
+		spc.add(TreebankProcesses.greedyParse(parser,data));
 		spc.add(TreebankProcesses.unbinarizeMWE(false));
 		spc.add(TreebankIO.saveInXConll("raw.xconll"));
 		

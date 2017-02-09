@@ -31,6 +31,8 @@ public class Parameters {
 	private static final String BASELINE = "baseline";
 	private static final String XCONLL_INPUT = "xconll";
 	
+	private static final String EXTERNAL_OPT = "external";
+	
 	public int iters;
 	public int modelSize;
 	public int trainSize;
@@ -47,6 +49,7 @@ public class Parameters {
 	public boolean baseline;
 	public boolean projective;
 	public boolean xconll;
+	public String external;
 	
 	
 	
@@ -62,6 +65,7 @@ public class Parameters {
 		output = config.getString(OUTPUT_OPT);
 		model = config.getString(MODEL_OPT);
 		train = config.getString(TRAIN_OPT);
+		external = config.getString(EXTERNAL_OPT);
 		trainSize = config.getInt(TRAINSIZE_OPT);
 		iters = config.getInt(ITER_OPT);
 		modelSize = config.getInt(MODEL_SIZE_OPT);
@@ -212,6 +216,16 @@ public class Parameters {
 		opt.setDefault("1");
 		opt.setHelp("Number of times experiment is repeated (default: 1)");
 		jsap.registerParameter(opt);
+		
+		opt = new FlaggedOption(EXTERNAL_OPT)
+				.setStringParser(JSAP.STRING_PARSER)
+				.setRequired(false)
+				.setLongFlag(EXTERNAL_OPT);
+				opt.setHelp("Path of external resource file");
+				jsap.registerParameter(opt);
+		
+		
+		
 		return jsap;
 	}
 	

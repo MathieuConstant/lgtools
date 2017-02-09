@@ -4,8 +4,9 @@ projective=""
 dir="treebanks-mwe17/v0"
 #dir="strict_ve_vd"
 #mdir="models-mwe17"
-mdir="models"
-outdir="outputs-mwe17"
+mdir="tmp"
+#outdir="outputs-mwe17"
+outdir="tmp"
 #for mwedef in va vb vc
 
 

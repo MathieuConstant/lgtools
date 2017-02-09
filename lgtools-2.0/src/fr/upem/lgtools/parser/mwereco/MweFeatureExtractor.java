@@ -8,6 +8,7 @@ package fr.upem.lgtools.parser.mwereco;
 import fr.upem.lgtools.parser.Configuration;
 import fr.upem.lgtools.parser.Container;
 import fr.upem.lgtools.parser.DepTree;
+import fr.upem.lgtools.parser.ExternalData;
 import fr.upem.lgtools.parser.features.FeatureExtractor;
 import fr.upem.lgtools.parser.features.FeatureMapping;
 import fr.upem.lgtools.parser.features.FeatureUtils;
@@ -79,7 +80,7 @@ public class MweFeatureExtractor implements FeatureExtractor<DepTree> {
 	
 	
 	@Override
-	public FeatureVector perform(Configuration<DepTree> configuration) {
+	public FeatureVector perform(Configuration<DepTree> configuration, ExternalData data) {
 		FeatureVector feats = new FeatureVector(featureMapping);
 		//extractLexicalFeatures(configuration, feats);
 		extract(configuration, feats);

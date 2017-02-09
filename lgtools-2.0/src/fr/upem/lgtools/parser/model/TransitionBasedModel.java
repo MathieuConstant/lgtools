@@ -14,6 +14,7 @@ import java.util.zip.GZIPOutputStream;
 
 import fr.upem.lgtools.parser.Analysis;
 import fr.upem.lgtools.parser.Configuration;
+import fr.upem.lgtools.parser.ExternalData;
 import fr.upem.lgtools.parser.TransitionSet;
 import fr.upem.lgtools.parser.features.FeatureExtractor;
 import fr.upem.lgtools.parser.features.FeatureMapping;
@@ -212,8 +213,8 @@ public abstract class TransitionBasedModel<T extends Analysis> {
 	}
 	
 	
-	public FeatureVector extractFeatures(Configuration<T> configuration){
-		return extractor.perform(configuration);
+	public FeatureVector extractFeatures(Configuration<T> configuration,ExternalData data){
+		return extractor.perform(configuration,data);
 	}
 
 	

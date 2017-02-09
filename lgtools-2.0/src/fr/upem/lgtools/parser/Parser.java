@@ -239,7 +239,7 @@ public class Parser {
 		}
 		  SentenceProcessComposition spc = new SentenceProcessComposition();
 		  spc.add(TreebankProcesses.copyGold());
-		  spc.add(TreebankIO.saveInXConll("tmpx.conll"));
+		  //spc.add(TreebankIO.saveInXConll("tmpx.conll"));
 		if(!parameters.fixedMweOnly){
 			//trainFullSystem(parameters.train, parameters.model, parameters.iters, -1, true);
 			if(parameters.baseline){
@@ -252,9 +252,9 @@ public class Parser {
 				//spc.add(TreebankIO.saveInXConll("tmp.conll"));
 				spc.add(TreebankProcesses.mergeFixedMWEs());
 				spc.add(TreebankProcesses.mergeRegularMWEs());
-				spc.add(TreebankIO.saveInXConll("tmp1.conll"));
+				//spc.add(TreebankIO.saveInXConll("tmp1.conll"));
 				spc.add(TreebankProcesses.binarizeMWE(false));
-				spc.add(TreebankIO.saveInXConll("tmp.conll"));
+				//spc.add(TreebankIO.saveInXConll("tmp.conll"));
 				
 			}
 			
@@ -262,17 +262,17 @@ public class Parser {
 		else{
 			spc.add(TreebankProcesses.removeRegularMWEs());//in case treebank contains regular MWEs
 			//spc.add(TreebankProcesses.removeMwePosInLabels());  //put an option in case one wants to keep mwe pos label
-			spc.add(TreebankIO.saveInXConll("tmp1.conll"));
+			//spc.add(TreebankIO.saveInXConll("tmp1.conll"));
 			
 			if(parameters.baseline){
-				spc.add(TreebankIO.saveInXConll("tmp.conll"));
+				//spc.add(TreebankIO.saveInXConll("tmp.conll"));
 				
 				
 			}
 			else{
 				spc.add(TreebankProcesses.mergeFixedMWEs());
 				spc.add(TreebankProcesses.binarizeMWE(false));
-				spc.add(TreebankIO.saveInXConll("tmp.conll"));
+				//spc.add(TreebankIO.saveInXConll("tmp.conll"));
 				
 				
 				
@@ -310,7 +310,7 @@ public class Parser {
 		
 	}
 	
-	private static Evaluation simpleParse(Parameters parameters, String model) throws IOException{
+	private static Evaluation simpleParse(Parameters parameters, String model, ExternalData data) throws IOException{
 		
 		DepTreebank tb;
 		if(parameters.xconll){
@@ -325,7 +325,7 @@ public class Parser {
 		SentenceProcessComposition spc = new SentenceProcessComposition();
 
 		
-		spc.add(TreebankProcesses.greedyParse(parser));
+		spc.add(TreebankProcesses.greedyParse(parser,data));
 		
 		if(parameters.baseline){
 		    spc.add(TreebankEvaluations.computeParsingAccuracy());
@@ -394,12 +394,13 @@ public class Parser {
 	
 	
 	private static void parse(Parameters parameters) throws IOException{
+		ExternalData data = new ExternalData(parameters.external);
 		if(parameters.repeats > 1){
 			MultipleEvaluation meval = new MultipleEvaluation();
 		   
 			   for(int i = 0 ; i < parameters.repeats ; i++){
 				   System.err.println("Parsing model "+i);
-				   Evaluation eval = simpleParse(parameters, parameters.model+"-"+i+".final");
+				   Evaluation eval = simpleParse(parameters, parameters.model+"-"+i+".final",data);
 				   meval.add(eval);
 				    
 			   }
@@ -409,7 +410,7 @@ public class Parser {
 		}
 		else{
 			System.err.println(parameters.model);
-			System.out.println(simpleParse(parameters, parameters.model+".final"));
+			System.out.println(simpleParse(parameters, parameters.model+".final",data));
 		}
 		
 	}
@@ -428,6 +429,7 @@ public class Parser {
 		System.err.println("Repeat:"+parameters.repeats);
 		System.err.println("Size: "+parameters.trainSize);
 		System.err.println("Projective: "+parameters.projective);
+		System.err.println("External resource: "+parameters.external);
 		
 		if(parameters.train != null){
 			train(parameters);    

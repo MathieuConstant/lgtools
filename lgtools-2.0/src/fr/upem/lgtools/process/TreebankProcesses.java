@@ -19,6 +19,7 @@ import fr.upem.lgtools.evaluation.SimpleEvaluation;
 import fr.upem.lgtools.parser.Analysis;
 import fr.upem.lgtools.parser.Constants;
 import fr.upem.lgtools.parser.DepTree;
+import fr.upem.lgtools.parser.ExternalData;
 import fr.upem.lgtools.parser.Parameters;
 import fr.upem.lgtools.parser.PerceptronTransitionBasedSystem;
 import fr.upem.lgtools.parser.TransitionBasedSystem;
@@ -1091,13 +1092,13 @@ public class TreebankProcesses {
 	   }
 	
 	
-   public static <T extends Analysis> SentenceProcess greedyParse(final TransitionBasedSystem<T> parser){
+   public static <T extends Analysis> SentenceProcess greedyParse(final TransitionBasedSystem<T> parser, final ExternalData data){
 	   return new AbstractSentenceProcess() {
 		
 		@Override
 		public Sentence apply(Sentence s, SimpleEvaluation eval) {
 			//System.err.println(s.getTokenSequence(false));
-			T analysis = parser.greedyParse(s);
+			T analysis = parser.greedyParse(s,data);
 			//System.err.println(s.getTokenSequence(false));
 			parser.getModel().updateSentenceAfterAnalysis(s,analysis); 
  			//System.err.println(s.getTokenSequence(false));
@@ -1169,7 +1170,7 @@ public class TreebankProcesses {
 		FeatureMapping fm = new  HashFeatureMapping(1000000);
 		MweRecognizerModel tbm = new MweRecognizerModel(fm, res);
 		TransitionBasedSystem<DepTree> parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
-		parser.staticOracleTrain(res,null, model,iter);	
+		parser.staticOracleTrain(res,null, model,iter, new ExternalData(null));	
 		mod.endProcess();
 		
 	}
@@ -1209,7 +1210,7 @@ public class TreebankProcesses {
 			}
 		}
 		TransitionBasedSystem<DepTree> parser = new PerceptronTransitionBasedSystem<DepTree>(tbm);
-		parser.staticOracleTrain(res,null, param.model,param.iters);	
+		parser.staticOracleTrain(res,null, param.model,param.iters, new ExternalData(param.external));	
 		mod.endProcess();
 	}
 	

@@ -8,6 +8,7 @@ package fr.upem.lgtools.parser.arcstandard;
 import fr.upem.lgtools.parser.Configuration;
 import fr.upem.lgtools.parser.Container;
 import fr.upem.lgtools.parser.DepTree;
+import fr.upem.lgtools.parser.ExternalData;
 import fr.upem.lgtools.parser.features.FeatureMapping;
 import fr.upem.lgtools.parser.features.FeatureUtils;
 import fr.upem.lgtools.parser.features.FeatureVector;
@@ -177,7 +178,7 @@ public class FullDefaultFeatureExtractor extends DefaultFeatureExtractor {
 	
 	
 	@Override
-	public FeatureVector perform(Configuration<DepTree> configuration) {
+	public FeatureVector perform(Configuration<DepTree> configuration, ExternalData data) {
 		FeatureVector feats = new FeatureVector(fm);
 		/*Deque<Unit> stack = configuration.getFirstStack();
 		Buffer b = configuration.getFirstBuffer();

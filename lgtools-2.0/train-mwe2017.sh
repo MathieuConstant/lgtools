@@ -2,7 +2,7 @@ baseline="-F"
 projective=""
 dir="treebanks-mwe17/correctedpos"
 #dir="strict_ve_vd"
-mdir="models-mwe17"
+mdir="tmp"
 #for mwedef in va vb vc
 
 # for vd.correctedpos* need for training with -F as well
@@ -10,11 +10,13 @@ mdir="models-mwe17"
 #for mwedef in va.correctedpos vb.correctedpos vc.correctedpos vd.correctedpos.strict vd.correctedpos
 for mwedef in vd.correctedpos.strict vd.correctedpos
 do
-for lang in es_ancora nl_lassysmall sv ca fa
+#for lang in es_ancora nl_lassysmall sv ca fa
+
+for lang in fa
 do
 for i in `ls ../$dir/${lang}_train_${mwedef}.conll`
 do
-for baseline in "-F"
+for baseline in "-B" ""
 do 
 
   echo $i
